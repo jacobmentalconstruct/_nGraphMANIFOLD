@@ -1,0 +1,215 @@
+# Structured rule index for builder planning.
+# Source of truth: _docs/builder_constraint_contract.md
+# This index is checkable planning metadata, not a replacement for the contract.
+
+schema_version: "1.0"
+status: active
+source_contract: "_docs/builder_constraint_contract.md"
+last_compiled: "2026-04-21"
+
+authority:
+  contract_is_prime_directive: true
+  conflict_resolution: "contract_wins"
+  user_override_required_for_material_deviation: true
+  decision_priority:
+    - correctness_structural_integrity_maintainability
+    - contract_compliance_bounded_architecture
+    - real_user_intent
+    - clean_effective_implementation
+    - token_efficient_repeatable_workflows
+    - surface_preferences_when_safe
+
+constraint_field:
+  preserve_across_turns: true
+  includes:
+    - builder_constraint_contract
+    - active_architecture_doctrine
+    - app_journal_builder_memory
+    - tranche_boundaries
+    - explicit_non_goals
+    - subsystem_doctrines
+
+boundaries:
+  write_domain:
+    normal_scope: project_root
+    docs_root: "_docs"
+    root_allowed_docs:
+      - "README.md"
+      - "LICENSE.md"
+    external_write_requires_user_approval: true
+  forbidden_runtime_coupling:
+    - sibling_projects
+    - ".parts"
+    - ".dev-tools"
+    - "_PARTS"
+    - "_dev_tools"
+    - sandbox_reference_folders
+  reference_sources:
+    allowed_for_read_reference:
+      - ".parts"
+      - ".dev-tools"
+      - "_PARTS"
+      - "_dev_tools"
+      - "_docs"
+    may_be_runtime_dependency: false
+    incorporated_logic_must_be_rehomed: true
+
+required_layout:
+  canonical:
+    app_entry: "src/app.py"
+    ui_root: "src/ui"
+    core_root: "src/core"
+    docs_root: "_docs"
+    readme: "README.md"
+    license: "LICENSE.md"
+    requirements: "requirements.txt"
+    setup_script: "setup_env.bat"
+    run_script: "run.bat"
+  approved_top_level_examples:
+    - "tests"
+    - "assets"
+    - "logs"
+    - "data"
+    - "scripts"
+    - "config"
+  new_top_level_folder_requires:
+    - real_structural_need
+    - unclear_fit_in_existing_scaffold
+    - stable_domain_boundary
+
+ownership:
+  default_rule: single_domain_components
+  unclear_owner_action:
+    - split_component
+    - relocate_to_owner
+    - defer_until_owner_is_clear
+  manager:
+    role: narrow_coordination
+    normal_domain_limit: 2
+    fringe_domain_limit: 3
+    must_not_absorb_full_domain_logic: true
+  orchestrator:
+    allowed_alignments:
+      - ui_side
+      - core_side
+    free_floating_project_wide_authority_allowed: false
+  anti_patterns:
+    - catch_all_files
+    - mixed_ui_and_business_logic
+    - storage_and_rendering_in_same_owner
+    - orchestration_and_deep_domain_logic_in_same_owner
+    - permanent_bridge_as_ownership_excuse
+
+runtime_graph:
+  approved_when_blueprint_calls_for_it: true
+  composition_root: "src/app.py"
+  prototype_nodes:
+    - Message
+    - GraphNode
+    - GraphEngine
+    - SQLiteLogger
+  state_rules:
+    app_global_state_rooted_under_app_authority: true
+    nodes_hold_narrow_local_state: true
+    shared_state_explicitly_owned: true
+    arbitrary_mutable_dumping_ground_allowed: false
+  routing:
+    message_traversal_preferred: true
+    declared_routes_required: true
+    broad_peer_to_peer_sprawl_allowed: false
+  ledger:
+    sqlite_append_only_dispatch_trace_allowed: true
+    call_full_event_sourcing_only_if_replay_snapshot_reducer_schema_exist: true
+
+sourcing:
+  preferred_order:
+    - original_implementation
+    - bounded_rewrite_from_reference
+    - narrow_structured_extraction
+    - larger_transplant_under_exception
+  borrowed_logic_requires:
+    - functional_necessity
+    - rewrite_materially_risky
+    - smallest_viable_unit
+    - rehomed_into_project
+    - ownership_and_cleanup
+    - provenance_record
+    - journal_note_for_meaningful_change
+  transplant_exception_examples:
+    - customized_mathematics
+    - fragile_specialized_logic
+    - tightly_interdependent_components
+
+tools:
+  local_tools_encouraged_when:
+    - repeated_task
+    - token_efficiency
+    - reliability
+  reusable_tool_requirements:
+    - cli_accessible
+    - project_local_effect_by_default
+    - documented_under_docs_when_project_tool
+    - journal_entry_for_meaningful_tooling
+  helper_model_limits:
+    preferred_max_parameters: "about_4B"
+    preferred_max_context_tokens: "about_4k"
+
+code_quality:
+  logging:
+    app_print_debugging_allowed: false
+    proper_logging_required: true
+  graceful_failure_required: true
+  central_configuration_preferred: true
+  hidden_globals_allowed: false
+  unexplained_magic_constants_allowed: false
+  typing_preferred_when_structural_contracts_matter: true
+  testing_required_for_meaningful_logic: true
+  temporary_task_checklists_encouraged: true
+  documentation_balance: enough_to_orient_not_bloat
+
+cleanup:
+  active_duty_to_clean_temporary_debris: true
+  conservative_delete_only: true
+  delete_requires_reasonable_basis:
+    - temporary
+    - obsolete
+    - unused
+    - replaced
+    - disposable
+  uncertain_items_action:
+    - preserve
+    - move_to_marked_holding_area_if_appropriate
+    - record_cleanup_candidate_in_journal
+
+reporting:
+  journal_required_after_meaningful_phase: true
+  journal_location:
+    app_dir: "_docs/_AppJOURNAL"
+    db: "_docs/_journalDB/app_journal.sqlite3"
+  journal_entry_should_record:
+    - date_time
+    - meaningful_identifier
+    - files_changed
+    - concise_summary
+    - implementation_notes
+    - testing_summary
+    - deferred_work_or_risks
+  backlog_surface: app_journal
+
+planning_check:
+  required_questions:
+    - "What is the current tranche?"
+    - "What is explicitly in scope?"
+    - "What is explicitly out of scope?"
+    - "Which ownership domains are affected?"
+    - "Does the change stay inside the project write boundary?"
+    - "Does any reference logic require provenance?"
+    - "What verification is needed?"
+    - "What journal update is needed?"
+  approval_gates:
+    - structural_deviation
+    - external_write_scope
+    - new_runtime_dependency
+    - broad_transplant
+    - uncertain_deletion
+    - new_top_level_folder_without_clear_domain

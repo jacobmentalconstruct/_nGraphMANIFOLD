@@ -1,0 +1,80 @@
+# nGraphMANIFOLD local/generated surfaces
+#
+# Assets and generated data are ignored until licensing/distribution policy is
+# settled. Keep source, tests, and project documentation trackable.
+
+# Project asset/corpus inputs
+/assets/
+
+# Generated runtime data and inspection artifacts
+/data/
+/_logs/
+/_docs/_journalDB/
+/_docs/_AppJOURNAL/
+
+# Local reference/tool sidecars and hidden environment folders
+/.parts/
+/.dev-tools/
+/.venv/
+.*/
+!.gitignore
+!.gitattributes
+!.editorconfig
+!.github/
+!.github/**
+
+# Local archives and backups
+*.7z
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.bak
+*.backup
+*.tmp
+*.temp
+*~
+
+# Python caches and build output
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.env
+.env.*
+!.env.example
+
+# Logs and local diagnostics
+*.log
+*.trace
+*.pid
+
+# Local databases / generated cartridges outside /data
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# Editor and OS noise
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+.idea/
+.vscode/
