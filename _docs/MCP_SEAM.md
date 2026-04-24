@@ -1,6 +1,6 @@
 # MCP Usefulness Seam
 
-_Status: Thin contract plus shared command spine pilot complete_
+_Status: Thin contract plus local host bridge complete_
 
 This document records the Phase 8 MCP seam. It is subordinate to
 `builder_constraint_contract.md` and does not declare a full MCP server.
@@ -30,6 +30,10 @@ Runtime owner:
 - `src/core/coordination/builder_task_scoring.py`
 - `src/core/coordination/history_inspector.py`
 - `src/core/coordination/seed_search.py`
+- `src/core/coordination/host_workspace.py`
+- `src/core/coordination/host_bridge.py`
+- `src/ui/mcp_inspector.py`
+- `src/ui/gui_main.py`
 
 The seam provides:
 
@@ -144,6 +148,87 @@ The capture preserves:
 SemanticObject projection adapters exist for command and result envelopes, but
 this tranche does not persist interaction events into semantic cartridges.
 
+## Shared Host State Spine
+
+The desktop host now has a coordination-owned live state model:
+
+- recent command/result objects
+- active projection and `selected_flow`
+- active seed flow
+- latest builder score summary
+- latest projection score summary
+- active interaction object
+- raw payload cache for current panes
+
+The durable ledger is still:
+
+- `data/mcp_inspection/history.sqlite3`
+- `data/mcp_inspection/builder_task_scores.json`
+- `data/mcp_inspection/context_projection_scores.json`
+
+The host snapshot is an in-process working set for the UI, not a new truth
+store.
+
+Shared dispatcher ownership:
+
+- `project-query`
+- `mcp-search-seeds`
+- `mcp-history-view`
+- `mcp-stream`
+- `mcp-cockpit`
+
+All of these now normalize through one coordination-owned dispatcher before
+their payloads are shown in the host workspace.
+
+## Local Host Bridge
+
+The seam now includes a bounded local host bridge for separate-process session
+control without introducing a network server.
+
+Bridge state is project-owned:
+
+```text
+data/host_bridge/session.json
+data/host_bridge/requests/
+data/host_bridge/responses/
+```
+
+The UI host publishes a live bridge session while `python -m src.app ui` is
+open and heartbeats that session through the normal Tk event loop.
+
+The first bridge-enabled commands are:
+
+- `project-query`
+- `mcp-search-seeds`
+
+Opt-in CLI usage:
+
+```bat
+python -m src.app project-query --query "class object function" --use-host-bridge
+python -m src.app mcp-search-seeds --query "Current Park Point" --use-host-bridge
+```
+
+These calls reuse the existing canonical `CommandEnvelope` shape. They do not
+invent a second command language for cross-process control.
+
+The bridge is intentionally:
+
+- local
+- file-backed
+- inspectable
+- stdlib-only
+- bounded to approved commands
+
+It is not:
+
+- a network service
+- a websocket layer
+- a real MCP server
+- a new truth store
+
+The next seam pressure is not "more transport." It is how the current bridge
+stays bounded and inspectable as the project enters post-prototype hardening.
+
 ## Persistent Inspection History
 
 Registered tool calls are now persisted in a project-owned SQLite history store:
@@ -162,6 +247,19 @@ The history stores:
 - aggregate score
 - raw call/capture JSON
 
+This history is now important enough that the project needs an explicit
+retention/pruning policy. The intended direction is a rolling-trace model:
+
+- Active Reasoning:
+  - recent interaction captures kept for live inspection and current session
+    legibility
+- Durable Evidence:
+  - accepted score artifacts, journaled decisions, and any later
+    intentionally-promoted captures
+
+That policy is not implemented yet in this document. It is the next hardening
+decision so the history store does not become an infinite junk drawer.
+
 For `ngraph.project.query`, history summaries also include selected projection
 layer and candidate count when available.
 
@@ -176,6 +274,24 @@ Headless history view:
 ```bat
 python -m src.app mcp-history --dump-json
 ```
+
+## Surface Ownership In The Hardening Phase
+
+The seam now has enough visibility surfaces that ownership needs to be stated
+plainly:
+
+- host workspace:
+  - the main live operator surface over the shared in-process host snapshot
+- stream:
+  - the sliding recent interaction window
+- cockpit:
+  - the compact shared registry for latest scores, latest projection, latest
+    seed flow, and recent stream state
+- history view:
+  - the deeper provenance access surface over persisted inspection records
+
+The next hardening work should preserve these roles rather than letting
+multiple surfaces drift into saying the same thing differently.
 
 ## Usefulness Scoring
 
@@ -196,6 +312,7 @@ The current acceptance threshold is `0.7`.
 - no external runtime dependency
 - no autonomous agent loop
 - no hidden coupling to quarantined reference or tool bins
+- no socket transport requirement
 
 ## Prototype Scoring Harness
 
@@ -214,8 +331,9 @@ candidate is:
 
 - `analysis.traverse_cartridge`
 
-Next work should route selected real project documents through the registered
-tool path instead of only fixture content.
+The next seam pressure is no longer "can the live host be targeted?" The next
+seam pressure is whether retention/pruning, broader bridge coverage, or a
+different local transport are worth the added complexity.
 
 ## Project Document Ingestion
 
@@ -260,13 +378,16 @@ Current task set:
 - operator command lookup
 
 The latest real-project run produced aggregate score `0.93` and passed
-acceptance. The score artifact is written to:
+acceptance. Builder-task scoring now uses the same seed-fitness scorer as
+`mcp-search-seeds`, with a narrow builder-task policy for document role,
+heading/section affinity, continuation markers, operator-command proximity, and
+expected source fit. The score artifact is written to:
 
 ```text
 data/mcp_inspection/builder_task_scores.json
 ```
 
-Next work should make the history inspector easier to use without hiding the
+Next work should make seed-fitness details easier to inspect without hiding the
 raw JSON.
 
 ## History-Aware Inspector
@@ -297,6 +418,105 @@ The payload includes:
 The inspector UI preserves the raw JSON view and adds a Summary tab for this
 payload.
 
+## Interaction Stream
+
+Recent command/result records can also be viewed as a basic chronological
+query/response stream:
+
+```bat
+python -m src.app mcp-stream
+```
+
+Headless form:
+
+```bat
+python -m src.app mcp-stream --dump-json
+```
+
+The stream projects existing MCP inspection history into compact query/response
+objects. For `ngraph.project.query`, it renders each record as a labeled
+object block with query, result, selected layer, selected candidate kind, score,
+preview, source, and call id. The UI polls the history database and preserves a
+Raw JSON tab for the same payload.
+
+Current stream behavior:
+
+- initial render reads the recent history snapshot
+- later polls append only newly seen call ids
+- the formatted Stream tab keeps object blocks readable without making them
+  semantic cartridge truth
+- autoscroll pauses while the vertical scrollbar is held so inspection is not
+  interrupted by refreshes
+- the Raw JSON tab remains the complete payload
+
+`project-query` records now also carry `selected_flow`, so recent stream items
+can show the selected projection candidate plus nearby alternatives in rank
+order.
+
+## Visibility Cockpit
+
+The prototype now has a unified read-only visibility surface:
+
+```bat
+python -m src.app mcp-cockpit
+python -m src.app mcp-cockpit --dump-json
+```
+
+The cockpit combines:
+
+- latest builder-task score artifact
+- latest projection score artifact
+- latest `ngraph.project.query` capture
+- latest builder-seed flow snapshot
+- recent interaction stream records
+- Raw JSON tab for the full payload
+
+The cockpit is intentionally history-first. It does not introduce a new truth
+store, a message spine, cartridge persistence for interaction events, or a
+polished dashboard framework.
+
+## UI Command Spine Pilot
+
+`python -m src.app ui` is now the primary desktop host workspace rather than a
+thin command pilot.
+
+The host workspace submits the same canonical command shape and renders:
+
+- command stream
+- active projection
+- active seed flow
+- latest score summaries
+- Raw JSON for the current host snapshot
+
+The rule for this tranche is explicit:
+
+- same process: shared live host state
+- separate process: shared durable state only
+
+That means headless commands do not auto-attach to an already-open window yet.
+`--dump-json` remains the official non-UI path.
+
+## Layer Arbitration Scoring
+
+`project-query-score` runs the first bounded context-projection arbitration
+fixtures:
+
+```bat
+python -m src.app project-query-score --dump-json
+```
+
+The command drives plain English, Python/code, and project-local doctrine
+queries through `run_project_query_interaction`. Each fixture therefore emits
+the same `ngraph.project.query` capture shape as CLI and UI calls while marking
+the command envelope with `actor="builder"` and `source_surface="scoring"`.
+
+The score artifact is written to:
+
+`data/mcp_inspection/context_projection_scores.json`
+
+The current purpose is measurement and tuning evidence. It is not a new MCP
+server, not a merged semantic cartridge, and not learned disambiguation.
+
 Next work should improve seed discovery and search over ingested project
 documents.
 
@@ -319,10 +539,16 @@ The command:
 
 - re-ingests the bounded project-document set into the project cartridge
 - removes stale semantic objects for each re-ingested source before replacement
-- ranks seed candidates with a deterministic owned text scorer
+- ranks seed candidates with a deterministic owned seed-fitness scorer
+- includes score-breakdown dimensions in the raw selected-seed payload
+- includes a `selected_flow` window with previous / selected / next semantic
+  objects from the same source document
 - calls `ngraph.analysis.traverse_cartridge` on the selected seed
 - records the selected traversal in MCP inspection history
 - preserves ranked candidates and raw traversal evidence in the inspector
+- opens the existing inspector with a Summary tab showing the selected seed,
+  score breakdown, breadcrumb, source flow, and traversal summary beside the
+  full Raw JSON tab
 
 This is not embeddings, FTS, repo-wide scan, or a second tool candidate.
 

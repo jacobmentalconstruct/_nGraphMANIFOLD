@@ -167,6 +167,52 @@ class LayerProjection:
 
 
 @dataclass(frozen=True)
+class ProjectionFlowObject:
+    """One ranked candidate around the selected projection result."""
+
+    role: str
+    rank: int
+    semantic_id: str
+    kind: str
+    score: float
+    matched_terms: tuple[str, ...]
+    evidence: tuple[str, ...]
+    content_preview: str
+    source_ref: str
+    heading_trail: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "role": self.role,
+            "rank": self.rank,
+            "semantic_id": self.semantic_id,
+            "kind": self.kind,
+            "score": self.score,
+            "matched_terms": list(self.matched_terms),
+            "evidence": list(self.evidence),
+            "content_preview": self.content_preview,
+            "source_ref": self.source_ref,
+            "heading_trail": list(self.heading_trail),
+        }
+
+
+@dataclass(frozen=True)
+class ProjectionFlowWindow:
+    """Selected projection candidate plus nearby ranked alternatives."""
+
+    layer_name: str
+    breadcrumb: tuple[str, ...]
+    objects: tuple[ProjectionFlowObject, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "layer_name": self.layer_name,
+            "breadcrumb": list(self.breadcrumb),
+            "objects": [obj.to_dict() for obj in self.objects],
+        }
+
+
+@dataclass(frozen=True)
 class QueryProjectionFrame:
     """Layer-conditioned interpretation frame for a raw query."""
 
@@ -176,6 +222,7 @@ class QueryProjectionFrame:
     context_stack: tuple[str, ...]
     selected_layer: str | None
     selected_candidate: LayerCandidate | None
+    selected_flow: ProjectionFlowWindow | None
     projections: tuple[LayerProjection, ...]
     caution: str
 
@@ -187,6 +234,7 @@ class QueryProjectionFrame:
             "context_stack": list(self.context_stack),
             "selected_layer": self.selected_layer,
             "selected_candidate": self.selected_candidate.to_dict() if self.selected_candidate else None,
+            "selected_flow": self.selected_flow.to_dict() if self.selected_flow else None,
             "projections": [projection.to_dict() for projection in self.projections],
             "caution": self.caution,
         }
@@ -237,6 +285,7 @@ def project_context_query(
         context_stack=context_stack,
         selected_layer=selected_projection.layer.name if selected_projection else None,
         selected_candidate=selected_candidate,
+        selected_flow=_selected_projection_flow(selected_projection),
         projections=projections,
         caution=(
             "Context projection is a deterministic prototype frame. It shows layer evidence "
@@ -567,6 +616,43 @@ def _select_projection(projections: tuple[LayerProjection, ...]) -> LayerProject
     if not ready:
         return None
     return sorted(ready, key=lambda projection: (-projection.layer_score, projection.layer.name))[0]
+
+
+def _selected_projection_flow(projection: LayerProjection | None) -> ProjectionFlowWindow | None:
+    if projection is None or not projection.candidates:
+        return None
+    objects: list[ProjectionFlowObject] = []
+    for index, candidate in enumerate(projection.candidates[:3], start=1):
+        role = "selected" if index == 1 else "alternative"
+        objects.append(
+            ProjectionFlowObject(
+                role=role,
+                rank=index,
+                semantic_id=candidate.semantic_id,
+                kind=candidate.kind,
+                score=candidate.score,
+                matched_terms=candidate.matched_terms,
+                evidence=candidate.evidence,
+                content_preview=candidate.content_preview,
+                source_ref=candidate.source_ref,
+                heading_trail=candidate.heading_trail,
+            )
+        )
+    selected = projection.candidates[0]
+    breadcrumb = tuple(
+        item
+        for item in (
+            projection.layer.name,
+            *selected.heading_trail,
+            f"rank {1}",
+        )
+        if item
+    )
+    return ProjectionFlowWindow(
+        layer_name=projection.layer.name,
+        breadcrumb=breadcrumb,
+        objects=tuple(objects),
+    )
 
 
 def _candidate_sort_key(candidate: LayerCandidate) -> tuple[float, str, str]:

@@ -51,6 +51,11 @@ class SeedSearchTests(unittest.TestCase):
         self.assertIsNotNone(payload["selected_seed"])
         self.assertTrue(payload["selected_seed"]["source_ref"].endswith("PROJECT_STATUS.md"))
         self.assertIn("current", payload["selected_seed"]["matched_terms"])
+        self.assertIsNotNone(payload["selected_flow"])
+        self.assertTrue(
+            any(obj["role"] == "selected" for obj in payload["selected_flow"]["objects"])
+        )
+        self.assertIn("score_breakdown", payload["selected_seed"])
 
     def test_seed_search_traversal_records_history(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -97,6 +102,7 @@ class SeedSearchTests(unittest.TestCase):
         self.assertEqual(payload["tool_call"]["tool"]["tool_name"], TRAVERSAL_TOOL_NAME)
         self.assertLessEqual(len(payload["search"]["candidates"]), 2)
         self.assertIsNotNone(payload["search"]["selected_seed"])
+        self.assertIsNotNone(payload["search"]["selected_flow"])
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ semantic execution pathway. Runtime implementation remains intentionally narrow
 with a thin MCP usefulness seam and repeatable prototype tuning/scoring
 fixtures. The default scoring fixtures pass acceptance, and real builder-task
 scoring over the bounded project-document cartridge currently passes with an
-aggregate score of `0.87`. The traversal adapter pilot exposes a raw inspection
+aggregate score of `0.93`. The traversal adapter pilot exposes a raw inspection
 payload through a simple MCP inspector panel, and the local registry now has two
 MCP-shaped candidates: `ngraph.analysis.traverse_cartridge` and
 `ngraph.project.query`. Persistent inspection history and a bounded
@@ -21,22 +21,55 @@ project-document ingestion path are in place. The history-aware inspector now
 summarizes recent calls while preserving raw JSON.
 Traversal seed search now ranks persisted project-document semantic objects by
 text query, selects a useful seed, runs the registered traversal tool, records
-history, and displays the raw evidence payload. A dedicated English lexical
-baseline cartridge now preserves headword and raw definition records from the
+history, and displays the evidence payload through Summary and Raw JSON tabs.
+The seed-search summary now shows the selected seed, score breakdown,
+breadcrumb, and previous/selected/next source-flow objects so the chosen
+starting point can be inspected in order. A dedicated English lexical baseline
+cartridge now preserves headword and raw definition records from the
 project-owned alpha-array dictionary source for cautious prototype grounding.
 The `project-query` command now routes through a shared command/result spine,
 records `ngraph.project.query` in MCP inspection history, and projects raw
 queries through English lexical, Python documentation, and project-local
-context layers while preserving their separate evidence. The parked next
-implementation target is the UI Command Spine Pilot.
+context layers while preserving their separate evidence. The `ui` command is
+now the primary desktop host workspace rather than a thin query launcher. It
+submits the same canonical `CommandEnvelope` shape as CLI-originated calls,
+updates a shared in-process host snapshot, and renders command stream, active
+projection, active seed flow, score summaries, and Raw JSON as bounded
+read-only panes. `mcp-history-view`, `mcp-stream`, `mcp-cockpit`, and
+`mcp-search-seeds` now normalize through the same coordination-owned host
+dispatcher. A local file-backed host bridge now lets opt-in external
+`project-query` and `mcp-search-seeds` commands target an already-open host
+workspace without introducing a network server or changing the durable truth
+model. The durable truth is still the existing SQLite MCP inspection history
+and score artifacts; the host snapshot is a live in-process working set, not a
+new truth store. This tranche is parked with builder-task score `0.93`,
+projection arbitration score `0.96`, full tests green, and boundary audits
+clean.
+
+The project has now crossed from prototype proving into
+post-prototype hardening. The next priority is not more transport or more
+surface invention. It is making the now-working system stay legible and
+vendorable as it accumulates real history, bridge state, and inspection
+surfaces. That means retention/pruning policy, bridge discipline, and surface
+ownership clarity before broader expansion.
 
 Start with:
 
 - `_docs/builder_constraint_contract.md`
+- `_docs/EXPERIENTIAL_WORKFLOW.md`
 - `_docs/ARCHITECTURE.md`
 - `_docs/STRANGLER_PLAN.md`
 - `_docs/PROJECT_STATUS.md`
 - `_docs/TODO.md`
+
+How we work now, in one breath:
+
+- the contract defines the laws
+- the app journal preserves completed phase history
+- `PROJECT_STATUS.md` marks current truth
+- `TODO.md` shows the operational transition and next step
+- scoring and inspection surfaces decide whether an experiment is actually
+  useful enough to keep
 
 ## Run
 
@@ -48,6 +81,31 @@ Equivalent Python command:
 
 ```bat
 python -m src.app status
+```
+
+Open the shared host workspace:
+
+```bat
+python -m src.app ui
+```
+
+The host workspace now shows command stream, active projection, active seed
+flow, latest score summaries, and Raw JSON from one in-process shared host
+snapshot. The host now also publishes a local bridge session under
+`data/host_bridge/` so opt-in external commands can target that already-open
+window. This is a local file-backed bridge, not a network service.
+
+Target the live host from another process:
+
+```bat
+python -m src.app project-query --query "class object function" --use-host-bridge
+python -m src.app mcp-search-seeds --query "Current Park Point" --use-host-bridge
+```
+
+Headless bridged form:
+
+```bat
+python -m src.app project-query --query "class object function" --use-host-bridge --dump-json
 ```
 
 Open the raw MCP inspection panel:
@@ -98,12 +156,46 @@ Headless summary/raw payload:
 python -m src.app mcp-history-view --dump-json
 ```
 
+Open a basic polling stream of query/response objects from inspection history:
+
+```bat
+python -m src.app mcp-stream
+```
+
+The Stream tab renders each recent interaction as a compact labeled object with
+query, result, selected layer/kind/score, preview, source, and call id. It polls
+history incrementally, appends only newly seen calls, and pauses autoscroll
+while the vertical scrollbar is held. The Raw JSON tab preserves the full
+payload.
+
+Headless stream payload:
+
+```bat
+python -m src.app mcp-stream --dump-json
+```
+
+Open the unified read-only visibility cockpit:
+
+```bat
+python -m src.app mcp-cockpit
+```
+
+Headless cockpit payload:
+
+```bat
+python -m src.app mcp-cockpit --dump-json
+```
+
 Search ingested project documents for traversal seeds and inspect the selected
 traversal:
 
 ```bat
 python -m src.app mcp-search-seeds --query "Current Park Point"
 ```
+
+The inspector opens with Summary and Raw JSON tabs. The Summary tab shows the
+selected seed, score breakdown, breadcrumb, and source-flow objects around the
+selection.
 
 Headless seed-search traversal payload:
 
@@ -131,7 +223,23 @@ python -m src.app project-query --query "object" --dump-json
 
 The output is an `InteractionCapture` containing a `CommandEnvelope`, a
 `ToolResultEnvelope`, the projection frame, and a usefulness report. The same
-call is recorded in `data/mcp_inspection/history.sqlite3`.
+call is recorded in `data/mcp_inspection/history.sqlite3`. The projection frame
+now includes `selected_flow`, which shows the selected candidate plus nearby
+alternatives from the same layer with rank, evidence, breadcrumb, and preview.
+When the same command shape is run inside the UI host, it updates the live host
+snapshot instead of opening a separate path. With `--use-host-bridge`, an
+external process can now send the same command to the already-open host
+workspace and let that live window update in place.
+
+Score context-layer arbitration fixtures:
+
+```bat
+python -m src.app project-query-score --dump-json
+```
+
+The scoring run records each underlying `ngraph.project.query` call in MCP
+inspection history and writes
+`data/mcp_inspection/context_projection_scores.json`.
 
 Build the Python documentation projection cartridge:
 

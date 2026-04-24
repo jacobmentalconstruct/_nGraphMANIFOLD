@@ -145,6 +145,9 @@ class ContextProjectionTests(unittest.TestCase):
         self.assertEqual(payload["frame"]["selected_layer"], "python_docs_projection")
         selected = payload["frame"]["selected_candidate"]
         self.assertIn(selected["kind"], {"python_code_example", "python_doctest_example"})
+        self.assertIsNotNone(payload["frame"]["selected_flow"])
+        self.assertEqual(payload["frame"]["selected_flow"]["objects"][0]["role"], "selected")
+        self.assertGreaterEqual(len(payload["frame"]["selected_flow"]["objects"]), 1)
 
     def test_project_doctrine_query_selects_project_layer(self) -> None:
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:

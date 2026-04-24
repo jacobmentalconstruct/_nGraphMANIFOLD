@@ -12,27 +12,44 @@ from pathlib import Path
 
 from .core.config import AppSettings
 from .core.coordination import (
+    DEFAULT_HOST_BRIDGE_TIMEOUT_MS,
+    HOST_COCKPIT_TOOL_NAME,
+    HOST_HISTORY_VIEW_TOOL_NAME,
+    HOST_SEED_SEARCH_TOOL_NAME,
+    HOST_STREAM_TOOL_NAME,
+    HostBridgeError,
+    HostBridgeUnavailableError,
     PROJECT_QUERY_TOOL_NAME,
     TRAVERSAL_TOOL_NAME,
     DEFAULT_PYTHON_DOCS_DOCUMENTS,
     McpInspectionHistoryStore,
     build_english_lexicon_baseline,
     build_default_registered_tool_call,
+    create_host_command_envelope,
     build_history_aware_inspector_payload,
+    build_interaction_stream_payload,
+    build_visibility_cockpit_payload,
     build_python_docs_corpus,
     build_mcp_tool_registry,
     default_builder_task_score_path,
+    default_context_projection_score_path,
     default_mcp_inspection_history_path,
+    dispatch_command_via_host_bridge,
+    dispatch_host_command,
     ingest_project_documents_for_traversal,
     lookup_english_lexicon_entry,
-    run_project_query_interaction,
+    run_context_projection_arbitration_scoring,
     run_real_builder_task_scoring,
     run_seed_search_traversal,
 )
 from .core.engine import ApplicationEngine
 from .core.logging import configure_logging
 from .ui.gui_main import launch_ui
-from .ui.mcp_inspector import launch_mcp_inspector
+from .ui.mcp_inspector import (
+    launch_interaction_stream,
+    launch_mcp_inspector,
+    launch_visibility_cockpit,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -56,11 +73,14 @@ def build_parser() -> argparse.ArgumentParser:
             "mcp-ingest-docs",
             "mcp-score-tasks",
             "mcp-history-view",
+            "mcp-cockpit",
+            "mcp-stream",
             "mcp-search-seeds",
             "ingest-python-docs",
             "ingest-lexicon",
             "lookup-lexicon",
             "project-query",
+            "project-query-score",
         ),
         help="Command to run.",
     )
@@ -68,6 +88,17 @@ def build_parser() -> argparse.ArgumentParser:
         "--dump-json",
         action="store_true",
         help="For inspection commands, write raw JSON to stdout instead of opening a panel or logging.",
+    )
+    parser.add_argument(
+        "--use-host-bridge",
+        action="store_true",
+        help="For bridge-enabled commands, target the already-open host workspace instead of running locally.",
+    )
+    parser.add_argument(
+        "--bridge-timeout-ms",
+        type=int,
+        default=DEFAULT_HOST_BRIDGE_TIMEOUT_MS,
+        help="When using --use-host-bridge, milliseconds to wait for the live host to process the request.",
     )
     parser.add_argument(
         "--history-limit",
@@ -125,6 +156,35 @@ def main(argv: Sequence[str] | None = None) -> int:
     configure_logging(args.verbose)
     settings = AppSettings.from_environment()
     engine = ApplicationEngine(settings)
+
+    def _run_bridge_enabled_host_command(command_name: str, payload: dict[str, object]) -> tuple[int, str]:
+        command = create_host_command_envelope(
+            tool_name=command_name,
+            payload=payload,
+            actor="human",
+            source_surface="cli-bridge" if args.use_host_bridge else "cli",
+        )
+        if args.use_host_bridge:
+            try:
+                response = dispatch_command_via_host_bridge(
+                    settings.project_root,
+                    command,
+                    timeout_ms=args.bridge_timeout_ms,
+                )
+            except HostBridgeUnavailableError as exc:
+                LOGGER.error("Host bridge unavailable: %s", exc)
+                return 1, json.dumps({"error": str(exc)}, indent=2, sort_keys=True)
+            except HostBridgeError as exc:
+                LOGGER.error("Host bridge failed: %s", exc)
+                return 1, json.dumps({"error": str(exc)}, indent=2, sort_keys=True)
+            rendered = json.dumps(response.payload or {}, indent=2, sort_keys=True)
+            return 0, rendered
+        result = dispatch_host_command(
+            settings.project_root,
+            command,
+            history_limit=args.history_limit,
+        )
+        return 0, result.rendered_json
 
     if args.command == "status":
         status = engine.status()
@@ -190,12 +250,22 @@ def main(argv: Sequence[str] | None = None) -> int:
         return launch_mcp_inspector(settings, payload)
 
     if args.command == "mcp-history-view":
+        result = dispatch_host_command(
+            settings.project_root,
+            create_host_command_envelope(
+                tool_name=HOST_HISTORY_VIEW_TOOL_NAME,
+                payload={"history_limit": args.history_limit},
+                actor="human",
+                source_surface="cli",
+            ),
+            history_limit=args.history_limit,
+        )
+        payload = dict(result.payload)
         inspector = build_history_aware_inspector_payload(
             settings.project_root,
             history_path=default_mcp_inspection_history_path(settings.project_root),
             limit=args.history_limit,
         )
-        payload = inspector.to_dict()
         payload["summary_text"] = inspector.to_summary_text()
         rendered = json.dumps(payload, indent=2, sort_keys=True)
         if args.dump_json:
@@ -203,16 +273,53 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
         return launch_mcp_inspector(settings, rendered)
 
-    if args.command == "mcp-search-seeds":
-        result = run_seed_search_traversal(
+    if args.command == "mcp-cockpit":
+        result = dispatch_host_command(
             settings.project_root,
-            args.query,
-            history_path=default_mcp_inspection_history_path(settings.project_root),
-            limit=args.seed_limit,
+            create_host_command_envelope(
+                tool_name=HOST_COCKPIT_TOOL_NAME,
+                payload={"history_limit": max(6, args.history_limit)},
+                actor="human",
+                source_surface="cli",
+            ),
+            history_limit=max(6, args.history_limit),
         )
-        payload = result.to_json()
+        rendered = result.rendered_json
+        if args.dump_json:
+            sys.stdout.write(f"{rendered}\n")
+            return 0
+        return launch_visibility_cockpit(settings, rendered)
+
+    if args.command == "mcp-stream":
+        result = dispatch_host_command(
+            settings.project_root,
+            create_host_command_envelope(
+                tool_name=HOST_STREAM_TOOL_NAME,
+                payload={"history_limit": args.history_limit},
+                actor="human",
+                source_surface="cli",
+            ),
+            history_limit=args.history_limit,
+        )
+        if args.dump_json:
+            sys.stdout.write(f"{result.rendered_json}\n")
+            return 0
+        return launch_interaction_stream(settings, history_limit=args.history_limit)
+
+    if args.command == "mcp-search-seeds":
+        exit_code, payload = _run_bridge_enabled_host_command(
+            HOST_SEED_SEARCH_TOOL_NAME,
+            {"query": args.query, "seed_limit": args.seed_limit},
+        )
+        if exit_code != 0:
+            if args.dump_json:
+                sys.stdout.write(f"{payload}\n")
+            return exit_code
         if args.dump_json:
             sys.stdout.write(f"{payload}\n")
+            return 0
+        if args.use_host_bridge:
+            LOGGER.info("Seed search delivered to the live host workspace.")
             return 0
         return launch_mcp_inspector(settings, payload)
 
@@ -255,27 +362,29 @@ def main(argv: Sequence[str] | None = None) -> int:
         return launch_mcp_inspector(settings, payload)
 
     if args.command == "project-query":
-        capture = run_project_query_interaction(
-            settings.project_root,
-            args.query,
-            limit=args.limit or 3,
-            actor="human",
-            source_surface="cli",
+        exit_code, payload = _run_bridge_enabled_host_command(
+            PROJECT_QUERY_TOOL_NAME,
+            {"query": args.query, "limit": args.limit or 3},
         )
-        call = {
-            "call_id": capture.capture_id,
-            "tool": {
-                "tool_name": PROJECT_QUERY_TOOL_NAME,
-                "capability_name": capture.capability["name"],
-                "title": "Project Query Through Context Layers",
-                "readiness": "registration_candidate",
-            },
-            "status": "ok",
-            "capture": capture.to_dict(),
-        }
-        history = McpInspectionHistoryStore(default_mcp_inspection_history_path(settings.project_root))
-        history.record_call(call)
-        payload = json.dumps(call, indent=2, sort_keys=True)
+        if exit_code != 0:
+            if args.dump_json:
+                sys.stdout.write(f"{payload}\n")
+            return exit_code
+        if args.dump_json:
+            sys.stdout.write(f"{payload}\n")
+            return 0
+        if args.use_host_bridge:
+            LOGGER.info("Project query delivered to the live host workspace.")
+            return 0
+        return launch_mcp_inspector(settings, payload)
+
+    if args.command == "project-query-score":
+        run = run_context_projection_arbitration_scoring(
+            settings.project_root,
+            history_path=default_mcp_inspection_history_path(settings.project_root),
+            score_path=default_context_projection_score_path(settings.project_root),
+        )
+        payload = run.to_json()
         if args.dump_json:
             sys.stdout.write(f"{payload}\n")
             return 0

@@ -4,6 +4,8 @@ _Status: Reflective handoff for research and next-session planning_
 
 _Created: 2026-04-22_
 
+_Updated: 2026-04-23 after local host bridge pass_
+
 This document is not the governing contract. The governing contract remains
 `builder_constraint_contract.md`. This file is a thinking surface: a place to
 capture what the current prototype appears to be teaching us, what I think is
@@ -16,12 +18,35 @@ enthusiasm.
 
 ## Read This First
 
+Most important current note:
+
+```text
+The local host bridge is now parked.
+
+The missing thing is no longer "can separate commands hit the live host?"
+The next work is deciding how much post-prototype hardening we want before
+expanding scope again.
+```
+
+The cleanest phrasing for the current pressure is:
+
+```text
+The prototype now works well enough that unmanaged success is the next risk.
+```
+
+That means the next tranche should not chase novelty first. It should define:
+
+- what recent trace remains active
+- what evidence remains durable
+- what each surface owns
+- how the bridge stays subordinate
+
 The project is not drifting randomly. It feels like a long spiral because we
 are turning around the same center from increasing radius: first object shape,
 then persistence, then traversal, then MCP usefulness, then project documents,
 then English lexical prior, then Python domain prior.
 
-The important realization from the last tranche is this:
+The important realization from the last tranche is still this:
 
 ```text
 We do not want dictionary search plus Python docs search plus project search.
@@ -35,9 +60,176 @@ That is the real next step.
 ## Current One-Line State
 
 nGraphMANIFOLD currently has a working semantic-object spine, three separated
-knowledge/projection cartridges, and enough MCP-shaped inspection machinery to
-show what the system sees; the next missing piece is an explicit context
-projection and rebinding layer.
+knowledge/projection cartridges, an explicit deterministic context projection
+layer, a shared command/result spine, task-aware seed fitness, and enough
+MCP-shaped inspection machinery to show query/response life cycles as readable
+objects. `project-query` now exposes projection-candidate flow, and
+`mcp-cockpit` gives one unified read-only visibility surface over scores,
+latest projection, latest seed, and recent stream records. The UI, cockpit,
+stream, and seed/projection views now all project through one coordination-
+owned in-process host snapshot instead of each rebuilding their own little
+world from disk.
+
+## 2026-04-23 Host-State Update
+
+The important new learning is architectural, not merely visual:
+
+```text
+The shared thing is command/state, not literal widget ownership.
+```
+
+We did not jump to FastAPI, websockets, Docker, WASM, or a real MCP server. We
+built the realistic local version first:
+
+```text
+same command model
+  -> same dispatcher
+  -> same live host state
+  -> multiple views over that state
+```
+
+What now exists:
+
+- `src/core/coordination/host_workspace.py`
+- one live host snapshot with:
+  - recent command/result objects
+  - active projection and `selected_flow`
+  - active seed flow
+  - latest builder/projection score summaries
+  - active interaction object
+  - raw payload cache
+- one shared dispatcher for:
+  - `project-query`
+  - `mcp-search-seeds`
+  - `mcp-history-view`
+  - `mcp-stream`
+  - `mcp-cockpit`
+- `python -m src.app ui` as the primary host workspace
+
+The honest boundary is now clearer:
+
+- same process: shared live state
+- separate process: shared durable state by default
+
+That was a healthy stopping point. The next unification step was a local host
+bridge rather than a vague wish for "shared panels."
+
+## 2026-04-23 Local Host Bridge Update
+
+That next step is now done in bounded form.
+
+What now exists:
+
+- `src/core/coordination/host_bridge.py`
+- project-owned bridge state under:
+  - `data/host_bridge/session.json`
+  - `data/host_bridge/requests/`
+  - `data/host_bridge/responses/`
+- UI host session publishing + heartbeat while `python -m src.app ui` is open
+- opt-in external bridge routing for:
+  - `project-query`
+  - `mcp-search-seeds`
+- canonical command reuse across the bridge, not a second command model
+
+The important thing this proves is architectural:
+
+```text
+We can let a separate process target the already-open host without jumping to a
+network server, and without making the panel itself the source of truth.
+```
+
+The bridge is intentionally plain:
+
+- file-backed
+- inspectable
+- local
+- stdlib-only
+- bounded to two commands
+
+That restraint matters. It keeps the bridge subordinate to the command/state
+spine rather than turning transport into the architecture.
+
+The honest boundary is now:
+
+- same process: shared live state directly
+- separate process: may target the live host only through the local file-backed
+  bridge for approved commands
+- everything else still shares durable history/score state only
+
+## 2026-04-23 Update
+
+The prototype completion visibility pass is now implemented in bounded form.
+The app can project a raw query through:
+
+```text
+english_lexical_prior
+python_docs_projection
+project_local_docs
+```
+
+The important new surfaces are:
+
+- `project-query`: emits a shared `InteractionCapture` with command envelope,
+  result envelope, projection frame, and usefulness report.
+- `project-query-score`: scores bounded English, Python/code, and project-local
+  arbitration fixtures; current aggregate is `0.96`, accepted.
+- `mcp-score-tasks`: now uses the shared task-aware seed-fitness path; current
+  real builder-task aggregate is `0.93`, accepted.
+- `mcp-search-seeds`: returns a selected seed plus `selected_flow`, showing
+  previous / selected / next source objects around the traversal seed.
+- `mcp-stream`: shows recent command/result captures as formatted object
+  blocks, with Raw JSON preserved.
+- `project-query`: now also returns `selected_flow`, showing the selected
+  candidate plus nearby alternatives from the winning layer.
+- `mcp-cockpit`: unifies latest builder score, latest projection score, latest
+  projection, latest seed flow, recent stream, and Raw JSON in one read-only
+  surface.
+
+The stream polish matters more than it may look. It is the first user-facing
+surface where the system's operational life cycle becomes readable in order:
+
+```text
+query object
+  -> selected layer / candidate
+  -> result summary
+  -> source and call id
+  -> raw capture
+```
+
+It remains intentionally modest. It is not an event store, message broker,
+semantic cartridge, or polished dashboard. It is a history projection that
+appends newly seen call ids and pauses autoscroll while the scrollbar is held
+so human inspection is not interrupted by refreshes.
+
+The next good tranche is no longer "build context projection," "projection
+candidate flow visibility," or "decide whether to bridge the live host." Those
+are done. The next good tranche is:
+
+```text
+Post-Prototype Hardening And Expansion
+```
+
+That means deciding, deliberately:
+
+- whether the cockpit and stream should gain filtering
+- whether inspection history needs retention/pruning rules
+- whether more UI actions should join the shared command spine
+- whether interaction-envelope SemanticObjects stay inspection-only or later
+  become persisted truth
+- whether the local host bridge should remain file-backed or later gain a
+  thinner IPC transport
+
+The strongest current framing is probably:
+
+```text
+Post-Prototype Hardening solves the clutter of success.
+```
+
+That clutter is made of:
+
+- meaningful history with no retention policy yet
+- working bridge state with no final lifecycle doctrine yet
+- multiple useful visibility surfaces that now need explicit ownership clarity
 
 ## What Exists Now
 
@@ -539,32 +731,16 @@ This is likely the most useful user-facing display in the near future.
 
 ## The Next Tranche In Plain English
 
-Build a query projection layer.
+Harden the prototype without accidentally turning a good bounded workbench into
+an overgrown dashboard or premature platform.
 
-It should accept:
+It should focus on:
 
-- a raw query
-- an optional context stack
-- a set of cartridges to inspect
-- a limit per layer
-
-It should produce:
-
-- a projected query frame
-- candidates per layer
-- evidence and scores
-- layer-specific notes
-- an explicit "not yet final semantic grounding" caution
-
-It should not yet:
-
-- merge cartridges
-- create embeddings
-- install a real MCP server
-- build a polished UI
-- ingest the entire repo
-- treat dictionary lookup as ground truth
-- pretend it understands everything
+- keeping the cockpit useful but compact
+- keeping raw JSON and history as the truth surfaces
+- preserving cartridge separation
+- deciding which deferred choices are worth promoting to explicit post-prototype
+  phases
 
 ## Possible Next Implementation Shape
 
@@ -933,38 +1109,31 @@ When returning, I would start like this:
 Name:
 
 ```text
-Context Projection / Rebinding Layer
+Post-Prototype Hardening And Expansion
 ```
 
 In scope:
 
-- deterministic query projection frame
-- per-layer candidate extraction from existing cartridges
-- layer-specific scoring
-- evidence/provenance output
-- tests with known ambiguous queries
-- documentation of what is and is not rebinding
+- cockpit/stream scope decisions
+- history retention/pruning decision
+- shared command-spine expansion decisions
+- bounded-doc-scope decision
+- documentation and journal continuity
 
 Explicit non-goals:
 
-- no embeddings
-- no FTS engine
+- no embeddings unless separately authorized
 - no cartridge merge
 - no full MCP server
-- no new corpus ingestion
-- no polished UI
-- no autonomous agent behavior
-- no Merkle DAG implementation
+- no broad UI rewrite
+- no repo-wide ingestion as default behavior
+- no hidden interaction persistence
 
 Done when:
 
-- `python -m src.app <query-command> --query "object" --dump-json` returns
-  layer-separated evidence
-- code-shaped queries favor Python
-- project-doctrine queries favor project docs
-- broad English terms still preserve English lexical evidence without dominating
-- all tests and audits pass
-- docs and journal are parked
+- next post-prototype tranche is explicitly chosen
+- docs and journal explain what remains deferred
+- current bounded usefulness stays green while decisions are made
 
 ## Personal Read On The Spiral
 

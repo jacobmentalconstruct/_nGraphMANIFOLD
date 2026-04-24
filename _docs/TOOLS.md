@@ -94,6 +94,7 @@ Use these gates as future tranches mature:
 The application now includes a project-owned raw MCP inspection command:
 
 ```text
+python -m src.app ui
 python -m src.app mcp-inspect
 python -m src.app mcp-inspect --dump-json
 python -m src.app mcp-tools --dump-json
@@ -103,11 +104,16 @@ python -m src.app mcp-ingest-docs --dump-json
 python -m src.app mcp-score-tasks --dump-json
 python -m src.app mcp-history-view
 python -m src.app mcp-history-view --dump-json
+python -m src.app mcp-cockpit
+python -m src.app mcp-cockpit --dump-json
+python -m src.app mcp-stream
+python -m src.app mcp-stream --dump-json
 python -m src.app mcp-search-seeds --query "Current Park Point"
 python -m src.app mcp-search-seeds --query "Current Park Point" --dump-json
 python -m src.app ingest-lexicon --reset --dump-json
 python -m src.app lookup-lexicon --query tortuous --dump-json
 python -m src.app project-query --query "object" --dump-json
+python -m src.app project-query-score --dump-json
 python -m src.app ingest-python-docs --reset --dump-json
 python -m src.app ingest-python-docs --all-python-docs --reset --dump-json
 python -m src.app ingest-python-docs --include-prose --reset --dump-json
@@ -119,13 +125,35 @@ The `mcp-tools` command lists project-owned MCP tool registration candidates.
 The `mcp-history` command shows persisted registered tool-call history.
 The `mcp-ingest-docs` command ingests the bounded project-document set and runs
 the registered traversal tool over it.
+The `ui` command now opens the primary desktop host workspace. It uses the same
+shared command model and dispatcher as CLI/MCP-shaped calls and renders command
+stream, active projection, active seed flow, score summaries, and Raw JSON from
+one coordination-owned host snapshot.
+The UI host now also publishes a local bridge session under `data/host_bridge/`
+and polls request files through the Tk event loop so approved external commands
+can target the already-open host.
 The `mcp-score-tasks` command scores real builder continuation tasks against
-the ingested project documents and writes the latest score artifact.
+the ingested project documents and writes the latest score artifact. It uses
+the same coordination-owned seed-fitness scorer as `mcp-search-seeds`, with
+task-aware policy only for builder continuation scoring.
 The `mcp-history-view` command opens or emits a summarized history-aware
 inspector payload while preserving the raw history snapshot.
+The `mcp-cockpit` command opens or emits the unified read-only visibility
+surface that combines latest scores, latest projection, latest builder seed,
+recent interaction stream, and Raw JSON.
+The `mcp-stream` command opens or emits a basic polling stream of recent
+query/response objects projected from MCP inspection history. Its Stream tab
+renders each item as a compact labeled object block for `ngraph.project.query`
+captures and traversal seed calls while preserving Raw JSON in the UI. The
+stream appends newly seen call ids instead of redrawing the full buffer, and it
+pauses autoscroll while the user holds the vertical scrollbar.
 The `mcp-search-seeds` command ranks persisted project-document semantic
 objects, calls the registered traversal tool on the selected seed, records the
-call in inspection history, and opens or emits the raw evidence payload.
+call in inspection history, and opens or emits the evidence payload. The
+inspector Summary tab shows the selected seed, score breakdown, breadcrumb, and
+previous / selected / next source-flow objects while the Raw JSON tab preserves
+the full payload. The raw selected-seed payload includes a score breakdown and
+`selected_flow` for inspection.
 The `ingest-lexicon` command builds a dedicated English lexical baseline
 cartridge from the project-owned alpha-array dictionary source. The
 `lookup-lexicon` command tests that cartridge by headword and returns a
@@ -135,12 +163,30 @@ context layers: English lexical prior, Python docs projection, and project
 local docs. It returns per-layer candidates, scoring evidence, and a
 provisional selected layer without claiming final semantic grounding. It now
 routes through the shared command spine, emits command/result envelopes, and
-records `ngraph.project.query` in MCP inspection history.
+records `ngraph.project.query` in MCP inspection history. Projection payloads
+now include `selected_flow`, which shows the selected candidate plus nearby
+alternatives from the same layer in rank order.
+With `--use-host-bridge`, `project-query` can target the already-open host
+workspace instead of running as a separate local path.
+The `project-query-score` command runs the bounded English, Python, and
+project-local arbitration fixtures through the shared command spine, records
+each `ngraph.project.query` call in inspection history, and writes the latest
+context projection score artifact.
 The `ingest-python-docs` command builds a dedicated Python documentation
 projection cartridge from the project-owned official Python docs text corpus,
 using standard-library AST summaries only for isolated parseable snippets.
 The default build is a bounded projection set; `--all-python-docs` opts into the
 full tree and `--include-prose` opts into broad documentation prose.
+
+Current host-state rule:
+
+- same process: shared live host state
+- separate process: shared durable history/score state by default
+- approved commands may target the live host through the local file-backed
+  bridge when `--use-host-bridge` is supplied
+
+The current bridge is local and file-backed. It does not add network transport,
+FastAPI, websockets, or a real MCP server.
 
 ## Tooling Non-Goals
 

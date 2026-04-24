@@ -11,6 +11,7 @@ from src.core.persistence import DEFAULT_CARTRIDGE_ID, SemanticCartridge
 from src.core.transformation import read_text_source, semantic_objects_from_source
 
 from .mcp_tool_registry import TRAVERSAL_TOOL_NAME, McpToolCallResult, call_registered_mcp_tool
+from .seed_fitness import SeedFitnessPolicy, rank_seed_candidates
 
 PROJECT_DOCUMENT_INGESTION_VERSION = "v1"
 DEFAULT_PROJECT_DOCUMENTS = (
@@ -82,6 +83,9 @@ def ingest_project_documents_for_traversal(
     cartridge_path: Path | str | None = None,
     document_relpaths: tuple[str, ...] = DEFAULT_PROJECT_DOCUMENTS,
     seed_text_hint: str = "Current Park Point",
+    seed_question: str = "",
+    seed_task_id: str = "",
+    expected_source_suffix: str = "",
 ) -> ProjectDocumentIngestionResult:
     """Ingest selected docs, then call the registered traversal tool."""
     corpus = ingest_project_documents(
@@ -92,7 +96,13 @@ def ingest_project_documents_for_traversal(
     db_path = Path(corpus.cartridge_path)
     cartridge = SemanticCartridge(db_path, cartridge_id=DEFAULT_CARTRIDGE_ID)
     objects = cartridge.all_objects()
-    seed = _select_seed(objects, seed_text_hint)
+    seed = _select_seed(
+        objects,
+        seed_text_hint,
+        seed_question=seed_question,
+        seed_task_id=seed_task_id,
+        expected_source_suffix=expected_source_suffix,
+    )
     tool_call = call_registered_mcp_tool(
         TRAVERSAL_TOOL_NAME,
         {
@@ -160,13 +170,34 @@ def _ensure_project_owned(root: Path, path: Path) -> None:
         raise ValueError(f"Document path is outside project root: {path}") from exc
 
 
-def _select_seed(objects: list[Any], seed_text_hint: str) -> Any:
-    for obj in objects:
-        if seed_text_hint and seed_text_hint in obj.content:
-            return obj
-    for obj in objects:
-        if obj.occurrence and obj.occurrence.source_ref.endswith("PROJECT_STATUS.md"):
-            return obj
+def _select_seed(
+    objects: list[Any],
+    seed_text_hint: str,
+    *,
+    seed_question: str = "",
+    seed_task_id: str = "",
+    expected_source_suffix: str = "",
+) -> Any:
     if not objects:
         raise ValueError("No project document semantic objects were produced")
-    return objects[0]
+    query = seed_text_hint or seed_question or seed_task_id
+    if not query:
+        return objects[0]
+    candidates = rank_seed_candidates(
+        objects,
+        query,
+        limit=1,
+        policy=SeedFitnessPolicy(
+            task_id=seed_task_id,
+            question=seed_question,
+            expected_source_suffix=expected_source_suffix,
+            seed_text_hint=seed_text_hint,
+        ),
+    )
+    if not candidates:
+        return objects[0]
+    selected_id = candidates[0].semantic_id
+    for obj in objects:
+        if obj.semantic_id == selected_id:
+            return obj
+    raise ValueError(f"Selected seed candidate was not present in project document objects: {selected_id}")

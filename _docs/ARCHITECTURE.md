@@ -1,6 +1,6 @@
 # nGraphMANIFOLD Architecture Doctrine
 
-_Status: Active doctrine, shared command spine pilot parked complete_
+_Status: Active doctrine, local host bridge parked complete_
 
 This document normalizes the conceptual build plan into an implementation-facing
 architecture doctrine. It is subordinate to `builder_constraint_contract.md` and
@@ -313,9 +313,72 @@ History-aware MCP inspector:
 - Maps scored builder tasks back to recent call ids when the score artifact is
   available.
 - Adds a tabbed Summary / Raw JSON inspector view.
+- Provides an interaction stream projection over the same history, showing
+  recent command/result pairs as formatted labeled object blocks with raw JSON
+  preserved.
+- Keeps the stream as an inspection projection: it appends newly seen call ids,
+  pauses autoscroll while the scrollbar is held, and does not become a message
+  broker, event store, or semantic cartridge.
 
 This is still a minimal builder observability surface, not a dashboard,
 visual analytics system, or replacement for raw evidence.
+
+Projection candidate flow visibility:
+
+- Extends `project-query` frames with `selected_flow`.
+- Preserves the selected candidate plus nearby alternatives from the same layer.
+- Carries rank, source reference, matched terms, evidence, breadcrumb, heading
+  trail, and compact preview.
+- Feeds the same selected-flow evidence into the inspector Summary tab, the
+  interaction stream payload, and the unified cockpit payload.
+
+This is ordered inspection evidence for projection choice, not a graph view,
+not a merged cartridge, and not semantic truth on its own.
+
+Unified visibility cockpit:
+
+- Adds a read-only `mcp-cockpit` projection over existing history and score
+  artifacts.
+- Combines the latest builder-task score, latest projection score, latest
+  project-query projection, latest builder-seed flow, and recent interaction
+  stream.
+- Preserves Raw JSON beside the formatted cockpit surface.
+- Keeps history and score artifacts as the sources of truth; the cockpit is a
+  projection only.
+
+This is an immersion surface for human inspection, not a new state owner,
+message broker, event store, or polished dashboard platform.
+
+Shared host state spine:
+
+- Adds `src/core/coordination/host_workspace.py` as the coordination-owned live
+  host-state owner for the desktop workspace.
+- Builds one current host snapshot from durable history, score artifacts, and a
+  bounded raw-payload cache.
+- Normalizes `project-query`, `mcp-search-seeds`, `mcp-history-view`,
+  `mcp-stream`, and `mcp-cockpit` through one in-process dispatcher.
+- Promotes `src/ui/gui_main.py` from a thin query launcher into the primary
+  desktop host workspace.
+- Preserves `--dump-json` as the headless path.
+- Provides the stable command/state center a later bridge can safely target.
+
+This is the right-order unification step for the current stage: shared
+command/state, not shared widget ownership and not transport-heavy
+architecture.
+
+Local host bridge:
+
+- Adds `src/core/coordination/host_bridge.py` as a project-owned local bridge
+  over the shared host dispatcher.
+- Publishes a live host session under `data/host_bridge/session.json` while the
+  Tk host is open.
+- Uses project-owned request/response folders under `data/host_bridge/`.
+- Allows approved separate-process commands to target the already-open host
+  without introducing a network server.
+- Reuses canonical `CommandEnvelope` payloads instead of inventing a second
+  command language.
+- Keeps the bridge subordinate to the command/state spine rather than making
+  transport the architecture.
 
 Traversal seed search and selection:
 
@@ -414,6 +477,71 @@ This is history-first interaction persistence. It is not a message broker,
 event-sourcing platform, polished UI button layer, real MCP server, or semantic
 cartridge persistence for every interaction.
 
+UI command spine pilot:
+
+- Replaces the scaffold UI placeholder with a minimal `python -m src.app ui`
+  surface.
+- Adds one project-query control that submits the same command envelope shape as
+  CLI and MCP-shaped calls.
+- Records UI-originated `ngraph.project.query` captures in the existing MCP
+  inspection history with `actor="human"` and `source_surface="ui"`.
+- Shows a current history summary and the latest raw `InteractionCapture`
+  payload through the same Summary / Raw JSON pattern as the inspector.
+
+This is a human-facing command surface, not a new source of truth, dashboard,
+semantic persistence path, or broad UI layer.
+
+Layer arbitration scoring:
+
+- Adds `project-query-score` as a coordination-owned scoring command.
+- Runs bounded fixtures for English lexical anchoring, Python/context rebinding,
+  and project-local doctrine lookup.
+- Routes each fixture through the same `ngraph.project.query`
+  `CommandEnvelope` / `ToolResultEnvelope` / `InteractionCapture` path.
+- Records fixture calls in MCP inspection history with
+  `source_surface="scoring"`.
+- Writes the latest scoring artifact to
+  `data/mcp_inspection/context_projection_scores.json`.
+
+This makes selected-layer behavior measurable before adding broader UI display,
+embeddings, merged cartridges, or learned disambiguation.
+
+Seed-fitness scoring:
+
+- Owns traversal start-point fitness in `src/core/coordination/seed_fitness.py`.
+- Provides the shared deterministic scorer used by both `mcp-search-seeds` and
+  `mcp-score-tasks`.
+- Scores lexical match, heading/section affinity, document-role fit,
+  continuation-marker proximity, operator-command proximity, expected source
+  fit, kind, brevity, and stable fallback fields.
+- Keeps source-path ordering as a final deterministic fallback rather than a
+  meaningful authority signal.
+- Does not use embeddings, vector similarity, context projection state,
+  persistent cross-cartridge links, or merged priors.
+
+Seed flow inspector visibility:
+
+- Extends seed-search results with a `selected_flow` window containing the
+  previous, selected, and next source objects around the chosen seed when that
+  source order is available.
+- Renders seed-search payloads through the existing Summary / Raw JSON
+  inspector pattern.
+- Shows selected-seed source, kind, score, matched terms, score breakdown,
+  breadcrumb, source-flow previews, and traversal counts.
+- Treats flow visibility as inspection evidence only, not graph visualization,
+  semantic truth, or a replacement for raw payloads.
+
+Formatted interaction stream visibility:
+
+- Projects persisted MCP inspection records into readable command/result
+  objects.
+- Displays query, result, selected layer, selected kind, score, preview,
+  source, call id, and aggregate score in a user-facing scroll surface.
+- Preserves Raw JSON as the source of complete evidence.
+- Uses incremental append and scrollbar-hold autoscroll pause to keep human
+  inspection stable while new records arrive.
+- Does not persist interaction events into semantic cartridges yet.
+
 ### Execution Layer
 
 Owns conversion from semantic structures into inspectable actions and feedback.
@@ -445,6 +573,13 @@ runtime graph or service boundaries, and lifecycle monitoring.
 Core implementation belongs under `src/core/`. UI behavior belongs under
 `src/ui/`. UI may inspect and trigger core services, but it must not own
 semantic identity, persistence, analysis, or transformation truth.
+
+Current desktop-host rule:
+
+- the UI owns presentation
+- coordination owns the host snapshot and command dispatcher
+- durable truth remains the history store and score artifacts
+- separate CLI invocations are not yet routed into a running UI instance
 
 ## Prototype Spine
 

@@ -122,7 +122,14 @@ prior, not a final arbiter of meaning.
 
 ## Next Work
 
-The context projection layer should score how useful the English lexical
-baseline is when layered under Python and project-local interpretation. It
-should keep lexical lookup separate from project status lookup and measure
-whether English grounding helps or distracts.
+The context projection layer now uses the English lexical baseline as the
+`english_lexical_prior` beside Python docs and project-local docs. Current
+projection scoring verifies that plain English lexical queries can select this
+layer without letting it override Python/code or project-local doctrine.
+
+Next lexical work should stay cautious:
+
+- keep generic source-replaceable naming
+- measure when English grounding helps or distracts
+- add richer parser fields only when they improve projection evidence
+- avoid merging the English lexical cartridge into Python or project-local truth

@@ -157,6 +157,65 @@ future persistence. No event-sourcing package, message broker, MCP SDK,
 `.dev-tools` package, or parts-bin runtime module was copied, extracted,
 transplanted, imported, or made a dependency.
 
+The UI command spine pilot was implemented as original project-owned code under
+`src/ui/gui_main.py`. It uses the standard-library Tk surface to expose one
+minimal project-query control, calls `run_project_query_interaction`, and
+records `ngraph.project.query` captures with `source_surface="ui"`. No external
+UI toolkit, network MCP server, `.dev-tools` runtime package, or parts-bin UI
+module was copied, imported, or made a dependency.
+
+The context projection arbitration scorer was implemented as original
+project-owned code under
+`src/core/coordination/context_projection_scoring.py`. It runs bounded
+project-query fixtures through the existing shared command spine, records
+normal `ngraph.project.query` captures in MCP inspection history, and writes a
+score artifact for tuning. No benchmark package, embedding package, MCP SDK,
+`.dev-tools` package, or parts-bin runtime module was copied, imported, or made
+a dependency.
+
+The task-aware seed-fitness scorer was implemented as original project-owned
+code under `src/core/coordination/seed_fitness.py`. It unifies project-document
+seed selection for `mcp-search-seeds` and `mcp-score-tasks`, emits inspectable
+score breakdowns, and applies builder-task policy only in the coordination
+layer. No embedding package, vector index, search engine, MCP SDK,
+`.dev-tools` package, or parts-bin runtime module was copied, imported, or made
+a dependency.
+
+Seed fitness inspector visibility was implemented as original project-owned
+code under `src/core/coordination/seed_search.py` and `src/ui/mcp_inspector.py`.
+It adds source-flow inspection objects around selected traversal seeds and
+renders them through the existing standard-library Tk inspector Summary / Raw
+JSON pattern. No graph visualization package, external UI framework, MCP SDK,
+`.dev-tools` package, or parts-bin runtime module was copied, imported, or made
+a dependency.
+
+The formatted interaction stream was implemented as original project-owned code
+under `src/core/coordination/history_inspector.py`, `src/ui/mcp_inspector.py`,
+and `src/app.py`. It projects existing MCP inspection history records into
+chronological query/response objects and renders them as labeled object blocks
+with standard-library Tk. The stream appends newly seen call ids and pauses
+autoscroll while the vertical scrollbar is held, but it remains only an
+inspection projection over history. No message broker, event-sourcing package,
+external UI framework, MCP SDK, `.dev-tools` package, or parts-bin runtime
+module was copied, imported, or made a dependency.
+
+Projection candidate flow visibility and the unified cockpit were implemented
+as original project-owned code under
+`src/core/coordination/context_projection.py`,
+`src/core/coordination/history_inspector.py`, `src/ui/mcp_inspector.py`, and
+`src/app.py`. They project additional ordered evidence and score-state summaries
+from existing cartridges, history, and score artifacts without creating a new
+truth store. No dashboard framework, graph-visualization package, event broker,
+MCP SDK, `.dev-tools` runtime package, or parts-bin runtime module was copied,
+imported, or made a dependency.
+
+The shared host state spine was implemented as original project-owned code
+under `src/core/coordination/host_workspace.py`, `src/ui/gui_main.py`,
+`src/ui/mcp_inspector.py`, and `src/app.py`. It introduces a coordination-owned
+live host snapshot and dispatcher over the existing durable history/score
+ledger, but it does not add a network API, websocket layer, external event
+bus, `.dev-tools` runtime package, or parts-bin runtime module.
+
 The sources below are approved reference candidates only.
 
 ## Reference Source: `.parts/_BDNeuralTranslationSUITE`

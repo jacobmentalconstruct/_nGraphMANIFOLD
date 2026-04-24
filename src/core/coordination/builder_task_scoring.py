@@ -137,6 +137,9 @@ def run_real_builder_task_scoring(
         ingestion = ingest_project_documents_for_traversal(
             root,
             seed_text_hint=fixture.seed_text_hint,
+            seed_question=fixture.question,
+            seed_task_id=fixture.task_id,
+            expected_source_suffix=fixture.expected_source_suffix,
         )
         call = ingestion.tool_call.to_dict()
         history.record_call(call)

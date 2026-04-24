@@ -114,6 +114,7 @@ class InteractionSpineTests(unittest.TestCase):
             payload["response"]["projection_frame"]["selected_layer"],
             "python_docs_projection",
         )
+        self.assertIsNotNone(payload["response"]["projection_frame"]["selected_flow"])
         self.assertGreater(payload["usefulness_report"]["aggregate_score"], 0.7)
 
     def test_envelopes_project_to_semantic_objects_without_persistence(self) -> None:

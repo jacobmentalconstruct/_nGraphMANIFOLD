@@ -3,47 +3,60 @@
 from __future__ import annotations
 
 import json
-import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from src.core.persistence import DEFAULT_CARTRIDGE_ID, SemanticCartridge
-from src.core.representation import SemanticObject
 
 from .mcp_inspection_history import McpInspectionHistoryRecord, McpInspectionHistoryStore
 from .mcp_tool_registry import TRAVERSAL_TOOL_NAME, McpToolCallResult, call_registered_mcp_tool
+from .project_documents import default_project_document_cartridge_path
 from .project_documents import ProjectDocumentCorpus, ingest_project_documents
+from .seed_fitness import SeedSearchCandidate, rank_seed_candidates
 
 SEED_SEARCH_VERSION = "v1"
-TOKEN_PATTERN = re.compile(r"[A-Za-z0-9_]+")
 
 
 @dataclass(frozen=True)
-class SeedSearchCandidate:
-    """One ranked semantic object that can serve as a traversal seed."""
+class SeedFlowObject:
+    """One source-ordered object around a selected traversal seed."""
 
+    role: str
     semantic_id: str
     source_ref: str
     kind: str
     content_preview: str
-    score: float
-    matched_terms: tuple[str, ...]
     block_index: int | None
     line_span: tuple[int | None, int | None]
     heading_trail: tuple[str, ...]
 
     def to_dict(self) -> dict[str, Any]:
         return {
+            "role": self.role,
             "semantic_id": self.semantic_id,
             "source_ref": self.source_ref,
             "kind": self.kind,
             "content_preview": self.content_preview,
-            "score": self.score,
-            "matched_terms": list(self.matched_terms),
             "block_index": self.block_index,
             "line_span": list(self.line_span),
             "heading_trail": list(self.heading_trail),
+        }
+
+
+@dataclass(frozen=True)
+class SeedFlowWindow:
+    """Previous / selected / next source-flow context for a seed."""
+
+    source_ref: str
+    breadcrumb: tuple[str, ...]
+    objects: tuple[SeedFlowObject, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "source_ref": self.source_ref,
+            "breadcrumb": list(self.breadcrumb),
+            "objects": [obj.to_dict() for obj in self.objects],
         }
 
 
@@ -56,6 +69,7 @@ class SeedSearchResult:
     cartridge_path: str
     candidate_count: int
     candidates: tuple[SeedSearchCandidate, ...]
+    selected_flow: SeedFlowWindow | None = None
 
     @property
     def selected_seed(self) -> SeedSearchCandidate | None:
@@ -68,6 +82,7 @@ class SeedSearchResult:
             "cartridge_path": self.cartridge_path,
             "candidate_count": self.candidate_count,
             "selected_seed": self.selected_seed.to_dict() if self.selected_seed else None,
+            "selected_flow": self.selected_flow.to_dict() if self.selected_flow else None,
             "candidates": [candidate.to_dict() for candidate in self.candidates],
         }
 
@@ -105,13 +120,16 @@ def search_project_document_seeds(
     """Ingest bounded project docs and rank matching semantic objects."""
     corpus = ingest_project_documents(project_root, cartridge_path=cartridge_path)
     cartridge = SemanticCartridge(corpus.cartridge_path, cartridge_id=DEFAULT_CARTRIDGE_ID)
-    candidates = rank_seed_candidates(cartridge.all_objects(), query, limit=limit)
+    objects = cartridge.all_objects()
+    candidates = rank_seed_candidates(objects, query, limit=limit)
+    selected = candidates[0] if candidates else None
     return SeedSearchResult(
         version=SEED_SEARCH_VERSION,
         query=query,
         cartridge_path=corpus.cartridge_path,
         candidate_count=len(candidates),
         candidates=tuple(candidates),
+        selected_flow=_selected_flow_window(objects, selected),
     )
 
 
@@ -127,13 +145,15 @@ def run_seed_search_traversal(
     """Search project-document seeds, call traversal on the top seed, and record history."""
     corpus = ingest_project_documents(project_root)
     cartridge = SemanticCartridge(corpus.cartridge_path, cartridge_id=DEFAULT_CARTRIDGE_ID)
-    candidates = tuple(rank_seed_candidates(cartridge.all_objects(), query, limit=limit))
+    objects = cartridge.all_objects()
+    candidates = tuple(rank_seed_candidates(objects, query, limit=limit))
     search = SeedSearchResult(
         version=SEED_SEARCH_VERSION,
         query=query,
         cartridge_path=corpus.cartridge_path,
         candidate_count=len(candidates),
         candidates=candidates,
+        selected_flow=_selected_flow_window(objects, candidates[0] if candidates else None),
     )
     selected = search.selected_seed
     if selected is None:
@@ -161,27 +181,89 @@ def run_seed_search_traversal(
     )
 
 
-def rank_seed_candidates(
-    objects: list[SemanticObject],
-    query: str,
+def seed_flow_window_for_semantic_id(
+    project_root: Path | str,
+    semantic_id: str,
     *,
-    limit: int = 5,
-) -> list[SeedSearchCandidate]:
-    """Rank semantic objects with a deterministic owned text scorer."""
-    terms = tuple(dict.fromkeys(token.lower() for token in TOKEN_PATTERN.findall(query)))
-    if not terms:
-        raise ValueError("Seed search query must contain at least one alphanumeric term")
-    ranked = [_candidate_for_object(obj, query, terms) for obj in objects]
-    candidates = [candidate for candidate in ranked if candidate.score > 0]
-    candidates.sort(key=_candidate_sort_key)
-    return candidates[: max(1, limit)]
+    cartridge_path: Path | str | None = None,
+) -> SeedFlowWindow | None:
+    """Return source-ordered flow context for a persisted semantic object id."""
+    db_path = Path(cartridge_path) if cartridge_path else default_project_document_cartridge_path(project_root)
+    if not db_path.exists():
+        return None
+    cartridge = SemanticCartridge(db_path, cartridge_id=DEFAULT_CARTRIDGE_ID)
+    objects = cartridge.all_objects()
+    selected = next((obj for obj in objects if obj.semantic_id == semantic_id), None)
+    if selected is None or not selected.occurrence:
+        return None
+    line_span = (
+        selected.occurrence.source_span.start,
+        selected.occurrence.source_span.end,
+    )
+    candidate = SeedSearchCandidate(
+        semantic_id=selected.semantic_id,
+        source_ref=selected.occurrence.source_ref,
+        kind=selected.kind,
+        content_preview=_preview(selected.content),
+        line_span=line_span,
+        score=0.0,
+        matched_terms=(),
+        heading_trail=tuple(
+            str(item) for item in selected.occurrence.local_context.get("heading_trail", ())
+        ),
+        block_index=(
+            int(selected.occurrence.local_context["block_index"])
+            if isinstance(selected.occurrence.local_context.get("block_index"), int)
+            else None
+        ),
+        score_breakdown={},
+    )
+    return _selected_flow_window(objects, candidate)
 
 
-def _candidate_for_object(
-    obj: SemanticObject,
-    query: str,
-    terms: tuple[str, ...],
-) -> SeedSearchCandidate:
+def _selected_flow_window(
+    objects: list[Any],
+    selected: SeedSearchCandidate | None,
+) -> SeedFlowWindow | None:
+    if selected is None:
+        return None
+    same_source = [
+        obj for obj in objects
+        if obj.occurrence and obj.occurrence.source_ref == selected.source_ref
+    ]
+    same_source.sort(key=_flow_object_sort_key)
+    selected_index = next(
+        (index for index, obj in enumerate(same_source) if obj.semantic_id == selected.semantic_id),
+        None,
+    )
+    if selected_index is None:
+        return None
+    start = max(0, selected_index - 1)
+    end = min(len(same_source), selected_index + 2)
+    flow_objects: list[SeedFlowObject] = []
+    for index in range(start, end):
+        role = "selected"
+        if index < selected_index:
+            role = "previous"
+        elif index > selected_index:
+            role = "next"
+        flow_objects.append(_flow_object(same_source[index], role))
+    breadcrumb = tuple(
+        item for item in (
+            selected.source_ref,
+            *selected.heading_trail,
+            f"block {selected.block_index}" if selected.block_index is not None else "",
+        )
+        if item
+    )
+    return SeedFlowWindow(
+        source_ref=selected.source_ref,
+        breadcrumb=breadcrumb,
+        objects=tuple(flow_objects),
+    )
+
+
+def _flow_object(obj: Any, role: str) -> SeedFlowObject:
     occurrence = obj.occurrence
     source_ref = occurrence.source_ref if occurrence else ""
     line_span = (
@@ -191,48 +273,28 @@ def _candidate_for_object(
     local_context = occurrence.local_context if occurrence else {}
     heading_trail = tuple(str(item) for item in local_context.get("heading_trail", ()))
     block_index = local_context.get("block_index")
-    normalized_content = obj.content.lower()
-    normalized_source = source_ref.lower()
-    normalized_heading = " ".join(heading_trail).lower()
-    normalized_query = query.strip().lower()
-
-    matched_terms = tuple(
-        term
-        for term in terms
-        if term in normalized_content or term in normalized_source or term in normalized_heading
-    )
-    score = 0.0
-    if normalized_query and normalized_query in normalized_content:
-        score += 5.0
-    if normalized_query and normalized_query in normalized_source:
-        score += 2.0
-    for term in terms:
-        if term in normalized_content:
-            score += 1.0
-        if term in normalized_heading:
-            score += 0.75
-        if term in normalized_source:
-            score += 0.5
-    if obj.kind == "heading":
-        score += 0.25
-    score += max(0.0, 0.25 - min(len(obj.content), 1000) / 4000)
-
-    return SeedSearchCandidate(
+    return SeedFlowObject(
+        role=role,
         semantic_id=obj.semantic_id,
         source_ref=source_ref,
         kind=obj.kind,
         content_preview=_preview(obj.content),
-        score=round(score, 4),
-        matched_terms=matched_terms,
         block_index=int(block_index) if isinstance(block_index, int) else None,
         line_span=line_span,
         heading_trail=heading_trail,
     )
 
 
-def _candidate_sort_key(candidate: SeedSearchCandidate) -> tuple[float, str, int, str]:
-    block_index = candidate.block_index if candidate.block_index is not None else 999999
-    return (-candidate.score, candidate.source_ref, block_index, candidate.semantic_id)
+def _flow_object_sort_key(obj: Any) -> tuple[int, int, str]:
+    occurrence = obj.occurrence
+    local_context = occurrence.local_context if occurrence else {}
+    block_index = local_context.get("block_index")
+    line_start = occurrence.source_span.start if occurrence else None
+    return (
+        int(block_index) if isinstance(block_index, int) else 999999,
+        int(line_start) if isinstance(line_start, int) else 999999,
+        obj.semantic_id,
+    )
 
 
 def _preview(content: str, limit: int = 220) -> str:

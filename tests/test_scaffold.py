@@ -51,11 +51,8 @@ class ScaffoldTests(unittest.TestCase):
         settings = AppSettings.from_environment()
         status = ApplicationEngine(settings).status()
         self.assertEqual(status.status, "scaffold_ready")
-        self.assertIn(
-            "Projection Scoring And MCP Inspection: Shared Command Spine",
-            status.active_tranche,
-        )
-        self.assertIn("UI Command Spine Pilot", status.next_tranche)
+        self.assertIn("Local Host Bridge", status.active_tranche)
+        self.assertIn("Post-Prototype Hardening", status.next_tranche)
 
 
 if __name__ == "__main__":

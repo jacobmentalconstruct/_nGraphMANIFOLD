@@ -1,6 +1,6 @@
 # Prototype Tuning And Scoring
 
-_Status: Seed-search tuning candidate ready_
+_Status: Prototype completion gate accepted; local host bridge parked_
 
 This document records the first post-prototype tuning harness. It is subordinate
 to `builder_constraint_contract.md`.
@@ -28,6 +28,10 @@ source content
 - `src/core/coordination/builder_task_scoring.py`
 - `src/core/coordination/history_inspector.py`
 - `src/core/coordination/seed_search.py`
+- `src/core/coordination/seed_fitness.py`
+- `src/core/coordination/context_projection_scoring.py`
+- `src/core/coordination/host_workspace.py`
+- `src/core/coordination/host_bridge.py`
 
 This is a local evaluation harness, not a network adapter or MCP server.
 
@@ -86,16 +90,85 @@ Seed search can now select traversal seeds before calling the registered tool:
 python -m src.app mcp-search-seeds --query "Current Park Point" --dump-json
 ```
 
+Recent query/response captures can be inspected as a formatted stream:
+
+```bat
+python -m src.app mcp-stream
+```
+
+The stream is derived from the same MCP inspection history used by the tuning
+harness. It is useful for watching scoring and query-projection life cycles in
+order, but it is not a separate scoring store.
+
+Projection-candidate visibility and the unified cockpit now extend that same
+inspection path:
+
+```bat
+python -m src.app project-query --query "class object function" --dump-json
+python -m src.app mcp-cockpit --dump-json
+```
+
+The first command verifies that `project-query` exposes `selected_flow`; the
+second verifies that the cockpit can assemble latest score artifacts, latest
+projection, latest builder seed, and recent stream records into one read-only
+payload.
+
+`python -m src.app ui` is now a shared-host workspace over the same tuning
+surfaces. It renders stream, active projection, active seed flow, score
+summaries, and Raw JSON from one live in-process host snapshot rather than
+rebuilding separate ad hoc views.
+
+The local host bridge now lets opt-in external commands target that already-open
+host:
+
+```bat
+python -m src.app project-query --query "class object function" --use-host-bridge
+python -m src.app mcp-search-seeds --query "Current Park Point" --use-host-bridge
+```
+
+That means the tuning loop can now evaluate not only whether the result is
+useful, but whether the live host session becomes more legible when the command
+is delivered from outside the UI process.
+
+## Current Experimentation Doctrine
+
+At this stage, an experiment is not accepted just because it "worked once."
+The current doctrine is:
+
+- fixture scores must remain acceptable
+- real builder-task score must remain acceptable
+- projection arbitration must remain acceptable
+- the result must stay inspectable through the current visibility surfaces
+- the result must remain contract-safe and boundary-clean
+
+That means experiments are judged by both usefulness and legibility. A change
+that produces an impressive local behavior but weakens inspection, boundary
+discipline, or parked continuity is not a successful experiment.
+
 ## Interpretation
 
 The seam is now tunable and scoreable through local code and real project docs.
-It is still not a full MCP protocol server. The next architectural pressure is
-scoring whether search-selected traversal seeds improve task fit,
-actionability, and friction reduction against the existing builder tasks.
+It is still not a full MCP protocol server. Search-selected traversal seed
+fitness passes the current builder-task score with aggregate `0.93`, and
+context projection arbitration scores `0.96`. Projection candidate flow is now
+visible through `selected_flow`, and the cockpit reduces the need to manually
+stitch together history view, stream view, seed flow, and score artifacts.
+The local host bridge proves that separate processes can target the already-open
+host workspace while still reusing the same command model and dispatcher.
+
+That is enough to treat the current bounded prototype as complete: structurally
+correct, inspectable, and score-accepted, while still explicitly deferring
+embeddings, merged cartridges, a real MCP server, and broad UI expansion.
 
 ## Next Scoring Work
 
-- Score traversal search and seed selection against the real builder tasks.
-- Track whether search improves task-fit and actionability scores.
-- Keep the history-aware inspector attached to every scoring run.
-- Decide whether better search is enough or a second registered tool is needed.
+- Keep the history-aware inspector, interaction stream, and cockpit attached to
+  future scoring runs so query/response evidence remains visible.
+- Define whether rolling-trace retention should become part of the tuning gate
+  once post-prototype hardening formalizes the policy.
+- Decide whether future scoring should include explicit human-facing inspection
+  usefulness fixtures beyond the current qualitative tuning gate.
+- Decide whether cockpit/stream filtering belongs in post-prototype hardening
+  or should remain deferred.
+- Decide whether future tuning should explicitly score bridged host-session
+  usefulness, not only query/projection correctness.

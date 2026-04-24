@@ -1,6 +1,6 @@
 # Strangler Plan
 
-_Status: Active migration doctrine, shared command spine pilot parked complete_
+_Status: Active migration doctrine, shared host state spine parked complete_
 
 This document defines how nGraphMANIFOLD will grow around useful prior parts
 without becoming a copy of them. It is the active migration plan until a
@@ -619,7 +619,7 @@ persistence for interaction events.
 
 ## Phase 21: UI Command Spine Pilot
 
-Status: next tranche.
+Status: complete in bounded prototype form.
 
 ### In Scope
 
@@ -638,6 +638,237 @@ Status: next tranche.
 - no new corpus ingestion
 - no hidden direct button-to-handler bypass
 
+### Assessment
+
+The UI is no longer a placeholder. `python -m src.app ui` opens a minimal
+project-query control that records `ngraph.project.query` through the same
+shared `CommandEnvelope` / `ToolResultEnvelope` / `InteractionCapture` path as
+CLI and MCP-shaped calls. UI-originated records use `source_surface="ui"` and
+remain history-first only. This proves the shared command spine can support a
+human-facing control without making the UI a new source of truth.
+
+## Phase 22: Layer Arbitration And Rebinding Scoring
+
+Status: complete in bounded prototype form.
+
+### In Scope
+
+- Add focused scoring fixtures for English lexical, Python docs, and
+  project-local query intent.
+- Compare selected layers against expected context stacks.
+- Tune deterministic arbitration where the current scoring chooses a weak layer.
+- Keep tuning output visible through existing MCP inspection history.
+
+### Non-Goals
+
+- no embeddings
+- no cartridge merge
+- no broad UI expansion
+- no real network MCP server
+- no interaction-event cartridge persistence
+
+### Assessment
+
+`project-query-score` now runs bounded English, Python, and project-local
+arbitration fixtures through the shared `ngraph.project.query` command spine.
+Each fixture records a normal `InteractionCapture` in MCP inspection history
+with `source_surface="scoring"`, and the aggregate context projection score is
+accepted. The initial real-cartridge run scored `0.96` with all expected
+selected layers passing, so no extra deterministic arbitration adjustment was
+needed in this tranche.
+
+## Phase 23: Builder Task Seed Selection Tuning
+
+Status: complete in bounded prototype form.
+
+### In Scope
+
+- Inspect the weaker real-doc builder task fixtures currently scoring `0.69`.
+- Compare seed hints, selected seed source documents, and expected source
+  suffixes.
+- Tune deterministic seed search or fixture routing over the existing bounded
+  document set.
+- Keep all tuning calls visible through existing MCP inspection history and
+  score artifacts.
+
+### Non-Goals
+
+- no embeddings
+- no repo-wide scan
+- no broad document ingestion expansion as the first move
+- no real network MCP server
+- no polished UI expansion
+
+### Assessment
+
+Seed selection is now owned by a shared coordination-layer seed-fitness scorer.
+`mcp-search-seeds` and `mcp-score-tasks` both use the same deterministic ranked
+path, while builder-task scoring passes a narrow task policy for document-role
+fit, heading/section affinity, continuation-marker proximity, operator-command
+proximity, and expected source fit. Alphabetical source ordering is now only a
+final stable fallback after score, structural score, and block order.
+
+The real builder-task score improved to aggregate `0.93`, with all four
+fixtures scoring `0.93`. This was done without embeddings, vector similarity,
+projection-layer changes, cartridge merging, or persistent cross-cartridge
+coupling.
+
+## Phase 24: Seed Fitness Inspector Visibility
+
+Status: complete in bounded prototype form.
+
+### In Scope
+
+- Surface selected-seed score breakdowns in inspector/history summaries where
+  useful.
+- Keep raw JSON as the complete inspection truth.
+- Preserve the existing MCP inspection history path.
+- Decide whether the minimal UI should show seed-fitness details before adding
+  broader controls.
+
+### Non-Goals
+
+- no embeddings
+- no broad UI dashboard
+- no new protocol server
+- no persistent cross-cartridge coupling
+
+### Assessment
+
+`mcp-search-seeds` now includes a `selected_flow` window around the selected
+semantic object. The inspector renders seed-search payloads with Summary and
+Raw JSON tabs, showing the selected seed, score breakdown, breadcrumb,
+previous/selected/next source-flow objects, and traversal summary. This makes
+seed-fitness evidence intentionally inspectable without replacing raw JSON or
+turning the inspector into a polished dashboard.
+
+This phase also added the first formatted interaction stream over MCP
+inspection history. `mcp-stream` projects recent command/result captures into
+labeled object blocks and preserves Raw JSON beside the formatted stream. The
+stream is still history-first: it appends newly seen call ids, pauses autoscroll
+while the scrollbar is held, and does not create a message broker, event store,
+or interaction cartridge.
+
+## Phase 25: Projection Candidate Flow Visibility
+
+Status: complete in bounded prototype form.
+
+### In Scope
+
+- Apply the same flow-aware inspection pattern to `project-query` projection
+  candidates and selected layers.
+- Surface selected candidate order, layer breadcrumbs, matched terms, score
+  evidence, and compact previews in the existing inspector.
+- Preserve the shared `InteractionCapture` as the complete raw truth.
+
+### Non-Goals
+
+- no embeddings
+- no graph visualization
+- no cartridge merge
+- no real MCP protocol server
+- no interaction-event cartridge persistence
+
+### Assessment
+
+`project-query` frames now expose `selected_flow`, which shows the selected
+candidate plus nearby alternatives from the same layer in ranked order. The
+existing inspector Summary tab can now explain not just which layer won, but
+which candidate won inside that layer, what nearly won, and what evidence each
+visible candidate carries.
+
+This keeps projection choice inspectable without introducing a graph view,
+dashboard, merged cartridge, or hidden persistence path.
+
+## Phase 26: Unified Visibility Cockpit
+
+Status: complete in bounded prototype form.
+
+### In Scope
+
+- add one read-only cockpit surface over existing history and score artifacts
+- combine latest projection, latest seed flow, latest builder score, latest
+  projection score, recent stream, and Raw JSON
+- keep the cockpit additive rather than replacing inspector or stream views
+
+### Non-Goals
+
+- no new truth store
+- no broad dashboard framework
+- no interaction-event cartridge persistence
+- no graph visualization
+- no real MCP protocol server
+
+### Assessment
+
+`mcp-cockpit` now assembles the current prototype state into one visibility
+surface so the builder does not need to reconstruct it from separate tools.
+The cockpit remains history-first and read-only.
+
+## Phase 27: Prototype Completion Gate
+
+Status: complete in bounded prototype form.
+
+### In Scope
+
+- re-run bounded ingestion after visibility updates
+- refresh builder-task and projection score artifacts
+- run full tests, compile checks, forbidden-reference scan, and domain audits
+- park docs and journal with the new prototype-complete continuation point
+
+### Non-Goals
+
+- no new subsystem invention during the gate
+- no broad UI rewrite
+- no embeddings
+- no real MCP protocol server
+- no cartridge merge
+
+### Assessment
+
+The prototype completion gate is accepted. Current bounded verification is:
+
+- builder-task score: `0.93`, accepted
+- projection arbitration score: `0.96`, accepted
+- full tests: `99`, passing
+- compile check: passing
+- forbidden-reference scan: `0` violations
+- domain-boundary audits: `src=0`, `tests=0`
+
+## Phase 28: Shared Host State Spine
+
+Status: complete in bounded in-process form.
+
+### In Scope
+
+- add a coordination-owned live host snapshot for the desktop workspace
+- normalize `project-query`, `mcp-search-seeds`, `mcp-history-view`,
+  `mcp-stream`, and `mcp-cockpit` through one shared dispatcher
+- promote `python -m src.app ui` into the primary host workspace
+- preserve `--dump-json` as the official headless path
+- document the explicit same-process vs separate-process rule
+
+### Non-Goals
+
+- no FastAPI
+- no websocket transport
+- no Docker / WASM architecture pivot
+- no real MCP server
+- no same-instance cross-process control yet
+
+### Assessment
+
+The app now has a real shared host-state spine. The durable truth remains the
+existing SQLite history and score artifacts, but the UI no longer rebuilds its
+world as an isolated launcher. It reads and updates one coordination-owned live
+host snapshot containing recent interactions, active projection, active seed
+flow, score summaries, and raw payload cache.
+
+This is the right-order version of UI/MCP unification for the current stage:
+same command model, same dispatcher, same live host state, multiple views.
+Literal cross-process co-driving of an already-open window is intentionally
+deferred to the next tranche.
+
 ## Deferred Advanced Work
 
 - FFN relation scorer
@@ -652,14 +883,14 @@ Status: next tranche.
 
 ## Immediate Post-Prototype Work
 
-- Score whether traversal search improves real builder-task usefulness.
-- Score whether the English lexical baseline helps layered retrieval.
-- Score the context projection layer and decide whether it should become the
-  next MCP-shaped registered tool candidate.
-- Keep history-aware inspector attached to show selected seeds and traversal
-  outcomes.
-- Decide whether search tuning is enough or whether a second registered tool is
-  justified.
+- Decide whether to add a local host bridge so separate commands can target an
+  already-open UI host.
+- Decide retention/pruning policy for MCP inspection history.
+- Decide whether the cockpit and stream stay compact or gain filtering.
+- Decide which additional UI actions should join the shared command spine.
+- Decide when command/result SemanticObject projections should become persisted
+  cartridge truth.
+- Decide when the bounded project-document set should expand.
 
 ## Backlog Seeds
 

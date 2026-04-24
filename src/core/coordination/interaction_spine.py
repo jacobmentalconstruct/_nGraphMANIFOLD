@@ -162,6 +162,20 @@ def create_command_envelope(
     )
 
 
+def command_envelope_from_dict(payload: dict[str, Any]) -> CommandEnvelope:
+    """Rehydrate a previously created command envelope without changing its identity."""
+    return CommandEnvelope(
+        command_id=str(payload.get("command_id", "")),
+        version=str(payload.get("version", INTERACTION_SPINE_VERSION)),
+        actor=str(payload.get("actor", "human")),
+        source_surface=str(payload.get("source_surface", "cli")),
+        tool_name=str(payload.get("tool_name", "")),
+        payload=dict(payload.get("payload", {})),
+        correlation_id=str(payload.get("correlation_id", "")),
+        created_at=str(payload.get("created_at", "")),
+    )
+
+
 def run_project_query_interaction(
     project_root: Path | str,
     query: str,
