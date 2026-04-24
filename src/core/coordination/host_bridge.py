@@ -16,6 +16,8 @@ from .interaction_spine import CommandEnvelope, PROJECT_QUERY_TOOL_NAME, command
 
 HOST_BRIDGE_VERSION = "v1"
 DEFAULT_HOST_BRIDGE_TIMEOUT_MS = 5000
+DEFAULT_HOST_BRIDGE_HEAVY_TIMEOUT_MS = 180000
+DEFAULT_HOST_BRIDGE_MEDIUM_TIMEOUT_MS = 30000
 DEFAULT_HOST_BRIDGE_POLL_INTERVAL_MS = 750
 DEFAULT_HOST_BRIDGE_WAIT_INTERVAL_MS = 100
 DEFAULT_HOST_BRIDGE_STALE_AFTER_SECONDS = 5.0
@@ -86,6 +88,7 @@ class HostBridgeRequest:
     session_id: str
     created_at: str
     command: CommandEnvelope
+    bridge_policy: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -94,6 +97,7 @@ class HostBridgeRequest:
             "session_id": self.session_id,
             "created_at": self.created_at,
             "command": self.command.to_dict(),
+            "bridge_policy": self.bridge_policy,
         }
 
     @classmethod
@@ -104,6 +108,7 @@ class HostBridgeRequest:
             session_id=str(payload.get("session_id", "")),
             created_at=str(payload.get("created_at", "")),
             command=command_envelope_from_dict(dict(payload.get("command", {}))),
+            bridge_policy=dict(payload.get("bridge_policy", {}) or {}),
         )
 
 
@@ -121,6 +126,7 @@ class HostBridgeResponse:
     payload: dict[str, Any] | None
     error: dict[str, Any] | None = None
     snapshot_summary: dict[str, Any] | None = None
+    bridge_policy: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -134,6 +140,7 @@ class HostBridgeResponse:
             "payload": self.payload,
             "error": self.error,
             "snapshot_summary": self.snapshot_summary,
+            "bridge_policy": self.bridge_policy,
         }
 
     @classmethod
@@ -149,7 +156,57 @@ class HostBridgeResponse:
             payload=payload.get("payload"),
             error=payload.get("error"),
             snapshot_summary=payload.get("snapshot_summary"),
+            bridge_policy=dict(payload.get("bridge_policy", {}) or {}),
         )
+
+
+def resolve_host_bridge_timeout_policy(
+    tool_name: str,
+    *,
+    requested_timeout_ms: int | None = None,
+) -> dict[str, Any]:
+    """Return the effective timeout policy for one bridged command."""
+    command_default_ms = _command_default_timeout_ms(tool_name)
+    timeout_ms = command_default_ms
+    timeout_source = "command_policy_default"
+    if requested_timeout_ms is not None:
+        timeout_ms = max(1, int(requested_timeout_ms))
+        timeout_source = "caller_override"
+    runtime_class = "heavy" if command_default_ms >= DEFAULT_HOST_BRIDGE_HEAVY_TIMEOUT_MS else "medium" if command_default_ms > DEFAULT_HOST_BRIDGE_TIMEOUT_MS else "standard"
+    return {
+        "tool_name": tool_name,
+        "timeout_ms": timeout_ms,
+        "timeout_source": timeout_source,
+        "command_default_timeout_ms": command_default_ms,
+        "global_default_timeout_ms": DEFAULT_HOST_BRIDGE_TIMEOUT_MS,
+        "runtime_class": runtime_class,
+        "supports_override": True,
+    }
+
+
+def build_host_bridge_timeout_policy_manifest() -> dict[str, Any]:
+    """Return a compact machine-readable summary of bridge timeout defaults."""
+    tool_names = (
+        PROJECT_QUERY_TOOL_NAME,
+        "ngraph.host.status_view",
+        "ngraph.host.tool_registry_view",
+        "ngraph.host.search_seeds",
+        "ngraph.host.history_view",
+        "ngraph.host.stream_view",
+        "ngraph.host.cockpit_view",
+        "ngraph.host.builder_score_view",
+        "ngraph.host.projection_score_view",
+        "ngraph.host.promote_call",
+        "ngraph.host.read_panels",
+    )
+    return {
+        "global_default_timeout_ms": DEFAULT_HOST_BRIDGE_TIMEOUT_MS,
+        "attach_grace_ms": DEFAULT_HOST_BRIDGE_ATTACH_GRACE_MS,
+        "tool_policies": {
+            tool_name: resolve_host_bridge_timeout_policy(tool_name)
+            for tool_name in tool_names
+        },
+    }
 
 
 def default_host_bridge_root(project_root: Path | str) -> Path:
@@ -314,6 +371,7 @@ def enqueue_host_bridge_request(
     command: CommandEnvelope,
     *,
     session: HostBridgeSessionManifest | None = None,
+    bridge_policy: dict[str, Any] | None = None,
 ) -> HostBridgeRequest:
     """Write one bridge request file targeting the current live host session."""
     manifest = session or require_live_host_bridge_session(project_root)
@@ -325,6 +383,7 @@ def enqueue_host_bridge_request(
         session_id=manifest.session_id,
         created_at=_utc_now(),
         command=command,
+        bridge_policy=dict(bridge_policy or {}),
     )
     bridge_root = default_host_bridge_root(project_root)
     _ensure_bridge_dirs(bridge_root)
@@ -395,16 +454,25 @@ def dispatch_command_via_host_bridge(
     project_root: Path | str,
     command: CommandEnvelope,
     *,
-    timeout_ms: int = DEFAULT_HOST_BRIDGE_TIMEOUT_MS,
+    timeout_ms: int | None = None,
     wait_interval_ms: int = DEFAULT_HOST_BRIDGE_WAIT_INTERVAL_MS,
 ) -> HostBridgeResponse:
     """Send one supported command to the live host and wait for the response."""
     manifest = require_live_host_bridge_session(project_root)
-    request = enqueue_host_bridge_request(project_root, command, session=manifest)
+    bridge_policy = resolve_host_bridge_timeout_policy(
+        command.tool_name,
+        requested_timeout_ms=timeout_ms,
+    )
+    request = enqueue_host_bridge_request(
+        project_root,
+        command,
+        session=manifest,
+        bridge_policy=bridge_policy,
+    )
     response = wait_for_host_bridge_response(
         project_root,
         request.request_id,
-        timeout_ms=timeout_ms,
+        timeout_ms=int(bridge_policy["timeout_ms"]),
         wait_interval_ms=wait_interval_ms,
     )
     if response.status != "ok":
@@ -487,6 +555,7 @@ def _process_one_bridge_request(
             if result.snapshot.active_interaction
             else "",
         },
+        bridge_policy=dict(request.bridge_policy or {}),
     )
 
 
@@ -506,6 +575,7 @@ def _bridge_error_response(
         tool_name=request.command.tool_name,
         payload=None,
         error={"code": code, "message": message},
+        bridge_policy=dict(request.bridge_policy or {}),
     )
 
 
@@ -593,3 +663,11 @@ def _parse_timestamp(value: str) -> datetime | None:
         return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
     except ValueError:
         return None
+
+
+def _command_default_timeout_ms(tool_name: str) -> int:
+    if tool_name == "ngraph.host.builder_score_view":
+        return DEFAULT_HOST_BRIDGE_HEAVY_TIMEOUT_MS
+    if tool_name == "ngraph.host.projection_score_view":
+        return DEFAULT_HOST_BRIDGE_MEDIUM_TIMEOUT_MS
+    return DEFAULT_HOST_BRIDGE_TIMEOUT_MS

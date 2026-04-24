@@ -253,8 +253,18 @@ It is not:
 - a real MCP server
 - a new truth store
 
+The bridge policy is now more explicit:
+
+- global default remains `5000 ms`
+- builder-task scoring now uses a heavy command-aware default
+- projection scoring now uses a medium command-aware default
+- `--bridge-timeout-ms` remains the caller-owned override
+- bridged JSON payloads now include additive `_bridge` metadata describing the
+  effective timeout policy and delivery context
+
 The next seam pressure is not "more transport." It is how the current bridge
-stays bounded and inspectable as the project enters post-prototype hardening.
+stays bounded, inspectable, and legible as the project enters post-prototype
+hardening.
 
 ## Persistent Inspection History
 
@@ -395,10 +405,9 @@ candidate is:
 - `analysis.traverse_cartridge`
 
 The next seam pressure is no longer "can the live host be targeted?" The next
-seam pressure is whether heavier bridged scoring runs deserve different timeout
-defaults, whether operator-promoted evidence needs richer metadata, and whether
-the current file-backed bridge should remain the local transport for the next
-band.
+seam pressure is whether operator-promoted evidence needs richer metadata and
+whether the current file-backed bridge should remain the local transport for
+the next band now that timeout ownership has an explicit policy.
 
 ## Project Document Ingestion
 

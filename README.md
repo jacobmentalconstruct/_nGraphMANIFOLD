@@ -83,7 +83,10 @@ builder-task score `0.93` and projection arbitration score `0.96`.
 Interaction-derived semantic-object projections now also declare an explicit
 truth policy: they are inspection-only operational evidence adapters, not
 semantic cartridge truth. Controlled project-doc expansion is available through
-named `core` and `expanded` profiles.
+named `core` and `expanded` profiles. The bridge now also exposes an explicit
+timeout policy: caller overrides are still supported, but longer-running
+bridged scoring commands use larger command-aware defaults and report that
+policy back in bridged JSON payloads through an additive `_bridge` section.
 
 Start with:
 
@@ -191,8 +194,10 @@ python -m src.app mcp-score-tasks --project-doc-profile expanded --dump-json
 ```
 
 This command now also routes through the shared host dispatcher. When targeting
-the live host for a longer scoring run, `--bridge-timeout-ms` may need to be
-raised. The expanded profile is intentionally opt-in because it is more
+the live host for a longer scoring run, the bridge now applies command-aware
+defaults: builder-task scoring uses a heavy default and projection scoring uses
+a medium default. `--bridge-timeout-ms` remains available as an explicit caller
+override. The expanded profile is intentionally opt-in because it is more
 informative but materially heavier than the core four-doc profile.
 
 Show the history-aware inspector summary:

@@ -10,6 +10,9 @@ import unittest
 from pathlib import Path
 
 from src.core.coordination import (
+    DEFAULT_HOST_BRIDGE_HEAVY_TIMEOUT_MS,
+    DEFAULT_HOST_BRIDGE_MEDIUM_TIMEOUT_MS,
+    DEFAULT_HOST_BRIDGE_TIMEOUT_MS,
     HOST_BUILDER_SCORE_TOOL_NAME,
     HOST_COCKPIT_TOOL_NAME,
     HOST_HISTORY_VIEW_TOOL_NAME,
@@ -36,6 +39,7 @@ from src.core.coordination import (
     ingest_project_documents,
     load_host_bridge_session,
     process_pending_host_bridge_requests,
+    resolve_host_bridge_timeout_policy,
     require_live_host_bridge_session,
     wait_for_live_host_bridge_session,
 )
@@ -55,6 +59,24 @@ class HostBridgeTests(unittest.TestCase):
         self.assertIn(HOST_PROJECTION_SCORE_TOOL_NAME, supported)
         self.assertIn(HOST_PROMOTE_CALL_TOOL_NAME, supported)
         self.assertIn(HOST_READ_PANELS_TOOL_NAME, supported)
+
+    def test_resolve_host_bridge_timeout_policy_uses_command_defaults_and_override(self) -> None:
+        builder_policy = resolve_host_bridge_timeout_policy(HOST_BUILDER_SCORE_TOOL_NAME)
+        projection_policy = resolve_host_bridge_timeout_policy(HOST_PROJECTION_SCORE_TOOL_NAME)
+        query_policy = resolve_host_bridge_timeout_policy(PROJECT_QUERY_TOOL_NAME)
+        override_policy = resolve_host_bridge_timeout_policy(
+            HOST_BUILDER_SCORE_TOOL_NAME,
+            requested_timeout_ms=42000,
+        )
+
+        self.assertEqual(builder_policy["timeout_ms"], DEFAULT_HOST_BRIDGE_HEAVY_TIMEOUT_MS)
+        self.assertEqual(builder_policy["timeout_source"], "command_policy_default")
+        self.assertEqual(builder_policy["runtime_class"], "heavy")
+        self.assertEqual(projection_policy["timeout_ms"], DEFAULT_HOST_BRIDGE_MEDIUM_TIMEOUT_MS)
+        self.assertEqual(query_policy["timeout_ms"], DEFAULT_HOST_BRIDGE_TIMEOUT_MS)
+        self.assertEqual(query_policy["runtime_class"], "standard")
+        self.assertEqual(override_policy["timeout_ms"], 42000)
+        self.assertEqual(override_policy["timeout_source"], "caller_override")
 
     def _write_dictionary(self, root: Path) -> None:
         source = root / "assets" / "_corpus_examples" / "dictionary_alpha_arrays.json"
@@ -195,6 +217,8 @@ class HostBridgeTests(unittest.TestCase):
 
         self.assertEqual(response.status, "ok")
         self.assertEqual(response.tool_name, PROJECT_QUERY_TOOL_NAME)
+        self.assertEqual(response.bridge_policy["timeout_ms"], 2000)
+        self.assertEqual(response.bridge_policy["timeout_source"], "caller_override")
         self.assertEqual(
             response.payload["capture"]["command"]["source_surface"],
             "cli-bridge",

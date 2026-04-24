@@ -340,6 +340,14 @@ class HostWorkspaceTests(unittest.TestCase):
             status_result.payload["interaction_truth_policy"]["persistence_policy"],
             "inspection_only",
         )
+        self.assertEqual(
+            status_result.payload["bridge_timeout_policy"]["global_default_timeout_ms"],
+            5000,
+        )
+        self.assertEqual(
+            status_result.payload["bridge_timeout_policy"]["tool_policies"][HOST_BUILDER_SCORE_TOOL_NAME]["runtime_class"],
+            "heavy",
+        )
         self.assertIn("tools", tools_result.payload)
         self.assertTrue(builder_result.payload["meets_acceptance"])
         self.assertIn("meets_acceptance", projection_result.payload)

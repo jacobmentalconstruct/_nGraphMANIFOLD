@@ -52,7 +52,7 @@ class ScaffoldTests(unittest.TestCase):
         status = ApplicationEngine(settings).status()
         self.assertEqual(status.status, "scaffold_ready")
         self.assertIn("Post-Prototype Hardening", status.active_tranche)
-        self.assertIn("Bridge Policy", status.next_tranche)
+        self.assertIn("Operator Metadata", status.next_tranche)
 
 
 if __name__ == "__main__":

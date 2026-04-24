@@ -50,6 +50,7 @@ from .core.coordination import (
     lookup_english_lexicon_entry,
     run_context_projection_arbitration_scoring,
     run_real_builder_task_scoring,
+    resolve_host_bridge_timeout_policy,
     run_seed_search_traversal,
     wait_for_live_host_bridge_session,
 )
@@ -115,8 +116,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--bridge-timeout-ms",
         type=int,
-        default=DEFAULT_HOST_BRIDGE_TIMEOUT_MS,
-        help="When using --use-host-bridge, milliseconds to wait for the live host to process the request.",
+        default=None,
+        help=(
+            "When using --use-host-bridge, optional override for how long to wait. "
+            f"If omitted, the bridge uses a command-aware default (global default {DEFAULT_HOST_BRIDGE_TIMEOUT_MS} ms)."
+        ),
     )
     parser.add_argument(
         "--history-limit",
@@ -238,6 +242,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             source_surface="cli-bridge" if deliver_to_host else "cli",
         )
         if deliver_to_host:
+            bridge_policy = resolve_host_bridge_timeout_policy(
+                command_name,
+                requested_timeout_ms=args.bridge_timeout_ms,
+            )
             try:
                 response = dispatch_command_via_host_bridge(
                     settings.project_root,
@@ -250,7 +258,16 @@ def main(argv: Sequence[str] | None = None) -> int:
             except HostBridgeError as exc:
                 LOGGER.error("Host bridge failed: %s", exc)
                 return 1, json.dumps({"error": str(exc)}, indent=2, sort_keys=True), True
-            rendered = json.dumps(response.payload or {}, indent=2, sort_keys=True)
+            rendered_payload = dict(response.payload or {})
+            rendered_payload["_bridge"] = {
+                "request_id": response.request_id,
+                "session_id": response.session_id,
+                "status": response.status,
+                "responded_at": response.responded_at,
+                "policy": response.bridge_policy or bridge_policy,
+                "snapshot_summary": response.snapshot_summary,
+            }
+            rendered = json.dumps(rendered_payload, indent=2, sort_keys=True)
             return 0, rendered, True
         result = dispatch_host_command(
             settings.project_root,

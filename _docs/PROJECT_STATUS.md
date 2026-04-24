@@ -9,7 +9,7 @@ remains the authoritative phase ledger.
 
 Just-completed tranche:
 
-- Shared Command Expansion And Bounded Tuning Pass
+- Bridge Timeout Policy And Explicit Reporting
 
 Status:
 
@@ -68,6 +68,16 @@ Recent hardening slices now address that directly:
   route through the shared host dispatcher
 - a bounded tuning pass over the current corpus remains stable at builder-task
   score `0.93` and projection arbitration score `0.96`
+- bridged commands now use command-aware timeout defaults instead of one flat
+  five-second wait for every tool
+- builder-task scoring now defaults to a heavy bridge timeout policy and
+  projection scoring now defaults to a medium bridge timeout policy
+- `--bridge-timeout-ms` remains a caller-owned override rather than being
+  removed from the CLI surface
+- bridged JSON payloads now expose additive `_bridge` metadata so timeout
+  behavior is inspectable instead of implicit
+- status surfaces now expose a machine-readable `bridge_timeout_policy`
+  manifest for the current host bridge defaults
 
 ## Stable Prototype State
 
@@ -144,12 +154,12 @@ Immediate focus inside that tranche:
   become persisted cartridge truth later
 - decide whether to expand the bounded project-document set beyond the current
   four docs
-- decide whether longer-running bridged scoring commands should use a larger
-  default timeout or remain explicitly caller-owned
+- decide whether operator-promoted durable evidence needs labels, notes, or
+  reason metadata beyond a simple pin
 
 Recommended next tranche after this hardening slice:
 
-- Bridge Policy And Operator Metadata Decisions
+- Operator Metadata Decisions
 
 The first concrete hardening problem is:
 
@@ -273,11 +283,12 @@ Still explicitly out of scope unless a future tranche says otherwise:
 Latest tranche verification:
 
 - `python -m unittest tests.test_history_inspector tests.test_host_workspace` passed with `21` tests
-- `python -m unittest discover -s tests` passed with `120` tests
+- `python -m unittest tests.test_host_bridge tests.test_host_workspace` passed with `16` tests
+- `python -m unittest discover -s tests` passed with `123` tests
 - `python -m compileall src tests` passed
 - `python -m src.app mcp-score-tasks --dump-json` remained at `0.93`, accepted
 - `python -m src.app project-query-score --dump-json` remained at `0.96`, accepted
-- `python -m src.app status --dump-json` now emits through the shared host dispatcher
+- `python -m src.app status --dump-json` now emits the current `bridge_timeout_policy`
 - `python -m src.app mcp-tools --dump-json` now emits through the shared host dispatcher
 - `python -m src.app mcp-read-panels --dump-json --use-host-bridge` now reads
   the live active panel correctly
@@ -297,7 +308,7 @@ Latest tranche verification:
   `NodeWALKER`, `docling`, and `Docling`
 - `python -m src.app status` now reports:
   - `active_tranche=Post-Prototype Hardening And Expansion`
-  - `next_tranche=Bridge Policy And Operator Metadata Decisions`
+  - `next_tranche=Operator Metadata Decisions`
 
 Useful live commands:
 
@@ -313,7 +324,9 @@ Useful live commands:
 - `python -m src.app status --dump-json`
 - `python -m src.app mcp-tools --dump-json`
 - `python -m src.app mcp-score-tasks --dump-json`
+- `python -m src.app mcp-score-tasks --use-host-bridge --dump-json`
 - `python -m src.app project-query-score --dump-json`
+- `python -m src.app project-query-score --use-host-bridge --dump-json`
 
 ## Next-Session Handoff
 

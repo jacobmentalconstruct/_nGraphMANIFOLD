@@ -7,16 +7,16 @@ authoritative ledger, and `PROJECT_STATUS.md` remains the quick park marker.
 
 ## Just Completed
 
-- [x] Shared Command Expansion And Bounded Tuning Pass
+- [x] Bridge Timeout Policy And Explicit Reporting
 
 What that means:
 
-- [x] host workspace now includes Status and Tool Registry as first-class tabs
-- [x] `status`, `mcp-tools`, `mcp-score-tasks`, and `project-query-score` now normalize through the shared host dispatcher
-- [x] the host now exposes active, named, and all-panel readback through `mcp-read-panels`
-- [x] bounded tuning over the current corpus stayed green at builder-task score `0.93`
-- [x] bounded tuning over the current corpus stayed green at projection score `0.96`
-- [x] the main operator window remains the default visible surface instead of scattering these actions into detached windows
+- [x] longer-running bridged scoring commands now use command-aware defaults instead of a flat bridge timeout
+- [x] builder-task scoring defaults to a heavy bridge timeout policy
+- [x] projection scoring defaults to a medium bridge timeout policy
+- [x] `--bridge-timeout-ms` remains the explicit caller-owned override
+- [x] bridged JSON payloads now expose additive `_bridge` metadata
+- [x] `status --dump-json` now exposes a machine-readable `bridge_timeout_policy` manifest
 
 ## Current Active Tranche
 
@@ -39,14 +39,13 @@ Current interpretation:
 
 ## Immediate Next Step
 
-- [ ] Decide whether command/result SemanticObjects remain inspection-only or become persisted truth later
+- [ ] Decide whether operator promotion should support labels, notes, or reason metadata beyond a simple pin
 
 Why this next:
 
-- shared-command expansion is now materially in place for the current operator-facing score/status surfaces
-- the next architectural pressure is no longer "what should route through the host?"
-- the next architectural pressure is "what remains operational evidence and what, if anything, ever deserves promotion into cartridge truth?"
-- answering that question cleanly protects the project from accidentally turning interaction traces into runtime ontology
+- the bridge policy question now has a real runtime answer instead of an open debate
+- durable evidence promotion is the next operator-facing pressure that still lacks explicit structure
+- labels and notes would improve later continuity without forcing interaction events into cartridge truth
 
 Current recommended framing:
 
@@ -61,13 +60,11 @@ Durable Evidence:
 
 ## Next Work Queue
 
-- [ ] Decide whether command/result SemanticObjects remain inspection-only or become persisted truth later
 - [ ] Decide whether operator promotion should later support labels/notes or remain a simple pin
+- [ ] Decide whether command/result SemanticObjects remain inspection-only or become persisted truth later
 - [ ] Decide whether to expand the bounded project-document set beyond the current four docs
 - [ ] Decide whether the bridge should remain file-backed or later move to a
       thinner local IPC transport
-- [ ] Decide whether longer-running bridged scoring commands should use a larger
-      default timeout or remain explicitly caller-owned
 - [ ] Keep docs, score artifacts, and journal continuity current while hardening
 
 ## Visible Horizon
@@ -83,7 +80,7 @@ Durable Evidence:
 
 ## Proposed Next Tranche
 
-- [ ] Bridge Policy And Operator Metadata Decisions
+- [ ] Operator Metadata Decisions
 
 ### Later Horizon
 
@@ -128,5 +125,6 @@ visibility layer: stable
 local host bridge: stable in bounded form
 rolling trace + promotion controls: stable
 panel readback + shared command expansion: stable
-next step: decide truth surfaces cleanly, then widen scope in a controlled way
+bridge timeout policy: stable
+next step: decide operator metadata cleanly, then widen scope in a controlled way
 ```

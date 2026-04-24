@@ -163,6 +163,12 @@ Interpretation:
 - it does, however, take materially longer to run
 - that runtime cost is now part of bridge policy and operator experience, not
   just a performance footnote
+- the bridge policy is now explicit:
+  - global default remains `5000 ms`
+  - builder-task scoring uses a heavy command-aware bridge default
+  - projection scoring uses a medium command-aware bridge default
+  - `--bridge-timeout-ms` remains available as a caller-owned override
+  - bridged JSON payloads now report the effective policy through `_bridge`
 
 ## Current Experimentation Doctrine
 

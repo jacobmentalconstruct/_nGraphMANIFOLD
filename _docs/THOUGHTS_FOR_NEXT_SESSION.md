@@ -63,6 +63,10 @@ The first hardening slice now exists in code:
   inspection-only truth policy instead of relying on documentation-only intent
 - a controlled expanded project-doc profile now exists and stays accepted, but
   it is slow enough to make timeout ownership a first-class workflow concern
+- that timeout question now has an explicit first answer:
+  - keep caller-owned overrides
+  - add command-aware bridge defaults for heavier scoring work
+  - report the effective bridge policy explicitly instead of hiding it
 
 The project is not drifting randomly. It feels like a long spiral because we
 are turning around the same center from increasing radius: first object shape,

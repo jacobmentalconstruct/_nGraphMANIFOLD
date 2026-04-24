@@ -848,6 +848,9 @@ def _scores_text(
 
 def _status_text(status_payload: dict[str, Any]) -> str:
     truth_policy = status_payload.get("interaction_truth_policy", {})
+    bridge_policy = status_payload.get("bridge_timeout_policy", {})
+    builder_timeout = (bridge_policy.get("tool_policies", {}) or {}).get(HOST_BUILDER_SCORE_TOOL_NAME, {})
+    projection_timeout = (bridge_policy.get("tool_policies", {}) or {}).get(HOST_PROJECTION_SCORE_TOOL_NAME, {})
     lines = [
         "nGraphMANIFOLD Status",
         f"status: {status_payload.get('status', 'n/a')}",
@@ -856,6 +859,10 @@ def _status_text(status_payload: dict[str, Any]) -> str:
         f"next_tranche: {status_payload.get('next_tranche', 'n/a')}",
         f"interaction_truth_surface: {truth_policy.get('classification', 'n/a')}",
         f"interaction_persistence_policy: {truth_policy.get('persistence_policy', 'n/a')}",
+        f"bridge_default_timeout_ms: {bridge_policy.get('global_default_timeout_ms', 'n/a')}",
+        f"bridge_attach_grace_ms: {bridge_policy.get('attach_grace_ms', 'n/a')}",
+        f"builder_score_bridge_timeout_ms: {builder_timeout.get('timeout_ms', 'n/a')}",
+        f"projection_score_bridge_timeout_ms: {projection_timeout.get('timeout_ms', 'n/a')}",
     ]
     return "\n".join(lines)
 
@@ -932,6 +939,8 @@ def _cockpit_text(
 
 
 def _build_status_payload(project_root: Path) -> dict[str, Any]:
+    from .host_bridge import build_host_bridge_timeout_policy_manifest
+
     settings = AppSettings(
         project_root=project_root,
         docs_root=project_root / "_docs",
@@ -944,6 +953,7 @@ def _build_status_payload(project_root: Path) -> dict[str, Any]:
         "active_tranche": status.active_tranche,
         "next_tranche": status.next_tranche,
         "interaction_truth_policy": interaction_truth_policy(),
+        "bridge_timeout_policy": build_host_bridge_timeout_policy_manifest(),
     }
 
 
