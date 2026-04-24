@@ -149,7 +149,7 @@ Immediate focus inside that tranche:
 
 Recommended next tranche after this hardening slice:
 
-- Truth-Surface Decisions And Controlled Corpus Expansion
+- Bridge Policy And Operator Metadata Decisions
 
 The first concrete hardening problem is:
 
@@ -297,7 +297,7 @@ Latest tranche verification:
   `NodeWALKER`, `docling`, and `Docling`
 - `python -m src.app status` now reports:
   - `active_tranche=Post-Prototype Hardening And Expansion`
-  - `next_tranche=Truth-Surface Decisions And Controlled Corpus Expansion`
+  - `next_tranche=Bridge Policy And Operator Metadata Decisions`
 
 Useful live commands:
 

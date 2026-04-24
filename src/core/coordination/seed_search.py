@@ -11,8 +11,12 @@ from src.core.persistence import DEFAULT_CARTRIDGE_ID, SemanticCartridge
 
 from .mcp_inspection_history import McpInspectionHistoryRecord, McpInspectionHistoryStore
 from .mcp_tool_registry import TRAVERSAL_TOOL_NAME, McpToolCallResult, call_registered_mcp_tool
-from .project_documents import default_project_document_cartridge_path
-from .project_documents import ProjectDocumentCorpus, ingest_project_documents
+from .project_documents import (
+    DEFAULT_PROJECT_DOCUMENT_PROFILE,
+    ProjectDocumentCorpus,
+    default_project_document_cartridge_path,
+    ingest_project_documents,
+)
 from .seed_fitness import SeedSearchCandidate, rank_seed_candidates
 
 SEED_SEARCH_VERSION = "v1"
@@ -116,9 +120,14 @@ def search_project_document_seeds(
     *,
     limit: int = 5,
     cartridge_path: Path | str | None = None,
+    document_profile: str = DEFAULT_PROJECT_DOCUMENT_PROFILE,
 ) -> SeedSearchResult:
     """Ingest bounded project docs and rank matching semantic objects."""
-    corpus = ingest_project_documents(project_root, cartridge_path=cartridge_path)
+    corpus = ingest_project_documents(
+        project_root,
+        cartridge_path=cartridge_path,
+        document_profile=document_profile,
+    )
     cartridge = SemanticCartridge(corpus.cartridge_path, cartridge_id=DEFAULT_CARTRIDGE_ID)
     objects = cartridge.all_objects()
     candidates = rank_seed_candidates(objects, query, limit=limit)
@@ -141,9 +150,10 @@ def run_seed_search_traversal(
     limit: int = 5,
     max_depth: int = 2,
     max_steps: int = 64,
+    document_profile: str = DEFAULT_PROJECT_DOCUMENT_PROFILE,
 ) -> SeedTraversalSelectionResult:
     """Search project-document seeds, call traversal on the top seed, and record history."""
-    corpus = ingest_project_documents(project_root)
+    corpus = ingest_project_documents(project_root, document_profile=document_profile)
     cartridge = SemanticCartridge(corpus.cartridge_path, cartridge_id=DEFAULT_CARTRIDGE_ID)
     objects = cartridge.all_objects()
     candidates = tuple(rank_seed_candidates(objects, query, limit=limit))

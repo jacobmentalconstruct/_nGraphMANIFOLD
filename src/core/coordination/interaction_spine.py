@@ -27,6 +27,7 @@ from .mcp_seam import (
 )
 
 INTERACTION_SPINE_VERSION = "v1"
+INTERACTION_TRUTH_POLICY_VERSION = "v1"
 PROJECT_QUERY_CAPABILITY_NAME = "coordination.project_context_query"
 PROJECT_QUERY_TOOL_NAME = "ngraph.project.query"
 DEFAULT_CONTEXT_STACK = (
@@ -34,6 +35,32 @@ DEFAULT_CONTEXT_STACK = (
     "python_docs_projection",
     "project_local_docs",
 )
+
+
+def interaction_truth_policy() -> dict[str, Any]:
+    """Return the explicit truth-surface policy for interaction-derived objects."""
+    return {
+        "version": INTERACTION_TRUTH_POLICY_VERSION,
+        "classification": "operational_evidence",
+        "semantic_projection_role": "inspection_adapter",
+        "persistence_policy": "inspection_only",
+        "persist_to_semantic_cartridges": False,
+        "durable_stores": [
+            "data/mcp_inspection/history.sqlite3",
+            "data/mcp_inspection/builder_task_scores.json",
+            "data/mcp_inspection/context_projection_scores.json",
+        ],
+        "forbidden_truth_surfaces": [
+            "semantic_cartridge_runtime_truth",
+            "project_local_docs_cartridge",
+            "english_lexical_prior_cartridge",
+            "python_docs_projection_cartridge",
+        ],
+        "rationale": (
+            "Command and result envelope projections are useful for inspection, "
+            "history, and scoring, but they are not canonical runtime ontology."
+        ),
+    }
 
 
 @dataclass(frozen=True)
@@ -251,6 +278,7 @@ def run_project_query_interaction(
 def command_envelope_to_semantic_object(command: CommandEnvelope) -> SemanticObject:
     """Project a command envelope into a SemanticObject without persisting it."""
     command_dict = command.to_dict()
+    truth_policy = interaction_truth_policy()
     source_ref = f"interaction-command://{command.command_id}"
     surfaces = SemanticSurfaceSet(
         verbatim={"command_json": command_dict},
@@ -274,6 +302,7 @@ def command_envelope_to_semantic_object(command: CommandEnvelope) -> SemanticObj
         semantic={
             "invoked_tool": command.tool_name,
             "intent_payload": command.payload,
+            "truth_surface_policy": truth_policy,
         },
     )
     provenance = ProvenanceRecord(
@@ -299,13 +328,20 @@ def command_envelope_to_semantic_object(command: CommandEnvelope) -> SemanticObj
         provenance=(provenance,),
         source_ref=source_ref,
         local_context={"correlation_id": command.correlation_id},
-        metadata={"interaction_spine_version": INTERACTION_SPINE_VERSION},
+        metadata={
+            "interaction_spine_version": INTERACTION_SPINE_VERSION,
+            "truth_surface_classification": truth_policy["classification"],
+            "semantic_projection_role": truth_policy["semantic_projection_role"],
+            "persistence_policy": truth_policy["persistence_policy"],
+            "persist_to_semantic_cartridges": truth_policy["persist_to_semantic_cartridges"],
+        },
     )
 
 
 def tool_result_envelope_to_semantic_object(result: ToolResultEnvelope) -> SemanticObject:
     """Project a tool result envelope into a SemanticObject without persisting it."""
     result_dict = result.to_dict()
+    truth_policy = interaction_truth_policy()
     source_ref = f"interaction-result://{result.result_id}"
     selected_layer = result.evidence_summary.get("selected_layer", "")
     surfaces = SemanticSurfaceSet(
@@ -332,6 +368,7 @@ def tool_result_envelope_to_semantic_object(result: ToolResultEnvelope) -> Seman
             "selected_candidate_kind": result.evidence_summary.get("selected_candidate_kind", ""),
             "matched_terms": result.evidence_summary.get("matched_terms", []),
             "evidence": result.evidence_summary.get("evidence", []),
+            "truth_surface_policy": truth_policy,
         },
     )
     provenance = ProvenanceRecord(
@@ -358,7 +395,13 @@ def tool_result_envelope_to_semantic_object(result: ToolResultEnvelope) -> Seman
         provenance=(provenance,),
         source_ref=source_ref,
         local_context={"command_id": result.command_id},
-        metadata={"interaction_spine_version": INTERACTION_SPINE_VERSION},
+        metadata={
+            "interaction_spine_version": INTERACTION_SPINE_VERSION,
+            "truth_surface_classification": truth_policy["classification"],
+            "semantic_projection_role": truth_policy["semantic_projection_role"],
+            "persistence_policy": truth_policy["persistence_policy"],
+            "persist_to_semantic_cartridges": truth_policy["persist_to_semantic_cartridges"],
+        },
     )
 
 

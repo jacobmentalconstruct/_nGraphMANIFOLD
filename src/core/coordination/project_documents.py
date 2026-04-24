@@ -14,12 +14,22 @@ from .mcp_tool_registry import TRAVERSAL_TOOL_NAME, McpToolCallResult, call_regi
 from .seed_fitness import SeedFitnessPolicy, rank_seed_candidates
 
 PROJECT_DOCUMENT_INGESTION_VERSION = "v1"
+DEFAULT_PROJECT_DOCUMENT_PROFILE = "core"
 DEFAULT_PROJECT_DOCUMENTS = (
     "README.md",
     "_docs/PROJECT_STATUS.md",
     "_docs/MCP_SEAM.md",
     "_docs/STRANGLER_PLAN.md",
 )
+EXPANDED_PROJECT_DOCUMENTS = DEFAULT_PROJECT_DOCUMENTS + (
+    "_docs/TODO.md",
+    "_docs/EXPERIENTIAL_WORKFLOW.md",
+    "_docs/PROTOTYPE_TUNING.md",
+)
+PROJECT_DOCUMENT_PROFILES = {
+    "core": DEFAULT_PROJECT_DOCUMENTS,
+    "expanded": EXPANDED_PROJECT_DOCUMENTS,
+}
 
 
 @dataclass(frozen=True)
@@ -29,6 +39,7 @@ class ProjectDocumentCorpus:
     version: str
     project_root: str
     cartridge_path: str
+    document_profile: str
     document_paths: tuple[str, ...]
     object_count: int
     relation_count: int
@@ -38,6 +49,7 @@ class ProjectDocumentCorpus:
             "version": self.version,
             "project_root": self.project_root,
             "cartridge_path": self.cartridge_path,
+            "document_profile": self.document_profile,
             "document_paths": list(self.document_paths),
             "object_count": self.object_count,
             "relation_count": self.relation_count,
@@ -81,7 +93,8 @@ def ingest_project_documents_for_traversal(
     project_root: Path | str,
     *,
     cartridge_path: Path | str | None = None,
-    document_relpaths: tuple[str, ...] = DEFAULT_PROJECT_DOCUMENTS,
+    document_relpaths: tuple[str, ...] | None = None,
+    document_profile: str = DEFAULT_PROJECT_DOCUMENT_PROFILE,
     seed_text_hint: str = "Current Park Point",
     seed_question: str = "",
     seed_task_id: str = "",
@@ -92,6 +105,7 @@ def ingest_project_documents_for_traversal(
         project_root,
         cartridge_path=cartridge_path,
         document_relpaths=document_relpaths,
+        document_profile=document_profile,
     )
     db_path = Path(corpus.cartridge_path)
     cartridge = SemanticCartridge(db_path, cartridge_id=DEFAULT_CARTRIDGE_ID)
@@ -131,16 +145,21 @@ def ingest_project_documents(
     project_root: Path | str,
     *,
     cartridge_path: Path | str | None = None,
-    document_relpaths: tuple[str, ...] = DEFAULT_PROJECT_DOCUMENTS,
+    document_relpaths: tuple[str, ...] | None = None,
+    document_profile: str = DEFAULT_PROJECT_DOCUMENT_PROFILE,
 ) -> ProjectDocumentCorpus:
     """Ingest selected docs into the project-owned semantic cartridge."""
     root = Path(project_root).resolve()
     db_path = Path(cartridge_path) if cartridge_path else default_project_document_cartridge_path(root)
+    resolved_profile, resolved_relpaths = resolve_project_document_profile(
+        document_profile,
+        document_relpaths=document_relpaths,
+    )
     cartridge = SemanticCartridge(db_path, cartridge_id=DEFAULT_CARTRIDGE_ID)
     objects = []
     ingested_paths: list[str] = []
 
-    for relpath in document_relpaths:
+    for relpath in resolved_relpaths:
         doc_path = (root / relpath).resolve()
         _ensure_project_owned(root, doc_path)
         document = read_text_source(doc_path)
@@ -157,10 +176,25 @@ def ingest_project_documents(
         version=PROJECT_DOCUMENT_INGESTION_VERSION,
         project_root=str(root),
         cartridge_path=str(db_path),
+        document_profile=resolved_profile,
         document_paths=tuple(ingested_paths),
         object_count=len(objects),
         relation_count=manifest.relation_count,
     )
+
+
+def resolve_project_document_profile(
+    profile: str = DEFAULT_PROJECT_DOCUMENT_PROFILE,
+    *,
+    document_relpaths: tuple[str, ...] | None = None,
+) -> tuple[str, tuple[str, ...]]:
+    """Resolve a named bounded project-doc profile or explicit override list."""
+    if document_relpaths is not None:
+        return "custom", tuple(document_relpaths)
+    normalized = str(profile or DEFAULT_PROJECT_DOCUMENT_PROFILE).strip().lower()
+    if normalized not in PROJECT_DOCUMENT_PROFILES:
+        raise ValueError(f"Unsupported project document profile: {profile}")
+    return normalized, tuple(PROJECT_DOCUMENT_PROFILES[normalized])
 
 
 def _ensure_project_owned(root: Path, path: Path) -> None:

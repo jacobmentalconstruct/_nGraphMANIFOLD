@@ -59,6 +59,10 @@ The first hardening slice now exists in code:
   the shared host dispatcher instead of living as separate side paths
 - bounded tuning on the current corpus still holds at builder score `0.93` and
   projection arbitration score `0.96`
+- interaction-derived semantic-object projections now carry an explicit
+  inspection-only truth policy instead of relying on documentation-only intent
+- a controlled expanded project-doc profile now exists and stays accepted, but
+  it is slow enough to make timeout ownership a first-class workflow concern
 
 The project is not drifting randomly. It feels like a long spiral because we
 are turning around the same center from increasing radius: first object shape,
@@ -79,13 +83,17 @@ That is the real next step.
 The immediate next pressure is narrower and healthier than "add more stuff":
 
 ```text
-Decide what remains inspection-only and what, if anything, ever deserves
-promotion into persisted semantic truth.
+Decide how heavier bridged scoring runs should behave, and decide whether
+operator-promoted evidence needs richer metadata than a simple pin.
 ```
 
-That question matters now because the operator-facing history, promotion, and
-panel seams are strong enough that accidental truth-surface creep is a real
-risk.
+The truth-surface side is no longer vague. We answered it in bounded form:
+
+- interaction projections are operational evidence
+- their semantic-object adapters are inspection-only
+- cartridges remain the domain truth surfaces
+
+So the next pressure is operational rather than ontological.
 
 ## Current One-Line State
 

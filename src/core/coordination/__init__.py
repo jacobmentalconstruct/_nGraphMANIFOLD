@@ -45,13 +45,17 @@ from .prototype_scoring import (
     run_prototype_tuning_fixture,
 )
 from .project_documents import (
+    DEFAULT_PROJECT_DOCUMENT_PROFILE,
     DEFAULT_PROJECT_DOCUMENTS,
+    EXPANDED_PROJECT_DOCUMENTS,
+    PROJECT_DOCUMENT_PROFILES,
     PROJECT_DOCUMENT_INGESTION_VERSION,
     ProjectDocumentCorpus,
     ProjectDocumentIngestionResult,
     default_project_document_cartridge_path,
     ingest_project_documents,
     ingest_project_documents_for_traversal,
+    resolve_project_document_profile,
 )
 from .seed_search import (
     SEED_SEARCH_VERSION,
@@ -71,6 +75,7 @@ from .seed_fitness import (
     tokenize_seed_query,
 )
 from .builder_task_scoring import (
+    DEFAULT_BUILDER_TASK_DOCUMENT_PROFILE,
     REAL_BUILDER_TASK_SCORING_VERSION,
     RealBuilderTaskFixture,
     RealBuilderTaskScore,
@@ -190,6 +195,7 @@ from .context_projection_scoring import (
 )
 from .interaction_spine import (
     INTERACTION_SPINE_VERSION,
+    INTERACTION_TRUTH_POLICY_VERSION,
     PROJECT_QUERY_CAPABILITY_NAME,
     PROJECT_QUERY_TOOL_NAME,
     CommandEnvelope,
@@ -198,6 +204,7 @@ from .interaction_spine import (
     command_envelope_from_dict,
     command_envelope_to_semantic_object,
     create_command_envelope,
+    interaction_truth_policy,
     run_project_query_interaction,
     tool_result_envelope_to_semantic_object,
 )
@@ -234,14 +241,19 @@ __all__ = [
     "SeedSearchResult",
     "SeedTraversalSelectionResult",
     "DEFAULT_PROJECT_DOCUMENTS",
+    "DEFAULT_PROJECT_DOCUMENT_PROFILE",
+    "EXPANDED_PROJECT_DOCUMENTS",
+    "PROJECT_DOCUMENT_PROFILES",
     "PROJECT_DOCUMENT_INGESTION_VERSION",
     "REAL_BUILDER_TASK_SCORING_VERSION",
+    "DEFAULT_BUILDER_TASK_DOCUMENT_PROFILE",
     "HISTORY_AWARE_INSPECTOR_VERSION",
     "ENGLISH_LEXICON_BASELINE_VERSION",
     "PYTHON_DOCS_CORPUS_VERSION",
     "CONTEXT_PROJECTION_VERSION",
     "CONTEXT_PROJECTION_SCORING_VERSION",
     "INTERACTION_SPINE_VERSION",
+    "INTERACTION_TRUTH_POLICY_VERSION",
     "HOST_WORKSPACE_VERSION",
     "HOST_BRIDGE_VERSION",
     "HistoryAwareInspectorPayload",
@@ -313,6 +325,7 @@ __all__ = [
     "default_host_bridge_root",
     "default_host_bridge_supported_tools",
     "default_project_document_cartridge_path",
+    "resolve_project_document_profile",
     "default_builder_task_score_path",
     "default_context_projection_arbitration_fixtures",
     "default_context_projection_score_path",
@@ -357,6 +370,7 @@ __all__ = [
     "command_envelope_from_dict",
     "command_envelope_to_semantic_object",
     "tool_result_envelope_to_semantic_object",
+    "interaction_truth_policy",
     "tokenize_query",
     "default_host_state",
     "dispatch_command_via_host_bridge",

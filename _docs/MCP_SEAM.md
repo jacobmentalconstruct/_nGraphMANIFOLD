@@ -147,6 +147,12 @@ The capture preserves:
 
 SemanticObject projection adapters exist for command and result envelopes, but
 this tranche does not persist interaction events into semantic cartridges.
+That boundary is now explicit in code through `interaction_truth_policy()`:
+
+- interaction-derived semantic objects are classified as `operational_evidence`
+- semantic projection role is `inspection_adapter`
+- persistence policy is `inspection_only`
+- semantic cartridge persistence is explicitly forbidden for these projections
 
 ## Shared Host State Spine
 
@@ -389,8 +395,10 @@ candidate is:
 - `analysis.traverse_cartridge`
 
 The next seam pressure is no longer "can the live host be targeted?" The next
-seam pressure is whether retention/pruning, broader bridge coverage, or a
-different local transport are worth the added complexity.
+seam pressure is whether heavier bridged scoring runs deserve different timeout
+defaults, whether operator-promoted evidence needs richer metadata, and whether
+the current file-backed bridge should remain the local transport for the next
+band.
 
 ## Project Document Ingestion
 
@@ -407,6 +415,12 @@ Current bounded document set:
 - `_docs/PROJECT_STATUS.md`
 - `_docs/MCP_SEAM.md`
 - `_docs/STRANGLER_PLAN.md`
+
+Controlled expansion profile:
+
+- `_docs/TODO.md`
+- `_docs/EXPERIENTIAL_WORKFLOW.md`
+- `_docs/PROTOTYPE_TUNING.md`
 
 The command creates or updates:
 
@@ -444,8 +458,9 @@ expected source fit. The score artifact is written to:
 data/mcp_inspection/builder_task_scores.json
 ```
 
-Next work should make seed-fitness details easier to inspect without hiding the
-raw JSON.
+The controlled expanded-doc run also remained accepted at `0.93`, but it is
+materially heavier than the core profile. That runtime weight is now part of
+the bridge-policy question.
 
 ## History-Aware Inspector
 

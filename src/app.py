@@ -41,6 +41,7 @@ from .core.coordination import (
     default_builder_task_score_path,
     default_context_projection_score_path,
     default_mcp_inspection_history_path,
+    resolve_project_document_profile,
     prune_default_history_trace,
     dispatch_command_via_host_bridge,
     dispatch_host_command,
@@ -165,6 +166,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--panel-name",
         default="",
         help="For mcp-read-panels --panel-mode panel, the named host panel to read.",
+    )
+    parser.add_argument(
+        "--project-doc-profile",
+        choices=("core", "expanded"),
+        default="core",
+        help="For project-doc ingestion and builder-facing scoring/search, choose a bounded document profile.",
     )
     parser.add_argument(
         "--demote",
@@ -320,7 +327,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         return launch_mcp_inspector(settings, payload)
 
     if args.command == "mcp-ingest-docs":
-        result = ingest_project_documents_for_traversal(settings.project_root)
+        resolved_profile, document_paths = resolve_project_document_profile(args.project_doc_profile)
+        result = ingest_project_documents_for_traversal(
+            settings.project_root,
+            document_profile=resolved_profile,
+            document_relpaths=document_paths,
+        )
         history = McpInspectionHistoryStore(default_mcp_inspection_history_path(settings.project_root))
         history.record_call(result.tool_call.to_dict())
         payload = json.dumps(result.to_dict(), indent=2, sort_keys=True)
@@ -332,7 +344,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "mcp-score-tasks":
         exit_code, payload, delivered_to_host = _run_bridge_enabled_host_command(
             HOST_BUILDER_SCORE_TOOL_NAME,
-            {"history_limit": args.history_limit},
+            {
+                "history_limit": args.history_limit,
+                "project_doc_profile": args.project_doc_profile,
+            },
         )
         if exit_code != 0:
             if args.dump_json:
@@ -422,7 +437,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "mcp-search-seeds":
         exit_code, payload, delivered_to_host = _run_bridge_enabled_host_command(
             HOST_SEED_SEARCH_TOOL_NAME,
-            {"query": args.query, "seed_limit": args.seed_limit},
+            {
+                "query": args.query,
+                "seed_limit": args.seed_limit,
+                "project_doc_profile": args.project_doc_profile,
+            },
         )
         if exit_code != 0:
             if args.dump_json:

@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 
 from src.core.coordination import (
+    INTERACTION_TRUTH_POLICY_VERSION,
     PROJECT_QUERY_TOOL_NAME,
     McpInspectionHistoryStore,
     build_english_lexicon_baseline,
@@ -17,6 +18,7 @@ from src.core.coordination import (
     command_envelope_to_semantic_object,
     create_command_envelope,
     ingest_project_documents,
+    interaction_truth_policy,
     run_project_query_interaction,
     tool_result_envelope_to_semantic_object,
 )
@@ -128,9 +130,21 @@ class InteractionSpineTests(unittest.TestCase):
 
         self.assertEqual(command_object.kind, "interaction_command")
         self.assertEqual(command_object.surfaces.structural["tool_name"], PROJECT_QUERY_TOOL_NAME)
+        self.assertEqual(command_object.metadata["persistence_policy"], "inspection_only")
+        self.assertFalse(command_object.metadata["persist_to_semantic_cartridges"])
         self.assertEqual(result_object.kind, "interaction_result")
         self.assertEqual(result_object.surfaces.semantic["selected_layer"], "python_docs_projection")
+        self.assertEqual(result_object.metadata["persistence_policy"], "inspection_only")
+        self.assertFalse(result_object.metadata["persist_to_semantic_cartridges"])
         self.assertEqual(result_object.relations[0].target_ref, capture.command.command_id)
+
+    def test_interaction_truth_policy_is_explicit_and_machine_readable(self) -> None:
+        policy = interaction_truth_policy()
+
+        self.assertEqual(policy["version"], INTERACTION_TRUTH_POLICY_VERSION)
+        self.assertEqual(policy["classification"], "operational_evidence")
+        self.assertEqual(policy["persistence_policy"], "inspection_only")
+        self.assertFalse(policy["persist_to_semantic_cartridges"])
 
     def test_project_query_call_records_in_history_and_inspector_summary(self) -> None:
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:

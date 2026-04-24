@@ -81,6 +81,18 @@ class HostWorkspaceTests(unittest.TestCase):
             "# Strangler Plan\n\nProjection flow visibility.\n",
             encoding="utf-8",
         )
+        (root / "_docs" / "TODO.md").write_text(
+            "# TODO\n\nKeep interaction envelopes inspection-only.\n",
+            encoding="utf-8",
+        )
+        (root / "_docs" / "EXPERIENTIAL_WORKFLOW.md").write_text(
+            "# Experiential Workflow\n\nThe host can report the active panel.\n",
+            encoding="utf-8",
+        )
+        (root / "_docs" / "PROTOTYPE_TUNING.md").write_text(
+            "# Prototype Tuning\n\nBuilder and projection scores remain accepted.\n",
+            encoding="utf-8",
+        )
 
     def _build_layers(self, root: Path) -> None:
         self._write_dictionary(root)
@@ -324,6 +336,10 @@ class HostWorkspaceTests(unittest.TestCase):
             )
 
         self.assertEqual(status_result.payload["active_tranche"], "Post-Prototype Hardening And Expansion")
+        self.assertEqual(
+            status_result.payload["interaction_truth_policy"]["persistence_policy"],
+            "inspection_only",
+        )
         self.assertIn("tools", tools_result.payload)
         self.assertTrue(builder_result.payload["meets_acceptance"])
         self.assertIn("meets_acceptance", projection_result.payload)

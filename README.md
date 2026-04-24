@@ -80,6 +80,10 @@ shared host path. Shared-command expansion has also moved `status`,
 `mcp-tools`, `mcp-score-tasks`, and `project-query-score` onto the host-owned
 dispatcher, and a bounded tuning pass on the current corpus remains stable at
 builder-task score `0.93` and projection arbitration score `0.96`.
+Interaction-derived semantic-object projections now also declare an explicit
+truth policy: they are inspection-only operational evidence adapters, not
+semantic cartridge truth. Controlled project-doc expansion is available through
+named `core` and `expanded` profiles.
 
 Start with:
 
@@ -176,17 +180,20 @@ Ingest selected project documents and traverse them through the registered tool:
 
 ```bat
 python -m src.app mcp-ingest-docs --dump-json
+python -m src.app mcp-ingest-docs --project-doc-profile expanded --dump-json
 ```
 
 Score real builder continuation tasks over ingested project docs:
 
 ```bat
 python -m src.app mcp-score-tasks --dump-json
+python -m src.app mcp-score-tasks --project-doc-profile expanded --dump-json
 ```
 
 This command now also routes through the shared host dispatcher. When targeting
 the live host for a longer scoring run, `--bridge-timeout-ms` may need to be
-raised.
+raised. The expanded profile is intentionally opt-in because it is more
+informative but materially heavier than the core four-doc profile.
 
 Show the history-aware inspector summary:
 
@@ -269,6 +276,7 @@ traversal:
 
 ```bat
 python -m src.app mcp-search-seeds --query "Current Park Point"
+python -m src.app mcp-search-seeds --project-doc-profile expanded --query "Current Park Point" --dump-json
 ```
 
 The inspector opens with Summary and Raw JSON tabs. The Summary tab shows the

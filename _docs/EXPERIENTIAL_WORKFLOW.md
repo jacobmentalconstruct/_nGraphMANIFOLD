@@ -332,6 +332,14 @@ That makes the shared-visible workflow less speculative. The collaboration no
 longer has to rely only on "I think you are on the cockpit tab." The host can
 say.
 
+The workflow now also has a clearer truth boundary than before. Interaction
+captures can be projected into semantic-object form for inspection, but that
+does not make them cartridge truth. The current policy is explicit:
+
+- cartridges remain runtime semantic truth
+- interaction projections remain inspection adapters
+- history and score artifacts remain operational evidence surfaces
+
 ### Step 5: Test and score the experiment
 
 This is a big part of the workflow.

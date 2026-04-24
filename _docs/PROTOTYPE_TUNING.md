@@ -147,6 +147,23 @@ Current results remain stable:
 - builder-task score: `0.93`, accepted
 - projection arbitration score: `0.96`, accepted
 
+Controlled expanded-doc profile:
+
+- `python -m src.app mcp-ingest-docs --project-doc-profile expanded --dump-json`
+  rebuilt the project-doc cartridge to `877` objects / `3280` relations
+- `python -m src.app mcp-score-tasks --project-doc-profile expanded --dump-json`
+  remained accepted at `0.93`
+- `python -m src.app mcp-search-seeds --project-doc-profile expanded --query "Current Park Point" --dump-json`
+  remained accepted at `0.93`
+
+Interpretation:
+
+- the expanded profile gives a wider project-local doctrine surface without
+  degrading the current builder-task score
+- it does, however, take materially longer to run
+- that runtime cost is now part of bridge policy and operator experience, not
+  just a performance footnote
+
 ## Current Experimentation Doctrine
 
 At this stage, an experiment is not accepted just because it "worked once."

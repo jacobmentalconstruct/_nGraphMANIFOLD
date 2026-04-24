@@ -24,6 +24,7 @@ from .interaction_spine import (
     PROJECT_QUERY_TOOL_NAME,
     CommandEnvelope,
     create_command_envelope,
+    interaction_truth_policy,
     run_project_query_interaction,
 )
 from .mcp_inspection_history import (
@@ -319,6 +320,7 @@ def dispatch_host_command(
             root,
             history_path=resolved_history_path,
             score_path=default_builder_task_score_path(root),
+            document_profile=str(command.payload.get("project_doc_profile", "expanded")),
         ).to_dict()
         host_state.cache_payload("builder_score", payload)
         snapshot = host_state.refresh()
@@ -573,6 +575,7 @@ def _dispatch_seed_search(
         str(payload.get("query", "")),
         history_path=history_path,
         limit=int(payload.get("seed_limit", payload.get("limit", 5))),
+        document_profile=str(payload.get("project_doc_profile", "core")),
     )
     return result.to_dict()
 
@@ -844,12 +847,15 @@ def _scores_text(
 
 
 def _status_text(status_payload: dict[str, Any]) -> str:
+    truth_policy = status_payload.get("interaction_truth_policy", {})
     lines = [
         "nGraphMANIFOLD Status",
         f"status: {status_payload.get('status', 'n/a')}",
         f"project_root: {status_payload.get('project_root', 'n/a')}",
         f"active_tranche: {status_payload.get('active_tranche', 'n/a')}",
         f"next_tranche: {status_payload.get('next_tranche', 'n/a')}",
+        f"interaction_truth_surface: {truth_policy.get('classification', 'n/a')}",
+        f"interaction_persistence_policy: {truth_policy.get('persistence_policy', 'n/a')}",
     ]
     return "\n".join(lines)
 
@@ -937,6 +943,7 @@ def _build_status_payload(project_root: Path) -> dict[str, Any]:
         "project_root": str(status.project_root),
         "active_tranche": status.active_tranche,
         "next_tranche": status.next_tranche,
+        "interaction_truth_policy": interaction_truth_policy(),
     }
 
 

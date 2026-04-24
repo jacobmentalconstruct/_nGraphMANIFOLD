@@ -14,6 +14,7 @@ from .mcp_seam import McpUsefulnessReport, McpUsefulnessSignal, evaluate_mcp_use
 from .project_documents import ingest_project_documents_for_traversal
 
 REAL_BUILDER_TASK_SCORING_VERSION = "v1"
+DEFAULT_BUILDER_TASK_DOCUMENT_PROFILE = "expanded"
 
 
 @dataclass(frozen=True)
@@ -65,6 +66,8 @@ class RealBuilderTaskScoringRun:
     version: str
     project_root: str
     history_path: str
+    document_profile: str
+    document_paths: tuple[str, ...]
     scores: tuple[RealBuilderTaskScore, ...]
     usefulness_report: McpUsefulnessReport
 
@@ -77,6 +80,8 @@ class RealBuilderTaskScoringRun:
             "version": self.version,
             "project_root": self.project_root,
             "history_path": self.history_path,
+            "document_profile": self.document_profile,
+            "document_paths": list(self.document_paths),
             "scores": [score.to_dict() for score in self.scores],
             "usefulness_report": self.usefulness_report.to_dict(),
             "meets_acceptance": self.meets_acceptance,
@@ -126,21 +131,28 @@ def run_real_builder_task_scoring(
     *,
     history_path: Path | str,
     score_path: Path | str | None = None,
+    document_profile: str = DEFAULT_BUILDER_TASK_DOCUMENT_PROFILE,
+    document_relpaths: tuple[str, ...] | None = None,
     fixtures: tuple[RealBuilderTaskFixture, ...] = default_real_builder_tasks(),
 ) -> RealBuilderTaskScoringRun:
     """Score registered traversal usefulness against real project-doc tasks."""
     root = Path(project_root).resolve()
     history = McpInspectionHistoryStore(history_path)
     scores: list[RealBuilderTaskScore] = []
+    resolved_document_paths: tuple[str, ...] = ()
 
     for fixture in fixtures:
         ingestion = ingest_project_documents_for_traversal(
             root,
+            document_profile=document_profile,
+            document_relpaths=document_relpaths,
             seed_text_hint=fixture.seed_text_hint,
             seed_question=fixture.question,
             seed_task_id=fixture.task_id,
             expected_source_suffix=fixture.expected_source_suffix,
         )
+        if not resolved_document_paths:
+            resolved_document_paths = tuple(ingestion.document_paths)
         call = ingestion.tool_call.to_dict()
         history.record_call(call)
         traversal = call["capture"]["response"]["traversal_report"]
@@ -170,6 +182,8 @@ def run_real_builder_task_scoring(
         version=REAL_BUILDER_TASK_SCORING_VERSION,
         project_root=str(root),
         history_path=str(history_path),
+        document_profile=document_profile if document_relpaths is None else "custom",
+        document_paths=resolved_document_paths,
         scores=tuple(scores),
         usefulness_report=report,
     )

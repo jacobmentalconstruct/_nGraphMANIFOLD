@@ -13,9 +13,11 @@ from pathlib import Path
 from src.app import main
 from src.core.coordination import (
     DEFAULT_PROJECT_DOCUMENTS,
+    EXPANDED_PROJECT_DOCUMENTS,
     TRAVERSAL_TOOL_NAME,
     default_project_document_cartridge_path,
     ingest_project_documents_for_traversal,
+    resolve_project_document_profile,
 )
 
 
@@ -49,6 +51,15 @@ class ProjectDocumentIngestionTests(unittest.TestCase):
                 "_docs/STRANGLER_PLAN.md",
             ),
         )
+
+    def test_expanded_document_profile_adds_controlled_operator_docs(self) -> None:
+        profile, paths = resolve_project_document_profile("expanded")
+
+        self.assertEqual(profile, "expanded")
+        self.assertEqual(paths, EXPANDED_PROJECT_DOCUMENTS)
+        self.assertIn("_docs/TODO.md", paths)
+        self.assertIn("_docs/EXPERIENTIAL_WORKFLOW.md", paths)
+        self.assertIn("_docs/PROTOTYPE_TUNING.md", paths)
 
     def test_project_documents_ingest_and_call_registered_traversal(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

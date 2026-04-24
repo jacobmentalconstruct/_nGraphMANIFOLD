@@ -83,7 +83,7 @@ Durable Evidence:
 
 ## Proposed Next Tranche
 
-- [ ] Truth-Surface Decisions And Controlled Corpus Expansion
+- [ ] Bridge Policy And Operator Metadata Decisions
 
 ### Later Horizon
 
