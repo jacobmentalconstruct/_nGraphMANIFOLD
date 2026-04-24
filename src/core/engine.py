@@ -29,6 +29,6 @@ class ApplicationEngine:
         return SystemStatus(
             status="scaffold_ready",
             project_root=self._settings.project_root,
-            active_tranche="Local Host Bridge And Cross-Process Session Control",
-            next_tranche="Post-Prototype Hardening And Expansion",
+            active_tranche="Post-Prototype Hardening And Expansion",
+            next_tranche="Controlled Expansion And Visibility Filtering",
         )

@@ -1,26 +1,26 @@
 # TODO
 
-_Status: Active continuation checklist, local host bridge parked_
+_Status: Active continuation checklist, hardening slice parked_
 
 This file is the human-readable next-work checklist. The app journal remains the
 authoritative ledger, and `PROJECT_STATUS.md` remains the quick park marker.
 
 ## Just Completed
 
-- [x] Local Host Bridge And Cross-Process Session Control
+- [x] Rolling Trace Retention And Bridge Cleanup
 
 What that means:
 
-- [x] bounded same-instance cross-process targeting now exists
-- [x] the live host can publish and heartbeat a bridge session
-- [x] `project-query` can target the already-open host
-- [x] `mcp-search-seeds` can target the already-open host
-- [x] the bridge still reuses the canonical command spine
-- [x] the bridge did not force us into network/server architecture
+- [x] unpinned interaction history now uses a bounded rolling trace
+- [x] score-referenced call ids are pinned as durable evidence
+- [x] host, stream, cockpit, and history payloads expose retention state
+- [x] stale bridge request/response/session files are cleaned conservatively
+- [x] the bridge remains file-backed and subordinate to command/state
+- [x] the hardening pass did not create a new truth store
 
-## Proposed Next Tranche
+## Current Active Tranche
 
-- [ ] Post-Prototype Hardening And Expansion
+- [x] Post-Prototype Hardening And Expansion
 
 Current interpretation:
 
@@ -39,14 +39,16 @@ Current interpretation:
 
 ## Immediate Next Step
 
-- [ ] Define MCP inspection history retention/pruning policy
+- [ ] Decide whether `mcp-stream` and `mcp-cockpit` need filtering by tool/layer
 
-Why this first:
+Why this next:
 
-- inspection history is now central to stream, cockpit, host state, and bridge
-  usefulness
-- the bridge increases the value of clean session/history behavior
-- this is the healthiest hardening move before we expand control surfaces
+- retention and bridge cleanup now exist, so the next question is how much
+  live visibility should be filtered before the surfaces become noisy
+- the surfaces now have declared ownership, which makes filtering a bounded
+  refinement rather than a blind UI expansion
+- this is the healthiest next step before adding more commands or more corpus
+  scope
 
 Current recommended framing:
 
@@ -61,7 +63,7 @@ Durable Evidence:
 
 ## Next Work Queue
 
-- [ ] Define retention/pruning policy for `data/mcp_inspection/history.sqlite3`
+- [ ] Decide whether operator-facing pin/promotion controls are needed beyond score-artifact pinning
 - [ ] Decide whether the bridge should remain file-backed or later move to a
       thinner local IPC transport
 - [ ] Decide whether `mcp-stream` and `mcp-cockpit` need filtering by tool/layer
@@ -82,6 +84,10 @@ Durable Evidence:
 
 - [ ] Controlled expansion of shared-command actions
 - [ ] Controlled expansion of bounded corpora and tuning
+
+## Proposed Next Tranche
+
+- [ ] Controlled Expansion And Visibility Filtering
 
 ### Later Horizon
 

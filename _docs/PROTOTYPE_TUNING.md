@@ -145,6 +145,12 @@ That means experiments are judged by both usefulness and legibility. A change
 that produces an impressive local behavior but weakens inspection, boundary
 discipline, or parked continuity is not a successful experiment.
 
+The new hardening slice adds one more constraint to that doctrine:
+
+- retained interaction history must remain bounded enough to stay vendorable
+- durable evidence must remain intentional, not accidental
+- bridge transport cleanup must not leave behind silent local debris
+
 ## Interpretation
 
 The seam is now tunable and scoreable through local code and real project docs.
@@ -164,8 +170,8 @@ embeddings, merged cartridges, a real MCP server, and broad UI expansion.
 
 - Keep the history-aware inspector, interaction stream, and cockpit attached to
   future scoring runs so query/response evidence remains visible.
-- Define whether rolling-trace retention should become part of the tuning gate
-  once post-prototype hardening formalizes the policy.
+- Decide whether rolling-trace retention should become an explicit scored gate
+  rather than a currently-enforced lifecycle policy.
 - Decide whether future scoring should include explicit human-facing inspection
   usefulness fixtures beyond the current qualitative tuning gate.
 - Decide whether cockpit/stream filtering belongs in post-prototype hardening

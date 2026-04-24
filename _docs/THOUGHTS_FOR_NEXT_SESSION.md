@@ -41,6 +41,13 @@ That means the next tranche should not chase novelty first. It should define:
 - what each surface owns
 - how the bridge stays subordinate
 
+The first hardening slice now exists in code:
+
+- rolling trace retention is active
+- score-referenced calls are pinned as durable evidence
+- bridge transport files are cleaned conservatively
+- retention state is visible in the operator surfaces
+
 The project is not drifting randomly. It feels like a long spiral because we
 are turning around the same center from increasing radius: first object shape,
 then persistence, then traversal, then MCP usefulness, then project documents,
@@ -227,9 +234,15 @@ Post-Prototype Hardening solves the clutter of success.
 
 That clutter is made of:
 
-- meaningful history with no retention policy yet
-- working bridge state with no final lifecycle doctrine yet
-- multiple useful visibility surfaces that now need explicit ownership clarity
+- meaningful history that needed retention policy
+- working bridge state that needed lifecycle cleanup
+- multiple useful visibility surfaces that needed explicit ownership clarity
+
+The first slice has now reduced that pressure:
+
+- history retention exists in bounded rolling-trace form
+- bridge transport cleanup exists in bounded local form
+- surface ownership is stated, though filtering policy is still open
 
 ## What Exists Now
 

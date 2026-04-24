@@ -53,6 +53,13 @@ vendorable as it accumulates real history, bridge state, and inspection
 surfaces. That means retention/pruning policy, bridge discipline, and surface
 ownership clarity before broader expansion.
 
+That hardening pass has now begun in code. MCP inspection history uses a
+rolling-trace policy with automatic pruning of old unpinned interaction rows,
+score-referenced calls are pinned as durable evidence, and bridge transport
+files are cleaned conservatively when sessions are activated or polled. The
+history, stream, cockpit, and host workspace now expose the active-vs-durable
+split so the operator can see what is live trace versus retained evidence.
+
 Start with:
 
 - `_docs/builder_constraint_contract.md`

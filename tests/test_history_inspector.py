@@ -12,6 +12,7 @@ from pathlib import Path
 
 from src.app import main
 from src.core.coordination import (
+    DEFAULT_MCP_ROLLING_TRACE_LIMIT,
     McpInspectionHistoryStore,
     build_default_registered_tool_call,
     build_history_aware_inspector_payload,
@@ -19,6 +20,7 @@ from src.core.coordination import (
     build_visibility_cockpit_payload,
     default_builder_task_score_path,
     default_context_projection_score_path,
+    prune_default_history_trace,
 )
 from src.ui.mcp_inspector import _summary_text
 
@@ -42,6 +44,7 @@ class HistoryAwareInspectorTests(unittest.TestCase):
         self.assertGreater(payload.calls[0].step_count, 0)
         self.assertIn("Recent calls", payload.to_summary_text())
         self.assertIn("raw", payload.to_dict())
+        self.assertIn("rolling trace:", payload.to_summary_text())
 
     def test_history_aware_payload_maps_score_artifact_task_ids(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -369,6 +372,10 @@ class HistoryAwareInspectorTests(unittest.TestCase):
         self.assertEqual(payload.latest_builder_score["usefulness_report"]["aggregate_score"], 0.93)
         self.assertEqual(payload.latest_projection_score["usefulness_report"]["aggregate_score"], 0.96)
         self.assertEqual(len(payload.stream.items), 1)
+        self.assertEqual(
+            payload.raw["history_snapshot"]["retention"]["rolling_trace_limit"],
+            DEFAULT_MCP_ROLLING_TRACE_LIMIT,
+        )
 
     def test_mcp_cockpit_dump_json_emits_payload(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -390,6 +397,52 @@ class HistoryAwareInspectorTests(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertIn("stream", payload)
         self.assertIn("latest_projection", payload)
+
+    def test_prune_default_history_trace_keeps_pinned_records_and_recent_trace(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            history_path = root / "history.sqlite3"
+            builder_score_path = default_builder_task_score_path(root)
+            builder_score_path.parent.mkdir(parents=True, exist_ok=True)
+            call_ids: list[str] = []
+            store = McpInspectionHistoryStore(history_path)
+            for index in range(5):
+                call = {
+                    "call_id": f"call-{index}",
+                    "tool": {
+                        "tool_name": "ngraph.project.query",
+                        "capability_name": "coordination.project_context_query",
+                    },
+                    "status": "ok",
+                    "capture": {
+                        "captured_at": f"2026-04-23T04:00:0{index}Z",
+                        "command": {"payload": {"query": f"query {index}"}},
+                        "response": {"projection_frame": {}},
+                        "usefulness_report": {"aggregate_score": 0.9},
+                    },
+                }
+                store.record_call(call)
+                call_ids.append(call["call_id"])
+            builder_score_path.write_text(
+                json.dumps(
+                    {
+                        "meets_acceptance": True,
+                        "usefulness_report": {"aggregate_score": 0.93},
+                        "scores": [{"call_id": call_ids[0], "fixture": {"task_id": "keep_oldest"}}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            report = prune_default_history_trace(root, history_path, rolling_trace_limit=2)
+            snapshot = store.snapshot(limit=10, rolling_trace_limit=2)
+            remaining_ids = [record.call_id for record in snapshot.records]
+
+        self.assertEqual(report["pruned_count"], 2)
+        self.assertIn(call_ids[0], remaining_ids)
+        self.assertEqual(snapshot.retention.rolling_trace_limit, 2)
+        self.assertEqual(snapshot.retention.active_reasoning_count, 2)
+        self.assertEqual(snapshot.retention.durable_evidence_count, 1)
 
 
 if __name__ == "__main__":

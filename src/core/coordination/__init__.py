@@ -10,11 +10,15 @@ from .mcp_seam import (
     evaluate_mcp_usefulness,
 )
 from .mcp_inspection_history import (
+    DEFAULT_MCP_ROLLING_TRACE_LIMIT,
     MCP_INSPECTION_HISTORY_VERSION,
     McpInspectionHistoryRecord,
+    McpInspectionRetentionSummary,
     McpInspectionHistorySnapshot,
     McpInspectionHistoryStore,
     default_mcp_inspection_history_path,
+    prune_default_history_trace,
+    sync_history_pins_from_score_artifacts,
 )
 from .mcp_tool_registry import (
     MCP_TOOL_REGISTRY_VERSION,
@@ -101,6 +105,7 @@ from .host_workspace import (
     read_score_artifacts,
 )
 from .host_bridge import (
+    DEFAULT_HOST_BRIDGE_FILE_RETENTION_SECONDS,
     DEFAULT_HOST_BRIDGE_POLL_INTERVAL_MS,
     DEFAULT_HOST_BRIDGE_STALE_AFTER_SECONDS,
     DEFAULT_HOST_BRIDGE_TIMEOUT_MS,
@@ -113,6 +118,7 @@ from .host_bridge import (
     HostBridgeTimeoutError,
     HostBridgeUnavailableError,
     activate_host_bridge_session,
+    cleanup_host_bridge_transport,
     close_host_bridge_session,
     default_host_bridge_root,
     default_host_bridge_supported_tools,
@@ -195,7 +201,9 @@ __all__ = [
     "McpUsefulnessSignal",
     "MCP_TOOL_REGISTRY_VERSION",
     "MCP_INSPECTION_HISTORY_VERSION",
+    "DEFAULT_MCP_ROLLING_TRACE_LIMIT",
     "McpInspectionHistoryRecord",
+    "McpInspectionRetentionSummary",
     "McpInspectionHistorySnapshot",
     "McpInspectionHistoryStore",
     "PrototypeTuningFixture",
@@ -269,6 +277,7 @@ __all__ = [
     "HOST_COCKPIT_TOOL_NAME",
     "HOST_SEED_SEARCH_TOOL_NAME",
     "DEFAULT_HOST_BRIDGE_TIMEOUT_MS",
+    "DEFAULT_HOST_BRIDGE_FILE_RETENTION_SECONDS",
     "DEFAULT_HOST_BRIDGE_POLL_INTERVAL_MS",
     "DEFAULT_HOST_BRIDGE_WAIT_INTERVAL_MS",
     "DEFAULT_HOST_BRIDGE_STALE_AFTER_SECONDS",
@@ -279,6 +288,7 @@ __all__ = [
     "build_mcp_tool_registry",
     "call_registered_mcp_tool",
     "activate_host_bridge_session",
+    "cleanup_host_bridge_transport",
     "default_builder_task_fixtures",
     "default_host_bridge_root",
     "default_host_bridge_supported_tools",
@@ -317,6 +327,7 @@ __all__ = [
     "run_prototype_tuning_fixture",
     "run_traversal_mcp_adapter",
     "python_docs_record_to_semantic_object",
+    "prune_default_history_trace",
     "project_context_query",
     "run_project_query_interaction",
     "create_command_envelope",
@@ -330,6 +341,7 @@ __all__ = [
     "dispatch_host_command",
     "require_live_host_bridge_session",
     "read_score_artifacts",
+    "sync_history_pins_from_score_artifacts",
     "wait_for_host_bridge_response",
     "HostBridgeError",
     "HostBridgeUnavailableError",

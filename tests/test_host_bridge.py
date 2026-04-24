@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import tempfile
 import threading
 import time
@@ -16,8 +17,10 @@ from src.core.coordination import (
     activate_host_bridge_session,
     build_english_lexicon_baseline,
     build_python_docs_corpus,
+    cleanup_host_bridge_transport,
     create_host_command_envelope,
     default_host_state,
+    default_host_bridge_root,
     dispatch_command_via_host_bridge,
     enqueue_host_bridge_request,
     ingest_project_documents,
@@ -175,6 +178,30 @@ class HostBridgeTests(unittest.TestCase):
                         source_surface="cli-bridge",
                     ),
                 )
+
+    def test_cleanup_host_bridge_transport_removes_stale_files(self) -> None:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:
+            root = Path(temp)
+            bridge_root = default_host_bridge_root(root)
+            session = activate_host_bridge_session(root, created_at="2000-01-01T00:00:00Z")
+            request_dir = bridge_root / "requests"
+            response_dir = bridge_root / "responses"
+            request_dir.mkdir(parents=True, exist_ok=True)
+            response_dir.mkdir(parents=True, exist_ok=True)
+            request_file = request_dir / "old_request.json"
+            response_file = response_dir / "old_response.json"
+            request_file.write_text("{}", encoding="utf-8")
+            response_file.write_text("{}", encoding="utf-8")
+            old_time = time.time() - 3600
+            os.utime(request_file, (old_time, old_time))
+            os.utime(response_file, (old_time, old_time))
+
+            report = cleanup_host_bridge_transport(root, stale_after_seconds=1.0)
+
+        self.assertEqual(session.status, "active")
+        self.assertEqual(report["removed_requests"], 1)
+        self.assertEqual(report["removed_responses"], 1)
+        self.assertEqual(report["removed_session"], 1)
 
 
 if __name__ == "__main__":

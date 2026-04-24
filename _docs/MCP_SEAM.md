@@ -247,18 +247,21 @@ The history stores:
 - aggregate score
 - raw call/capture JSON
 
-This history is now important enough that the project needs an explicit
-retention/pruning policy. The intended direction is a rolling-trace model:
+This history is now important enough that the project has an explicit
+retention/pruning policy. The current rolling-trace model is:
 
 - Active Reasoning:
-  - recent interaction captures kept for live inspection and current session
-    legibility
+  - recent unpinned interaction captures kept for live inspection and current
+    session legibility
 - Durable Evidence:
-  - accepted score artifacts, journaled decisions, and any later
-    intentionally-promoted captures
+  - score-referenced call ids pinned in history, plus accepted score artifacts
+    and journaled decisions outside the history store
 
-That policy is not implemented yet in this document. It is the next hardening
-decision so the history store does not become an infinite junk drawer.
+Implemented behavior now includes:
+
+- automatic pruning of old unpinned rows beyond the rolling-trace limit
+- automatic pinning of call ids referenced by current score artifacts
+- retention summary visible in history, stream, cockpit, and host payloads
 
 For `ngraph.project.query`, history summaries also include selected projection
 layer and candidate count when available.

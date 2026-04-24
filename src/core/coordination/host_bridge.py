@@ -19,6 +19,7 @@ DEFAULT_HOST_BRIDGE_TIMEOUT_MS = 5000
 DEFAULT_HOST_BRIDGE_POLL_INTERVAL_MS = 750
 DEFAULT_HOST_BRIDGE_WAIT_INTERVAL_MS = 100
 DEFAULT_HOST_BRIDGE_STALE_AFTER_SECONDS = 5.0
+DEFAULT_HOST_BRIDGE_FILE_RETENTION_SECONDS = 300.0
 
 
 class HostBridgeError(RuntimeError):
@@ -171,6 +172,10 @@ def activate_host_bridge_session(
     """Create or refresh the live host bridge session manifest."""
     bridge_root = default_host_bridge_root(project_root)
     _ensure_bridge_dirs(bridge_root)
+    cleanup_host_bridge_transport(
+        project_root,
+        stale_after_seconds=DEFAULT_HOST_BRIDGE_FILE_RETENTION_SECONDS,
+    )
     timestamp = created_at or _utc_now()
     manifest = HostBridgeSessionManifest(
         version=HOST_BRIDGE_VERSION,
@@ -252,6 +257,34 @@ def pending_host_bridge_request_count(project_root: Path | str) -> int:
     return sum(1 for _ in request_dir.glob("*.json"))
 
 
+def cleanup_host_bridge_transport(
+    project_root: Path | str,
+    *,
+    stale_after_seconds: float = DEFAULT_HOST_BRIDGE_FILE_RETENTION_SECONDS,
+) -> dict[str, int]:
+    """Remove stale bridge transport files while preserving current live state."""
+    bridge_root = default_host_bridge_root(project_root)
+    if not bridge_root.exists():
+        return {"removed_requests": 0, "removed_responses": 0, "removed_session": 0}
+    now = datetime.now(timezone.utc)
+    removed_requests = _cleanup_dir_by_age(_request_dir(bridge_root), now, stale_after_seconds=stale_after_seconds)
+    removed_responses = _cleanup_dir_by_age(
+        _response_dir(bridge_root),
+        now,
+        stale_after_seconds=stale_after_seconds,
+    )
+    removed_session = 0
+    session = load_host_bridge_session(project_root, stale_after_seconds=stale_after_seconds, include_stale=True)
+    if session is not None and session.is_stale(stale_after_seconds=stale_after_seconds):
+        _safe_unlink(_session_manifest_path(bridge_root))
+        removed_session = 1
+    return {
+        "removed_requests": removed_requests,
+        "removed_responses": removed_responses,
+        "removed_session": removed_session,
+    }
+
+
 def enqueue_host_bridge_request(
     project_root: Path | str,
     command: CommandEnvelope,
@@ -288,6 +321,10 @@ def process_pending_host_bridge_requests(
     manifest = session or load_host_bridge_session(project_root)
     if manifest is None:
         return ()
+    cleanup_host_bridge_transport(
+        project_root,
+        stale_after_seconds=DEFAULT_HOST_BRIDGE_FILE_RETENTION_SECONDS,
+    )
     bridge_root = default_host_bridge_root(project_root)
     responses: list[HostBridgeResponse] = []
     for request_path in sorted(_request_dir(bridge_root).glob("*.json"))[: max(1, int(max_requests))]:
@@ -483,6 +520,26 @@ def _safe_unlink(path: Path) -> None:
         path.unlink()
     except OSError:
         return
+
+
+def _cleanup_dir_by_age(
+    directory: Path,
+    now: datetime,
+    *,
+    stale_after_seconds: float,
+) -> int:
+    if not directory.exists():
+        return 0
+    removed = 0
+    for path in directory.glob("*.json"):
+        try:
+            modified = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
+        except OSError:
+            continue
+        if (now - modified).total_seconds() > stale_after_seconds:
+            _safe_unlink(path)
+            removed += 1
+    return removed
 
 
 def _utc_now() -> str:

@@ -143,6 +143,7 @@ class HostWorkspaceTests(unittest.TestCase):
         self.assertGreaterEqual(len(snapshot.stream_items), 1)
         self.assertIn("project_query", snapshot.raw_payload_cache)
         self.assertIn("active_interaction", snapshot.raw_payload_cache)
+        self.assertIn("rolling_trace_limit", snapshot.retention)
 
     def test_seed_search_updates_host_snapshot_seed_flow(self) -> None:
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:
@@ -215,6 +216,7 @@ class HostWorkspaceTests(unittest.TestCase):
         self.assertIn("history", snapshot.raw)
         self.assertIn("stream", snapshot.raw)
         self.assertIn("cockpit", snapshot.raw)
+        self.assertIn("retention_policy", snapshot.raw)
 
 
 if __name__ == "__main__":

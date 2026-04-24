@@ -34,6 +34,7 @@ from .core.coordination import (
     default_builder_task_score_path,
     default_context_projection_score_path,
     default_mcp_inspection_history_path,
+    prune_default_history_trace,
     dispatch_command_via_host_bridge,
     dispatch_host_command,
     ingest_project_documents_for_traversal,
@@ -220,7 +221,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
 
     if args.command == "mcp-history":
-        history = McpInspectionHistoryStore(default_mcp_inspection_history_path(settings.project_root))
+        history_path = default_mcp_inspection_history_path(settings.project_root)
+        prune_default_history_trace(settings.project_root, history_path)
+        history = McpInspectionHistoryStore(history_path)
         payload = history.snapshot(limit=args.history_limit).to_json()
         if args.dump_json:
             sys.stdout.write(f"{payload}\n")

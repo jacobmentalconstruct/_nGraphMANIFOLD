@@ -1,6 +1,6 @@
 # Project Status
 
-_Status: Active parking surface, local host bridge parked_
+_Status: Active parking surface, post-prototype hardening slice parked_
 
 This file is the quick continuation marker between tranches. The app journal
 remains the authoritative phase ledger.
@@ -9,11 +9,11 @@ remains the authoritative phase ledger.
 
 Just-completed tranche:
 
-- Local Host Bridge And Cross-Process Session Control
+- Rolling Trace Retention And Bridge Cleanup
 
 Status:
 
-- parked complete in bounded local-bridge form
+- parked complete inside post-prototype hardening
 
 Started:
 
@@ -43,6 +43,14 @@ now:
 The next danger is no longer "nothing works yet." The next danger is
 structural drift caused by accumulating meaningful but unmanaged history,
 bridge state, and overlapping visibility surfaces.
+
+This first hardening slice now addresses that directly:
+
+- MCP inspection history uses a rolling-trace policy
+- old unpinned interaction rows are pruned automatically
+- score-referenced call ids are pinned as durable evidence
+- stale bridge request/response/session files are cleaned conservatively
+- the host, stream, cockpit, and history surfaces now expose retention state
 
 ## Stable Prototype State
 
@@ -106,20 +114,22 @@ It does not yet prove:
 
 ## Proposed Next Tranche
 
-Next proposed tranche:
+Current active tranche:
 
 - Post-Prototype Hardening And Expansion
 
 Immediate focus inside that tranche:
 
-- define retention/pruning policy for MCP inspection history
-- decide whether the bridge should remain file-backed or later gain a thinner
-  local IPC transport
+- decide whether `mcp-stream` and `mcp-cockpit` need filtering by tool/layer
 - decide whether more UI actions should join the shared command spine
 - decide whether command/result SemanticObjects remain inspection-only or
   become persisted cartridge truth later
 - decide whether to expand the bounded project-document set beyond the current
   four docs
+
+Recommended next tranche after this hardening slice:
+
+- Controlled Expansion And Visibility Filtering
 
 The first concrete hardening problem is:
 
@@ -242,16 +252,21 @@ Still explicitly out of scope unless a future tranche says otherwise:
 
 Latest tranche verification:
 
-- `python -m unittest discover -s tests` passed with `107` tests
+- `python -m unittest tests.test_history_inspector tests.test_host_bridge tests.test_host_workspace` passed with `19` tests
+- `python -m unittest discover -s tests` passed with `109` tests
 - `python -m compileall src tests` passed
+- `python -m src.app mcp-score-tasks --dump-json` remained at `0.93`, accepted
+- `python -m src.app project-query-score --dump-json` remained at `0.96`, accepted
+- `python -m src.app mcp-history --dump-json` now reports rolling-trace retention
+- `python -m src.app mcp-cockpit --dump-json` now exposes the same retention split
 - bridged CLI smoke succeeded for
   `project-query --use-host-bridge --dump-json`
 - forbidden runtime/source-name scan over Python files in `src/` and `tests/`
   found `0` violations for `.parts`, `.dev-tools`, `_BDHyper`, `Tripartite`,
   `NodeWALKER`, `docling`, and `Docling`
 - `python -m src.app status` now reports:
-  - `active_tranche=Local Host Bridge And Cross-Process Session Control`
-  - `next_tranche=Post-Prototype Hardening And Expansion`
+  - `active_tranche=Post-Prototype Hardening And Expansion`
+  - `next_tranche=Controlled Expansion And Visibility Filtering`
 
 Useful live commands:
 

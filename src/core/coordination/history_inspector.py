@@ -77,6 +77,12 @@ class HistoryAwareInspectorPayload:
             "nGraphMANIFOLD MCP History",
             f"records: {self.record_count}",
             f"history: {self.history_path}",
+            (
+                "rolling trace: "
+                f"{self.raw.get('retention', {}).get('active_reasoning_count', 'n/a')} active / "
+                f"{self.raw.get('retention', {}).get('durable_evidence_count', 'n/a')} durable / "
+                f"limit={self.raw.get('retention', {}).get('rolling_trace_limit', 'n/a')}"
+            ),
         ]
         if self.latest_score_artifact:
             report = self.latest_score_artifact.get("usefulness_report", {})
@@ -234,7 +240,10 @@ def build_history_aware_inspector_payload(
         record_count=snapshot.record_count,
         latest_score_artifact=score_artifact,
         calls=calls,
-        raw=snapshot.to_dict(),
+        raw={
+            **snapshot.to_dict(),
+            "surface_owner": "history_view",
+        },
     )
 
 
@@ -256,7 +265,10 @@ def build_interaction_stream_payload(
         history_path=snapshot.history_path,
         record_count=snapshot.record_count,
         items=items,
-        raw=snapshot.to_dict(),
+        raw={
+            **snapshot.to_dict(),
+            "surface_owner": "stream",
+        },
     )
 
 
@@ -289,6 +301,7 @@ def build_visibility_cockpit_payload(
             "projection_score_artifact": projection_score,
             "latest_projection": latest_projection,
             "latest_seed": latest_seed,
+            "surface_owner": "cockpit",
         },
     )
 

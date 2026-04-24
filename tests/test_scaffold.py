@@ -51,8 +51,8 @@ class ScaffoldTests(unittest.TestCase):
         settings = AppSettings.from_environment()
         status = ApplicationEngine(settings).status()
         self.assertEqual(status.status, "scaffold_ready")
-        self.assertIn("Local Host Bridge", status.active_tranche)
-        self.assertIn("Post-Prototype Hardening", status.next_tranche)
+        self.assertIn("Post-Prototype Hardening", status.active_tranche)
+        self.assertIn("Controlled Expansion", status.next_tranche)
 
 
 if __name__ == "__main__":

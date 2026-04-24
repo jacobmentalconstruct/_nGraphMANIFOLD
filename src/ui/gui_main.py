@@ -232,6 +232,12 @@ def _stream_text(snapshot) -> str:
         "nGraphMANIFOLD Command Stream",
         f"records: {snapshot.record_count}",
         f"history: {snapshot.history_path}",
+        (
+            "rolling trace: "
+            f"{snapshot.retention.get('active_reasoning_count', 'n/a')} active / "
+            f"{snapshot.retention.get('durable_evidence_count', 'n/a')} durable / "
+            f"limit={snapshot.retention.get('rolling_trace_limit', 'n/a')}"
+        ),
         "",
     ]
     if not snapshot.stream_items:
@@ -323,6 +329,11 @@ def _scores_text(snapshot) -> str:
         f"builder_score: {builder_report.get('aggregate_score', 'n/a')} accepted={builder.get('meets_acceptance', 'n/a')}",
         f"projection_score: {projection_report.get('aggregate_score', 'n/a')} accepted={projection.get('meets_acceptance', 'n/a')}",
         f"history_records: {snapshot.record_count}",
+        (
+            "rolling_trace: "
+            f"{snapshot.retention.get('active_reasoning_count', 'n/a')} active / "
+            f"{snapshot.retention.get('durable_evidence_count', 'n/a')} durable"
+        ),
         f"raw_cache_keys: {', '.join(sorted(snapshot.raw_payload_cache.keys())) or 'none'}",
     ]
     return "\n".join(lines)

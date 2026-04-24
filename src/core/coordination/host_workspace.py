@@ -24,7 +24,11 @@ from .interaction_spine import (
     create_command_envelope,
     run_project_query_interaction,
 )
-from .mcp_inspection_history import McpInspectionHistoryStore, default_mcp_inspection_history_path
+from .mcp_inspection_history import (
+    McpInspectionHistoryStore,
+    default_mcp_inspection_history_path,
+    prune_default_history_trace,
+)
 from .mcp_tool_registry import PROJECT_QUERY_CAPABILITY_NAME, TRAVERSAL_TOOL_NAME
 from .seed_search import run_seed_search_traversal
 
@@ -42,6 +46,7 @@ class HostWorkspaceSnapshot:
     version: str
     history_path: str
     record_count: int
+    retention: dict[str, Any]
     recent_calls: tuple[HistoryInspectorCallSummary, ...]
     stream_items: tuple[InteractionStreamItem, ...]
     latest_builder_score: dict[str, Any] | None
@@ -58,6 +63,7 @@ class HostWorkspaceSnapshot:
             "version": self.version,
             "history_path": self.history_path,
             "record_count": self.record_count,
+            "retention": self.retention,
             "recent_calls": [call.to_dict() for call in self.recent_calls],
             "stream_items": [item.to_dict() for item in self.stream_items],
             "latest_builder_score": self.latest_builder_score,
@@ -128,6 +134,7 @@ def build_host_workspace_snapshot(
     """Build one canonical host snapshot from history, score artifacts, and live cache."""
     root = Path(project_root).resolve()
     resolved_history_path = Path(history_path) if history_path else default_mcp_inspection_history_path(root)
+    retention_policy = prune_default_history_trace(root, resolved_history_path)
     history_payload = build_history_aware_inspector_payload(
         root,
         history_path=resolved_history_path,
@@ -153,6 +160,7 @@ def build_host_workspace_snapshot(
     active_seed = _active_seed(cache, cockpit_payload.to_dict())
     active_command = active_interaction.get("capture", {}).get("command") if active_interaction else None
     raw = {
+        "retention_policy": retention_policy,
         "history": history_payload.to_dict(),
         "stream": stream_payload.to_dict(),
         "cockpit": cockpit_payload.to_dict(),
@@ -164,6 +172,7 @@ def build_host_workspace_snapshot(
         version=HOST_WORKSPACE_VERSION,
         history_path=str(resolved_history_path),
         record_count=history_payload.record_count,
+        retention=dict(history_payload.raw.get("retention", {})),
         recent_calls=history_payload.calls,
         stream_items=stream_payload.items,
         latest_builder_score=cockpit_payload.latest_builder_score,

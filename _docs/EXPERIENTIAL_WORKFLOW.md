@@ -283,6 +283,13 @@ Once that shift happens, the main risk becomes the clutter of success:
 - too little retention discipline
 - too much accidental operational ambiguity
 
+The first hardening slice now turns that into implementation discipline:
+
+- the recent interaction trace is bounded
+- durable score-linked evidence is intentionally pinned
+- stale bridge transport files are cleaned
+- the visibility surfaces expose the split instead of hiding it
+
 ### Step 3: Build under the contract
 
 During implementation, the contract and architecture keep us honest:
