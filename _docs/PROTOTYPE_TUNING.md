@@ -130,6 +130,23 @@ That means the tuning loop can now evaluate not only whether the result is
 useful, but whether the live host session becomes more legible when the command
 is delivered from outside the UI process.
 
+The current bounded tuning pass also now covers the shared-command expansion
+surfaces:
+
+```bat
+python -m src.app status --dump-json
+python -m src.app mcp-tools --dump-json
+python -m src.app mcp-score-tasks --dump-json
+python -m src.app project-query-score --dump-json
+```
+
+Current results remain stable:
+
+- `status`: healthy shared-dispatch response
+- `mcp-tools`: healthy shared-dispatch response
+- builder-task score: `0.93`, accepted
+- projection arbitration score: `0.96`, accepted
+
 ## Current Experimentation Doctrine
 
 At this stage, an experiment is not accepted just because it "worked once."

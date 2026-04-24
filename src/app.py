@@ -14,12 +14,16 @@ from .core.config import AppSettings
 from .core.coordination import (
     DEFAULT_HOST_BRIDGE_ATTACH_GRACE_MS,
     DEFAULT_HOST_BRIDGE_TIMEOUT_MS,
+    HOST_BUILDER_SCORE_TOOL_NAME,
     HOST_COCKPIT_TOOL_NAME,
     HOST_HISTORY_VIEW_TOOL_NAME,
+    HOST_PROJECTION_SCORE_TOOL_NAME,
     HOST_READ_PANELS_TOOL_NAME,
     HOST_PROMOTE_CALL_TOOL_NAME,
     HOST_SEED_SEARCH_TOOL_NAME,
+    HOST_STATUS_TOOL_NAME,
     HOST_STREAM_TOOL_NAME,
+    HOST_TOOLS_TOOL_NAME,
     HostBridgeError,
     HostBridgeUnavailableError,
     PROJECT_QUERY_TOOL_NAME,
@@ -249,11 +253,25 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0, result.rendered_json, False
 
     if args.command == "status":
-        status = engine.status()
-        LOGGER.info("nGraphMANIFOLD status: %s", status.status)
-        LOGGER.info("project_root=%s", status.project_root)
-        LOGGER.info("active_tranche=%s", status.active_tranche)
-        LOGGER.info("next_tranche=%s", status.next_tranche)
+        exit_code, rendered, delivered_to_host = _run_bridge_enabled_host_command(
+            HOST_STATUS_TOOL_NAME,
+            {},
+        )
+        if exit_code != 0:
+            if args.dump_json:
+                sys.stdout.write(f"{rendered}\n")
+            return exit_code
+        if args.dump_json:
+            sys.stdout.write(f"{rendered}\n")
+            return 0
+        if delivered_to_host:
+            LOGGER.info("Status view delivered to the live host workspace.")
+            return 0
+        status = json.loads(rendered)
+        LOGGER.info("nGraphMANIFOLD status: %s", status.get("status", "n/a"))
+        LOGGER.info("project_root=%s", status.get("project_root", "n/a"))
+        LOGGER.info("active_tranche=%s", status.get("active_tranche", "n/a"))
+        LOGGER.info("next_tranche=%s", status.get("next_tranche", "n/a"))
         return 0
 
     if args.command == "ui":
@@ -271,11 +289,21 @@ def main(argv: Sequence[str] | None = None) -> int:
         return launch_mcp_inspector(settings, payload)
 
     if args.command == "mcp-tools":
-        registry = build_mcp_tool_registry()
-        payload = json.dumps(registry.to_dict(), indent=2, sort_keys=True)
+        exit_code, payload, delivered_to_host = _run_bridge_enabled_host_command(
+            HOST_TOOLS_TOOL_NAME,
+            {},
+        )
+        if exit_code != 0:
+            if args.dump_json:
+                sys.stdout.write(f"{payload}\n")
+            return exit_code
         if args.dump_json:
             sys.stdout.write(f"{payload}\n")
             return 0
+        if delivered_to_host:
+            LOGGER.info("Tool registry view delivered to the live host workspace.")
+            return 0
+        registry = json.loads(payload)
         LOGGER.info("registered MCP tool candidates:\n%s", payload)
         LOGGER.info("traversal tool candidate=%s", TRAVERSAL_TOOL_NAME)
         LOGGER.info("project query tool candidate=%s", PROJECT_QUERY_TOOL_NAME)
@@ -302,14 +330,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         return launch_mcp_inspector(settings, payload)
 
     if args.command == "mcp-score-tasks":
-        run = run_real_builder_task_scoring(
-            settings.project_root,
-            history_path=default_mcp_inspection_history_path(settings.project_root),
-            score_path=default_builder_task_score_path(settings.project_root),
+        exit_code, payload, delivered_to_host = _run_bridge_enabled_host_command(
+            HOST_BUILDER_SCORE_TOOL_NAME,
+            {"history_limit": args.history_limit},
         )
-        payload = run.to_json()
+        if exit_code != 0:
+            if args.dump_json:
+                sys.stdout.write(f"{payload}\n")
+            return exit_code
         if args.dump_json:
             sys.stdout.write(f"{payload}\n")
+            return 0
+        if delivered_to_host:
+            LOGGER.info("Builder score view delivered to the live host workspace.")
             return 0
         return launch_mcp_inspector(settings, payload)
 
@@ -496,14 +529,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         return launch_mcp_inspector(settings, payload)
 
     if args.command == "project-query-score":
-        run = run_context_projection_arbitration_scoring(
-            settings.project_root,
-            history_path=default_mcp_inspection_history_path(settings.project_root),
-            score_path=default_context_projection_score_path(settings.project_root),
+        exit_code, payload, delivered_to_host = _run_bridge_enabled_host_command(
+            HOST_PROJECTION_SCORE_TOOL_NAME,
+            {"history_limit": args.history_limit},
         )
-        payload = run.to_json()
+        if exit_code != 0:
+            if args.dump_json:
+                sys.stdout.write(f"{payload}\n")
+            return exit_code
         if args.dump_json:
             sys.stdout.write(f"{payload}\n")
+            return 0
+        if delivered_to_host:
+            LOGGER.info("Projection score view delivered to the live host workspace.")
             return 0
         return launch_mcp_inspector(settings, payload)
 

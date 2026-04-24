@@ -9,7 +9,7 @@ remains the authoritative phase ledger.
 
 Just-completed tranche:
 
-- Host Workspace Surface Consolidation
+- Shared Command Expansion And Bounded Tuning Pass
 
 Status:
 
@@ -60,6 +60,14 @@ Recent hardening slices now address that directly:
 - visible host-owned commands now use a short attach grace period so a freshly
   opened workspace is given time to publish its live session before any popup
   fallback is considered
+- the host now exposes active/named/all panel readback through
+  `mcp-read-panels`
+- host workspace now includes Status and Tool Registry tabs as first-class
+  surfaces
+- `status`, `mcp-tools`, `mcp-score-tasks`, and `project-query-score` now
+  route through the shared host dispatcher
+- a bounded tuning pass over the current corpus remains stable at builder-task
+  score `0.93` and projection arbitration score `0.96`
 
 ## Stable Prototype State
 
@@ -90,13 +98,16 @@ Completed and now parked:
   `src/core/coordination/host_workspace.py`
 - shared dispatcher for:
   `project-query`, `mcp-search-seeds`, `mcp-history-view`, `mcp-stream`,
-  `mcp-cockpit`
+  `mcp-cockpit`, `status`, `mcp-tools`, `mcp-score-tasks`,
+  `project-query-score`
 - primary desktop host workspace via `python -m src.app ui`
 - local host bridge in `src/core/coordination/host_bridge.py`
 - bridge session manifest and request/response roots under `data/host_bridge/`
 - opt-in bridge routing for:
   - `python -m src.app project-query --use-host-bridge`
   - `python -m src.app mcp-search-seeds --use-host-bridge`
+- host panel readback via:
+  - `python -m src.app mcp-read-panels --dump-json --use-host-bridge`
 - bounded same-instance cross-process control through canonical
   `CommandEnvelope` payloads
 
@@ -129,15 +140,16 @@ Current active tranche:
 
 Immediate focus inside that tranche:
 
-- decide which additional UI actions should join the shared command spine
 - decide whether command/result SemanticObjects remain inspection-only or
   become persisted cartridge truth later
 - decide whether to expand the bounded project-document set beyond the current
   four docs
+- decide whether longer-running bridged scoring commands should use a larger
+  default timeout or remain explicitly caller-owned
 
 Recommended next tranche after this hardening slice:
 
-- Shared Command Expansion And Truth-Surface Decisions
+- Truth-Surface Decisions And Controlled Corpus Expansion
 
 The first concrete hardening problem is:
 
@@ -261,10 +273,14 @@ Still explicitly out of scope unless a future tranche says otherwise:
 Latest tranche verification:
 
 - `python -m unittest tests.test_history_inspector tests.test_host_workspace` passed with `21` tests
-- `python -m unittest discover -s tests` passed with `117` tests
+- `python -m unittest discover -s tests` passed with `120` tests
 - `python -m compileall src tests` passed
 - `python -m src.app mcp-score-tasks --dump-json` remained at `0.93`, accepted
 - `python -m src.app project-query-score --dump-json` remained at `0.96`, accepted
+- `python -m src.app status --dump-json` now emits through the shared host dispatcher
+- `python -m src.app mcp-tools --dump-json` now emits through the shared host dispatcher
+- `python -m src.app mcp-read-panels --dump-json --use-host-bridge` now reads
+  the live active panel correctly
 - `python -m src.app mcp-history --dump-json` now reports rolling-trace retention
 - `python -m src.app mcp-cockpit --dump-json` now exposes the same retention split
 - filtered stream and cockpit dumps now honor `--tool-filter` and `--layer-filter`
@@ -281,7 +297,7 @@ Latest tranche verification:
   `NodeWALKER`, `docling`, and `Docling`
 - `python -m src.app status` now reports:
   - `active_tranche=Post-Prototype Hardening And Expansion`
-  - `next_tranche=Shared Command Expansion And Truth-Surface Decisions`
+  - `next_tranche=Truth-Surface Decisions And Controlled Corpus Expansion`
 
 Useful live commands:
 
@@ -293,6 +309,11 @@ Useful live commands:
 - `python -m src.app mcp-search-seeds --query "Current Park Point" --dump-json`
 - `python -m src.app mcp-search-seeds --query "Current Park Point" --use-host-bridge`
 - `python -m src.app mcp-promote-call --dump-json`
+- `python -m src.app mcp-read-panels --dump-json --use-host-bridge`
+- `python -m src.app status --dump-json`
+- `python -m src.app mcp-tools --dump-json`
+- `python -m src.app mcp-score-tasks --dump-json`
+- `python -m src.app project-query-score --dump-json`
 
 ## Next-Session Handoff
 

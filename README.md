@@ -74,6 +74,12 @@ are now an explicit opt-in rather than the normal path.
 Host-owned visible commands now wait briefly for a live workspace session
 during startup churn before falling back, which prevents the "main window plus
 extra popups" race seen in early consolidation testing.
+The host now also exposes a panel-read seam so the currently active panel, a
+named panel, or the full workspace surface can be inspected through the same
+shared host path. Shared-command expansion has also moved `status`,
+`mcp-tools`, `mcp-score-tasks`, and `project-query-score` onto the host-owned
+dispatcher, and a bounded tuning pass on the current corpus remains stable at
+builder-task score `0.93` and projection arbitration score `0.96`.
 
 Start with:
 
@@ -112,9 +118,9 @@ python -m src.app ui
 ```
 
 The host workspace now shows command stream, history summary, cockpit summary,
-active projection, active seed flow, latest score summaries, and Raw JSON from
-one in-process shared host snapshot. The host now also publishes a local
-bridge session under
+status, tool registry, active projection, active seed flow, latest score
+summaries, and Raw JSON from one in-process shared host snapshot. The host now
+also publishes a local bridge session under
 `data/host_bridge/` so opt-in external commands can target that already-open
 window. This is a local file-backed bridge, not a network service.
 
@@ -129,6 +135,14 @@ Headless bridged form:
 
 ```bat
 python -m src.app project-query --query "class object function" --use-host-bridge --dump-json
+```
+
+Read the active host panel, a named panel, or all panels:
+
+```bat
+python -m src.app mcp-read-panels --dump-json --use-host-bridge
+python -m src.app mcp-read-panels --dump-json --use-host-bridge --panel-mode panel --panel-name projection
+python -m src.app mcp-read-panels --dump-json --use-host-bridge --panel-mode all
 ```
 
 Open the raw MCP inspection panel:
@@ -149,6 +163,9 @@ List registered MCP tool candidates:
 python -m src.app mcp-tools --dump-json
 ```
 
+The same command now also routes through the shared host dispatcher and can be
+delivered to a live workspace with `--use-host-bridge`.
+
 Show recent persisted MCP inspection calls:
 
 ```bat
@@ -166,6 +183,10 @@ Score real builder continuation tasks over ingested project docs:
 ```bat
 python -m src.app mcp-score-tasks --dump-json
 ```
+
+This command now also routes through the shared host dispatcher. When targeting
+the live host for a longer scoring run, `--bridge-timeout-ms` may need to be
+raised.
 
 Show the history-aware inspector summary:
 
@@ -297,6 +318,8 @@ python -m src.app project-query-score --dump-json
 The scoring run records each underlying `ngraph.project.query` call in MCP
 inspection history and writes
 `data/mcp_inspection/context_projection_scores.json`.
+This command now also routes through the shared host dispatcher and can update
+the live host workspace when sent through the bridge.
 
 Build the Python documentation projection cartridge:
 

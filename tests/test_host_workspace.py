@@ -8,13 +8,17 @@ from pathlib import Path
 
 from src.core.config import AppSettings
 from src.core.coordination import (
+    HOST_BUILDER_SCORE_TOOL_NAME,
     HOST_COCKPIT_TOOL_NAME,
     HOST_HISTORY_VIEW_TOOL_NAME,
     HOST_PANEL_ORDER,
+    HOST_PROJECTION_SCORE_TOOL_NAME,
     HOST_PROMOTE_CALL_TOOL_NAME,
     HOST_READ_PANELS_TOOL_NAME,
     HOST_SEED_SEARCH_TOOL_NAME,
+    HOST_STATUS_TOOL_NAME,
     HOST_STREAM_TOOL_NAME,
+    HOST_TOOLS_TOOL_NAME,
     PROJECT_QUERY_TOOL_NAME,
     build_english_lexicon_baseline,
     build_host_workspace_snapshot,
@@ -272,6 +276,62 @@ class HostWorkspaceTests(unittest.TestCase):
         self.assertEqual(stream_result.payload["raw"]["filters"]["tool"], "ngraph.project.query")
         self.assertEqual(stream_result.payload["raw"]["filters"]["layer"], "python_docs_projection")
         self.assertEqual(cockpit_result.payload["raw"]["filters"]["tool"], "ngraph.project.query")
+
+    def test_status_tools_and_score_dispatches_update_host_state(self) -> None:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:
+            root = Path(temp)
+            self._build_layers(root)
+            state = default_host_state(root)
+            status_result = dispatch_host_command(
+                root,
+                create_host_command_envelope(
+                    tool_name=HOST_STATUS_TOOL_NAME,
+                    payload={},
+                    actor="human",
+                    source_surface="ui",
+                ),
+                state=state,
+            )
+            tools_result = dispatch_host_command(
+                root,
+                create_host_command_envelope(
+                    tool_name=HOST_TOOLS_TOOL_NAME,
+                    payload={},
+                    actor="human",
+                    source_surface="ui",
+                ),
+                state=state,
+            )
+            builder_result = dispatch_host_command(
+                root,
+                create_host_command_envelope(
+                    tool_name=HOST_BUILDER_SCORE_TOOL_NAME,
+                    payload={"history_limit": 6},
+                    actor="human",
+                    source_surface="ui",
+                ),
+                state=state,
+            )
+            projection_result = dispatch_host_command(
+                root,
+                create_host_command_envelope(
+                    tool_name=HOST_PROJECTION_SCORE_TOOL_NAME,
+                    payload={"history_limit": 6},
+                    actor="human",
+                    source_surface="ui",
+                ),
+                state=state,
+            )
+
+        self.assertEqual(status_result.payload["active_tranche"], "Post-Prototype Hardening And Expansion")
+        self.assertIn("tools", tools_result.payload)
+        self.assertTrue(builder_result.payload["meets_acceptance"])
+        self.assertIn("meets_acceptance", projection_result.payload)
+        self.assertIn("scores", projection_result.payload)
+        self.assertIn("status", projection_result.snapshot.panels)
+        self.assertIn("tools", projection_result.snapshot.panels)
+        self.assertIn("builder_score", projection_result.snapshot.raw_payload_cache)
+        self.assertIn("projection_score", projection_result.snapshot.raw_payload_cache)
 
     def test_read_panels_dispatch_returns_active_named_and_all_views(self) -> None:
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:

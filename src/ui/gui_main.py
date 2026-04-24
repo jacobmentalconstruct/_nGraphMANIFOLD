@@ -11,8 +11,12 @@ from src.core.coordination import (
     HOST_COCKPIT_TOOL_NAME,
     HOST_HISTORY_VIEW_TOOL_NAME,
     HOST_PANEL_ORDER,
+    HOST_STATUS_TOOL_NAME,
+    HOST_TOOLS_TOOL_NAME,
     HOST_PROMOTE_CALL_TOOL_NAME,
     HOST_READ_PANELS_TOOL_NAME,
+    HOST_BUILDER_SCORE_TOOL_NAME,
+    HOST_PROJECTION_SCORE_TOOL_NAME,
     HOST_SEED_SEARCH_TOOL_NAME,
     HOST_STREAM_TOOL_NAME,
     PROJECT_QUERY_TOOL_NAME,
@@ -97,13 +101,23 @@ def launch_ui(settings: AppSettings) -> int:
         demote_button.grid(row=0, column=5, padx=(0, 6))
         refresh_button = ttk.Button(controls, text="Refresh")
         refresh_button.grid(row=0, column=6, padx=(0, 6))
-        ttk.Label(controls, textvariable=status_var).grid(row=0, column=7, sticky="e")
+        status_button = ttk.Button(controls, text="Status")
+        status_button.grid(row=0, column=7, padx=(0, 6))
+        tools_button = ttk.Button(controls, text="Tools")
+        tools_button.grid(row=0, column=8, padx=(0, 6))
+        builder_score_button = ttk.Button(controls, text="Builder Score")
+        builder_score_button.grid(row=0, column=9, padx=(0, 6))
+        projection_score_button = ttk.Button(controls, text="Projection Score")
+        projection_score_button.grid(row=0, column=10, padx=(0, 6))
+        ttk.Label(controls, textvariable=status_var).grid(row=0, column=11, sticky="e")
 
         tabs = ttk.Notebook(frame)
         tabs.grid(row=1, column=0, sticky="nsew")
         stream_tab = ttk.Frame(tabs, padding=4)
         history_tab = ttk.Frame(tabs, padding=4)
         cockpit_tab = ttk.Frame(tabs, padding=4)
+        status_tab = ttk.Frame(tabs, padding=4)
+        tools_tab = ttk.Frame(tabs, padding=4)
         projection_tab = ttk.Frame(tabs, padding=4)
         seed_tab = ttk.Frame(tabs, padding=4)
         scores_tab = ttk.Frame(tabs, padding=4)
@@ -111,6 +125,8 @@ def launch_ui(settings: AppSettings) -> int:
         tabs.add(stream_tab, text="Command Stream")
         tabs.add(history_tab, text="History Summary")
         tabs.add(cockpit_tab, text="Cockpit")
+        tabs.add(status_tab, text="Status")
+        tabs.add(tools_tab, text="Tool Registry")
         tabs.add(projection_tab, text="Active Projection")
         tabs.add(seed_tab, text="Active Seed Flow")
         tabs.add(scores_tab, text="Scores")
@@ -119,6 +135,8 @@ def launch_ui(settings: AppSettings) -> int:
             "stream": stream_tab,
             "history": history_tab,
             "cockpit": cockpit_tab,
+            "status": status_tab,
+            "tools": tools_tab,
             "projection": projection_tab,
             "seed": seed_tab,
             "scores": scores_tab,
@@ -129,6 +147,8 @@ def launch_ui(settings: AppSettings) -> int:
         stream_text = _add_text_view(stream_tab)
         history_text = _add_text_view(history_tab)
         cockpit_text = _add_text_view(cockpit_tab)
+        status_text = _add_text_view(status_tab)
+        tools_text = _add_text_view(tools_tab)
         projection_text = _add_text_view(projection_tab)
         seed_text = _add_text_view(seed_tab)
         scores_text = _add_text_view(scores_tab)
@@ -140,6 +160,8 @@ def launch_ui(settings: AppSettings) -> int:
             _write_text(stream_text, str((panels.get("stream") or {}).get("text", "")))
             _write_text(history_text, str((panels.get("history") or {}).get("text", "")))
             _write_text(cockpit_text, str((panels.get("cockpit") or {}).get("text", "")))
+            _write_text(status_text, str((panels.get("status") or {}).get("text", "")))
+            _write_text(tools_text, str((panels.get("tools") or {}).get("text", "")))
             _write_text(projection_text, str((panels.get("projection") or {}).get("text", "")))
             _write_text(seed_text, str((panels.get("seed") or {}).get("text", "")))
             _write_text(scores_text, str((panels.get("scores") or {}).get("text", "")))
@@ -171,6 +193,10 @@ def launch_ui(settings: AppSettings) -> int:
             promote_button.configure(state="disabled")
             demote_button.configure(state="disabled")
             refresh_button.configure(state="disabled")
+            status_button.configure(state="disabled")
+            tools_button.configure(state="disabled")
+            builder_score_button.configure(state="disabled")
+            projection_score_button.configure(state="disabled")
             root.update_idletasks()
             try:
                 dispatch_host_command(settings.project_root, command, state=host_state)
@@ -184,6 +210,10 @@ def launch_ui(settings: AppSettings) -> int:
                 promote_button.configure(state="normal")
                 demote_button.configure(state="normal")
                 refresh_button.configure(state="normal")
+                status_button.configure(state="normal")
+                tools_button.configure(state="normal")
+                builder_score_button.configure(state="normal")
+                projection_score_button.configure(state="normal")
 
         def _dispatch(tool_name: str) -> None:
             query = query_var.get().strip()
@@ -212,6 +242,18 @@ def launch_ui(settings: AppSettings) -> int:
                     command = create_host_command_envelope(
                         tool_name=HOST_READ_PANELS_TOOL_NAME,
                         payload={"mode": "active"},
+                        actor="human",
+                        source_surface="ui",
+                    )
+                elif tool_name in {
+                    HOST_STATUS_TOOL_NAME,
+                    HOST_TOOLS_TOOL_NAME,
+                    HOST_BUILDER_SCORE_TOOL_NAME,
+                    HOST_PROJECTION_SCORE_TOOL_NAME,
+                }:
+                    command = create_host_command_envelope(
+                        tool_name=tool_name,
+                        payload={"history_limit": host_state.history_limit},
                         actor="human",
                         source_surface="ui",
                     )
@@ -269,6 +311,12 @@ def launch_ui(settings: AppSettings) -> int:
                         _select_panel("history")
                     elif latest.tool_name == HOST_COCKPIT_TOOL_NAME:
                         _select_panel("cockpit")
+                    elif latest.tool_name == HOST_STATUS_TOOL_NAME:
+                        _select_panel("status")
+                    elif latest.tool_name == HOST_TOOLS_TOOL_NAME:
+                        _select_panel("tools")
+                    elif latest.tool_name in {HOST_BUILDER_SCORE_TOOL_NAME, HOST_PROJECTION_SCORE_TOOL_NAME}:
+                        _select_panel("scores")
                     elif latest.tool_name == HOST_STREAM_TOOL_NAME:
                         _select_panel("stream")
                     elif latest.tool_name == HOST_READ_PANELS_TOOL_NAME:
@@ -303,6 +351,10 @@ def launch_ui(settings: AppSettings) -> int:
         promote_button.configure(command=lambda: _promote_active(True))
         demote_button.configure(command=lambda: _promote_active(False))
         refresh_button.configure(command=lambda: _dispatch(HOST_HISTORY_VIEW_TOOL_NAME))
+        status_button.configure(command=lambda: _dispatch(HOST_STATUS_TOOL_NAME))
+        tools_button.configure(command=lambda: _dispatch(HOST_TOOLS_TOOL_NAME))
+        builder_score_button.configure(command=lambda: _dispatch(HOST_BUILDER_SCORE_TOOL_NAME))
+        projection_score_button.configure(command=lambda: _dispatch(HOST_PROJECTION_SCORE_TOOL_NAME))
 
         def _on_tab_changed(_event=None) -> None:
             current_tab = tabs.select()

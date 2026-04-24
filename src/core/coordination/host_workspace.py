@@ -7,6 +7,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from ..config import AppSettings
+from ..engine import ApplicationEngine
 from .builder_task_scoring import default_builder_task_score_path
 from .context_projection_scoring import default_context_projection_score_path
 from .history_inspector import (
@@ -30,21 +32,29 @@ from .mcp_inspection_history import (
     promote_history_call,
     prune_default_history_trace,
 )
-from .mcp_tool_registry import PROJECT_QUERY_CAPABILITY_NAME, TRAVERSAL_TOOL_NAME
+from .mcp_tool_registry import PROJECT_QUERY_CAPABILITY_NAME, TRAVERSAL_TOOL_NAME, build_mcp_tool_registry
 from .seed_search import run_seed_search_traversal
+from .builder_task_scoring import run_real_builder_task_scoring
+from .context_projection_scoring import run_context_projection_arbitration_scoring
 
 HOST_WORKSPACE_VERSION = "v1"
+HOST_STATUS_TOOL_NAME = "ngraph.host.status_view"
+HOST_TOOLS_TOOL_NAME = "ngraph.host.tool_registry_view"
 HOST_HISTORY_VIEW_TOOL_NAME = "ngraph.host.history_view"
 HOST_STREAM_TOOL_NAME = "ngraph.host.stream_view"
 HOST_COCKPIT_TOOL_NAME = "ngraph.host.cockpit_view"
 HOST_SEED_SEARCH_TOOL_NAME = "ngraph.host.search_seeds"
 HOST_PROMOTE_CALL_TOOL_NAME = "ngraph.host.promote_call"
 HOST_READ_PANELS_TOOL_NAME = "ngraph.host.read_panels"
-HOST_PANEL_ORDER = ("stream", "history", "cockpit", "projection", "seed", "scores", "raw")
+HOST_BUILDER_SCORE_TOOL_NAME = "ngraph.host.builder_score_view"
+HOST_PROJECTION_SCORE_TOOL_NAME = "ngraph.host.projection_score_view"
+HOST_PANEL_ORDER = ("stream", "history", "cockpit", "status", "tools", "projection", "seed", "scores", "raw")
 HOST_PANEL_TITLES = {
     "stream": "Command Stream",
     "history": "History Summary",
     "cockpit": "Cockpit",
+    "status": "Status",
+    "tools": "Tool Registry",
     "projection": "Active Projection",
     "seed": "Active Seed Flow",
     "scores": "Scores",
@@ -188,6 +198,12 @@ def build_host_workspace_snapshot(
         history_path=resolved_history_path,
         record_count=history_payload.record_count,
         retention=dict(history_payload.raw.get("retention", {})),
+        status_payload=cache.get("status") if isinstance(cache.get("status"), dict) else _build_status_payload(root),
+        tool_registry_payload=(
+            cache.get("tool_registry")
+            if isinstance(cache.get("tool_registry"), dict)
+            else build_mcp_tool_registry().to_dict()
+        ),
         stream_payload=stream_payload.to_dict(),
         history_payload=history_payload.to_dict(),
         cockpit_payload=cockpit_payload.to_dict(),
@@ -268,6 +284,14 @@ def dispatch_host_command(
         payload = snapshot.raw["history"]
         host_state.cache_payload("history", payload)
         snapshot = host_state.refresh()
+    elif command.tool_name == HOST_STATUS_TOOL_NAME:
+        payload = _build_status_payload(root)
+        host_state.cache_payload("status", payload)
+        snapshot = host_state.refresh()
+    elif command.tool_name == HOST_TOOLS_TOOL_NAME:
+        payload = build_mcp_tool_registry().to_dict()
+        host_state.cache_payload("tool_registry", payload)
+        snapshot = host_state.refresh()
     elif command.tool_name == HOST_STREAM_TOOL_NAME:
         snapshot = host_state.refresh()
         payload = build_interaction_stream_payload(
@@ -289,6 +313,22 @@ def dispatch_host_command(
             layer_filter=str(command.payload.get("layer_filter", "")),
         ).to_dict()
         host_state.cache_payload("cockpit", payload)
+        snapshot = host_state.refresh()
+    elif command.tool_name == HOST_BUILDER_SCORE_TOOL_NAME:
+        payload = run_real_builder_task_scoring(
+            root,
+            history_path=resolved_history_path,
+            score_path=default_builder_task_score_path(root),
+        ).to_dict()
+        host_state.cache_payload("builder_score", payload)
+        snapshot = host_state.refresh()
+    elif command.tool_name == HOST_PROJECTION_SCORE_TOOL_NAME:
+        payload = run_context_projection_arbitration_scoring(
+            root,
+            history_path=resolved_history_path,
+            score_path=default_context_projection_score_path(root),
+        ).to_dict()
+        host_state.cache_payload("projection_score", payload)
         snapshot = host_state.refresh()
     elif command.tool_name == HOST_PROMOTE_CALL_TOOL_NAME:
         payload = promote_history_call(
@@ -392,6 +432,8 @@ def build_host_panel_registry(
     history_path: Path,
     record_count: int,
     retention: dict[str, Any],
+    status_payload: dict[str, Any],
+    tool_registry_payload: dict[str, Any],
     stream_payload: dict[str, Any],
     history_payload: dict[str, Any],
     cockpit_payload: dict[str, Any],
@@ -443,6 +485,18 @@ def build_host_panel_registry(
                 scores_text=scores_text,
             ),
             "data": cockpit_payload,
+        },
+        "status": {
+            "name": "status",
+            "title": HOST_PANEL_TITLES["status"],
+            "text": _status_text(status_payload),
+            "data": status_payload,
+        },
+        "tools": {
+            "name": "tools",
+            "title": HOST_PANEL_TITLES["tools"],
+            "text": _tools_text(tool_registry_payload),
+            "data": tool_registry_payload,
         },
         "projection": {
             "name": "projection",
@@ -789,6 +843,36 @@ def _scores_text(
     return "\n".join(lines)
 
 
+def _status_text(status_payload: dict[str, Any]) -> str:
+    lines = [
+        "nGraphMANIFOLD Status",
+        f"status: {status_payload.get('status', 'n/a')}",
+        f"project_root: {status_payload.get('project_root', 'n/a')}",
+        f"active_tranche: {status_payload.get('active_tranche', 'n/a')}",
+        f"next_tranche: {status_payload.get('next_tranche', 'n/a')}",
+    ]
+    return "\n".join(lines)
+
+
+def _tools_text(tool_registry_payload: dict[str, Any]) -> str:
+    registrations = tool_registry_payload.get("registrations", [])
+    lines = [
+        "nGraphMANIFOLD Tool Registry",
+        f"version: {tool_registry_payload.get('version', 'n/a')}",
+        f"registered_tools: {len(registrations)}",
+        "",
+    ]
+    if not registrations:
+        lines.append("No tool registrations available.")
+        return "\n".join(lines)
+    for item in registrations:
+        lines.append(
+            f"- {item.get('tool_name', 'n/a')} capability={item.get('capability_name', 'n/a')} "
+            f"readiness={item.get('readiness', 'n/a')}"
+        )
+    return "\n".join(lines)
+
+
 def _cockpit_text(
     *,
     stream_payload: dict[str, Any],
@@ -839,6 +923,21 @@ def _cockpit_text(
         lines.append(f"[{index}] {item.get('captured_at', '')} {item.get('tool_name', '')} {item.get('query') or '(no query text)'}")
         lines.append(f"    {item.get('response') or '(no response summary)'}")
     return "\n".join(lines)
+
+
+def _build_status_payload(project_root: Path) -> dict[str, Any]:
+    settings = AppSettings(
+        project_root=project_root,
+        docs_root=project_root / "_docs",
+        data_root=project_root / "data",
+    )
+    status = ApplicationEngine(settings).status()
+    return {
+        "status": status.status,
+        "project_root": str(status.project_root),
+        "active_tranche": status.active_tranche,
+        "next_tranche": status.next_tranche,
+    }
 
 
 def _read_json(path: Path) -> dict[str, Any] | None:

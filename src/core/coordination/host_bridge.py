@@ -160,20 +160,28 @@ def default_host_bridge_root(project_root: Path | str) -> Path:
 def default_host_bridge_supported_tools() -> tuple[str, ...]:
     """Return the tools that may target the live host in bridge v1."""
     from .host_workspace import (
+        HOST_BUILDER_SCORE_TOOL_NAME,
         HOST_COCKPIT_TOOL_NAME,
         HOST_HISTORY_VIEW_TOOL_NAME,
         HOST_PROMOTE_CALL_TOOL_NAME,
+        HOST_PROJECTION_SCORE_TOOL_NAME,
         HOST_READ_PANELS_TOOL_NAME,
         HOST_SEED_SEARCH_TOOL_NAME,
+        HOST_STATUS_TOOL_NAME,
         HOST_STREAM_TOOL_NAME,
+        HOST_TOOLS_TOOL_NAME,
     )
 
     return (
         PROJECT_QUERY_TOOL_NAME,
+        HOST_STATUS_TOOL_NAME,
+        HOST_TOOLS_TOOL_NAME,
         HOST_SEED_SEARCH_TOOL_NAME,
         HOST_HISTORY_VIEW_TOOL_NAME,
         HOST_STREAM_TOOL_NAME,
         HOST_COCKPIT_TOOL_NAME,
+        HOST_BUILDER_SCORE_TOOL_NAME,
+        HOST_PROJECTION_SCORE_TOOL_NAME,
         HOST_PROMOTE_CALL_TOOL_NAME,
         HOST_READ_PANELS_TOOL_NAME,
     )

@@ -10,12 +10,16 @@ import unittest
 from pathlib import Path
 
 from src.core.coordination import (
+    HOST_BUILDER_SCORE_TOOL_NAME,
     HOST_COCKPIT_TOOL_NAME,
     HOST_HISTORY_VIEW_TOOL_NAME,
     HOST_PROMOTE_CALL_TOOL_NAME,
+    HOST_PROJECTION_SCORE_TOOL_NAME,
     HOST_READ_PANELS_TOOL_NAME,
     HOST_SEED_SEARCH_TOOL_NAME,
+    HOST_STATUS_TOOL_NAME,
     HOST_STREAM_TOOL_NAME,
+    HOST_TOOLS_TOOL_NAME,
     PROJECT_QUERY_TOOL_NAME,
     HostBridgeError,
     HostBridgeUnavailableError,
@@ -41,10 +45,14 @@ class HostBridgeTests(unittest.TestCase):
     def test_default_supported_tools_cover_host_owned_views(self) -> None:
         supported = set(default_host_bridge_supported_tools())
         self.assertIn(PROJECT_QUERY_TOOL_NAME, supported)
+        self.assertIn(HOST_STATUS_TOOL_NAME, supported)
+        self.assertIn(HOST_TOOLS_TOOL_NAME, supported)
         self.assertIn(HOST_SEED_SEARCH_TOOL_NAME, supported)
         self.assertIn(HOST_HISTORY_VIEW_TOOL_NAME, supported)
         self.assertIn(HOST_STREAM_TOOL_NAME, supported)
         self.assertIn(HOST_COCKPIT_TOOL_NAME, supported)
+        self.assertIn(HOST_BUILDER_SCORE_TOOL_NAME, supported)
+        self.assertIn(HOST_PROJECTION_SCORE_TOOL_NAME, supported)
         self.assertIn(HOST_PROMOTE_CALL_TOOL_NAME, supported)
         self.assertIn(HOST_READ_PANELS_TOOL_NAME, supported)
 

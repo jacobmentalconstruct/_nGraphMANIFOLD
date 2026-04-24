@@ -30,5 +30,5 @@ class ApplicationEngine:
             status="scaffold_ready",
             project_root=self._settings.project_root,
             active_tranche="Post-Prototype Hardening And Expansion",
-            next_tranche="Shared Command Expansion And Truth-Surface Decisions",
+            next_tranche="Truth-Surface Decisions And Controlled Corpus Expansion",
         )

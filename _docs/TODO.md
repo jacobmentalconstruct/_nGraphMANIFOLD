@@ -7,15 +7,16 @@ authoritative ledger, and `PROJECT_STATUS.md` remains the quick park marker.
 
 ## Just Completed
 
-- [x] Host Workspace Surface Consolidation
+- [x] Shared Command Expansion And Bounded Tuning Pass
 
 What that means:
 
-- [x] host workspace now includes history and cockpit summaries as first-class tabs
-- [x] host-owned stream/cockpit/history commands are bridge-routable
-- [x] visible CLI use now prefers the live host workspace when one is available
-- [x] detached popup windows remain available through `--detached-window`
-- [x] the new presentation model reduces popup sprawl without inventing a new UI subsystem
+- [x] host workspace now includes Status and Tool Registry as first-class tabs
+- [x] `status`, `mcp-tools`, `mcp-score-tasks`, and `project-query-score` now normalize through the shared host dispatcher
+- [x] the host now exposes active, named, and all-panel readback through `mcp-read-panels`
+- [x] bounded tuning over the current corpus stayed green at builder-task score `0.93`
+- [x] bounded tuning over the current corpus stayed green at projection score `0.96`
+- [x] the main operator window remains the default visible surface instead of scattering these actions into detached windows
 
 ## Current Active Tranche
 
@@ -38,15 +39,14 @@ Current interpretation:
 
 ## Immediate Next Step
 
-- [ ] Decide which additional UI actions should join the shared command spine
+- [ ] Decide whether command/result SemanticObjects remain inspection-only or become persisted truth later
 
 Why this next:
 
-- retention, bridge cleanup, filtering, and promotion now exist
-- the next question is which additional user actions deserve the same canonical
-  command path instead of ad hoc UI-only handling
-- this keeps expansion bounded while teeing up the later truth-surface decision
-- it also lets us keep refining one main operator window instead of proliferating detached views
+- shared-command expansion is now materially in place for the current operator-facing score/status surfaces
+- the next architectural pressure is no longer "what should route through the host?"
+- the next architectural pressure is "what remains operational evidence and what, if anything, ever deserves promotion into cartridge truth?"
+- answering that question cleanly protects the project from accidentally turning interaction traces into runtime ontology
 
 Current recommended framing:
 
@@ -61,14 +61,13 @@ Durable Evidence:
 
 ## Next Work Queue
 
-- [ ] Decide which additional UI actions should join the shared command spine
+- [ ] Decide whether command/result SemanticObjects remain inspection-only or become persisted truth later
 - [ ] Decide whether operator promotion should later support labels/notes or remain a simple pin
+- [ ] Decide whether to expand the bounded project-document set beyond the current four docs
 - [ ] Decide whether the bridge should remain file-backed or later move to a
       thinner local IPC transport
-- [ ] Decide whether command/result SemanticObjects remain inspection-only or
-      become persisted truth later
-- [ ] Decide whether to expand the bounded project-document set beyond the
-      current four docs
+- [ ] Decide whether longer-running bridged scoring commands should use a larger
+      default timeout or remain explicitly caller-owned
 - [ ] Keep docs, score artifacts, and journal continuity current while hardening
 
 ## Visible Horizon
@@ -84,7 +83,7 @@ Durable Evidence:
 
 ## Proposed Next Tranche
 
-- [ ] Shared Command Expansion And Truth-Surface Decisions
+- [ ] Truth-Surface Decisions And Controlled Corpus Expansion
 
 ### Later Horizon
 
@@ -128,5 +127,6 @@ prototype substrate: stable
 visibility layer: stable
 local host bridge: stable in bounded form
 rolling trace + promotion controls: stable
-next step: expand the shared command spine carefully, then decide truth surfaces
+panel readback + shared command expansion: stable
+next step: decide truth surfaces cleanly, then widen scope in a controlled way
 ```

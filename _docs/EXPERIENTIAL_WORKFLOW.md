@@ -321,6 +321,17 @@ local bridge. That means the visible workspace can react to external
 `project-query` or `mcp-search-seeds` calls instead of making the human infer
 what would have happened in the live session.
 
+And now one more useful thing is true: the host can report back what the human
+is currently looking at. Through `mcp-read-panels`, the builder can ask for:
+
+- the active panel
+- one named panel
+- the full visible panel registry
+
+That makes the shared-visible workflow less speculative. The collaboration no
+longer has to rely only on "I think you are on the cockpit tab." The host can
+say.
+
 ### Step 5: Test and score the experiment
 
 This is a big part of the workflow.

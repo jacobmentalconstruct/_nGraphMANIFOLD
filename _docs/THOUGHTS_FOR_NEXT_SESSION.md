@@ -4,7 +4,7 @@ _Status: Reflective handoff for research and next-session planning_
 
 _Created: 2026-04-22_
 
-_Updated: 2026-04-23 after local host bridge pass_
+_Updated: 2026-04-24 after shared-command expansion and bounded tuning pass_
 
 This document is not the governing contract. The governing contract remains
 `builder_constraint_contract.md`. This file is a thinking surface: a place to
@@ -52,6 +52,13 @@ The first hardening slice now exists in code:
 - score-linked durable evidence is guarded against casual demotion
 - the host workspace now absorbs more of the visible operator story so useful
   views stop scattering into default popup windows
+- the host now exposes active, named, and full-workspace panel readback, which
+  means Codex can ask the host what the operator is actually looking at instead
+  of only inferring from the last command
+- `status`, `mcp-tools`, `mcp-score-tasks`, and `project-query-score` now join
+  the shared host dispatcher instead of living as separate side paths
+- bounded tuning on the current corpus still holds at builder score `0.93` and
+  projection arbitration score `0.96`
 
 The project is not drifting randomly. It feels like a long spiral because we
 are turning around the same center from increasing radius: first object shape,
@@ -68,6 +75,17 @@ compared, traversed, executed, or exposed through MCP.
 ```
 
 That is the real next step.
+
+The immediate next pressure is narrower and healthier than "add more stuff":
+
+```text
+Decide what remains inspection-only and what, if anything, ever deserves
+promotion into persisted semantic truth.
+```
+
+That question matters now because the operator-facing history, promotion, and
+panel seams are strong enough that accidental truth-surface creep is a real
+risk.
 
 ## Current One-Line State
 

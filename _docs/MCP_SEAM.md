@@ -176,9 +176,30 @@ Shared dispatcher ownership:
 - `mcp-history-view`
 - `mcp-stream`
 - `mcp-cockpit`
+- `status`
+- `mcp-tools`
+- `mcp-score-tasks`
+- `project-query-score`
 
 All of these now normalize through one coordination-owned dispatcher before
 their payloads are shown in the host workspace.
+
+The host also now exposes a panel-read seam over that same shared snapshot:
+
+- active panel readback
+- named panel readback
+- full workspace panel registry readback
+
+Headless bridge usage:
+
+```bat
+python -m src.app mcp-read-panels --dump-json --use-host-bridge
+python -m src.app mcp-read-panels --dump-json --use-host-bridge --panel-mode panel --panel-name projection
+python -m src.app mcp-read-panels --dump-json --use-host-bridge --panel-mode all
+```
+
+This is still a read seam over host state, not a new truth store or panel-owned
+protocol.
 
 ## Local Host Bridge
 
