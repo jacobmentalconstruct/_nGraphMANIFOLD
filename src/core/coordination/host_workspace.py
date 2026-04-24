@@ -27,6 +27,7 @@ from .interaction_spine import (
 from .mcp_inspection_history import (
     McpInspectionHistoryStore,
     default_mcp_inspection_history_path,
+    promote_history_call,
     prune_default_history_trace,
 )
 from .mcp_tool_registry import PROJECT_QUERY_CAPABILITY_NAME, TRAVERSAL_TOOL_NAME
@@ -37,6 +38,18 @@ HOST_HISTORY_VIEW_TOOL_NAME = "ngraph.host.history_view"
 HOST_STREAM_TOOL_NAME = "ngraph.host.stream_view"
 HOST_COCKPIT_TOOL_NAME = "ngraph.host.cockpit_view"
 HOST_SEED_SEARCH_TOOL_NAME = "ngraph.host.search_seeds"
+HOST_PROMOTE_CALL_TOOL_NAME = "ngraph.host.promote_call"
+HOST_READ_PANELS_TOOL_NAME = "ngraph.host.read_panels"
+HOST_PANEL_ORDER = ("stream", "history", "cockpit", "projection", "seed", "scores", "raw")
+HOST_PANEL_TITLES = {
+    "stream": "Command Stream",
+    "history": "History Summary",
+    "cockpit": "Cockpit",
+    "projection": "Active Projection",
+    "seed": "Active Seed Flow",
+    "scores": "Scores",
+    "raw": "Raw JSON",
+}
 
 
 @dataclass(frozen=True)
@@ -55,6 +68,8 @@ class HostWorkspaceSnapshot:
     active_seed: dict[str, Any] | None
     active_interaction: dict[str, Any] | None
     active_command: dict[str, Any] | None
+    active_tab: str
+    panels: dict[str, dict[str, Any]]
     raw_payload_cache: dict[str, Any]
     raw: dict[str, Any]
 
@@ -72,6 +87,8 @@ class HostWorkspaceSnapshot:
             "active_seed": self.active_seed,
             "active_interaction": self.active_interaction,
             "active_command": self.active_command,
+            "active_tab": self.active_tab,
+            "panels": self.panels,
             "raw_payload_cache": self.raw_payload_cache,
             "raw": self.raw,
         }
@@ -101,6 +118,7 @@ class SharedHostState:
     raw_payload_cache: dict[str, Any] = field(default_factory=dict)
     active_call_id: str = ""
     active_tool_name: str = ""
+    active_tab: str = "stream"
     snapshot: HostWorkspaceSnapshot | None = None
 
     def refresh(self) -> HostWorkspaceSnapshot:
@@ -110,6 +128,7 @@ class SharedHostState:
             history_limit=self.history_limit,
             active_call_id=self.active_call_id,
             active_tool_name=self.active_tool_name,
+            active_tab=self.active_tab,
             raw_payload_cache=self.raw_payload_cache,
         )
         return self.snapshot
@@ -121,6 +140,10 @@ class SharedHostState:
         self.active_call_id = call_id
         self.active_tool_name = tool_name
 
+    def set_active_tab(self, panel_name: str) -> None:
+        if panel_name in HOST_PANEL_ORDER:
+            self.active_tab = panel_name
+
 
 def build_host_workspace_snapshot(
     project_root: Path | str,
@@ -129,6 +152,7 @@ def build_host_workspace_snapshot(
     history_limit: int = 12,
     active_call_id: str = "",
     active_tool_name: str = "",
+    active_tab: str = "stream",
     raw_payload_cache: dict[str, Any] | None = None,
 ) -> HostWorkspaceSnapshot:
     """Build one canonical host snapshot from history, score artifacts, and live cache."""
@@ -159,6 +183,29 @@ def build_host_workspace_snapshot(
     active_projection = _active_projection(cache, active_interaction, cockpit_payload.to_dict())
     active_seed = _active_seed(cache, cockpit_payload.to_dict())
     active_command = active_interaction.get("capture", {}).get("command") if active_interaction else None
+    resolved_active_tab = active_tab if active_tab in HOST_PANEL_ORDER else "stream"
+    panels = build_host_panel_registry(
+        history_path=resolved_history_path,
+        record_count=history_payload.record_count,
+        retention=dict(history_payload.raw.get("retention", {})),
+        stream_payload=stream_payload.to_dict(),
+        history_payload=history_payload.to_dict(),
+        cockpit_payload=cockpit_payload.to_dict(),
+        active_projection=active_projection,
+        active_seed=active_seed,
+        latest_builder_score=cockpit_payload.latest_builder_score,
+        latest_projection_score=cockpit_payload.latest_projection_score,
+        raw_payload_cache=cache,
+        raw_payload={
+            "retention_policy": retention_policy,
+            "history": history_payload.to_dict(),
+            "stream": stream_payload.to_dict(),
+            "cockpit": cockpit_payload.to_dict(),
+            "active_interaction": active_interaction,
+            "active_projection": active_projection,
+            "active_seed": active_seed,
+        },
+    )
     raw = {
         "retention_policy": retention_policy,
         "history": history_payload.to_dict(),
@@ -167,6 +214,8 @@ def build_host_workspace_snapshot(
         "active_interaction": active_interaction,
         "active_projection": active_projection,
         "active_seed": active_seed,
+        "active_tab": resolved_active_tab,
+        "panels": panels,
     }
     return HostWorkspaceSnapshot(
         version=HOST_WORKSPACE_VERSION,
@@ -181,6 +230,8 @@ def build_host_workspace_snapshot(
         active_seed=active_seed,
         active_interaction=active_interaction,
         active_command=active_command,
+        active_tab=resolved_active_tab,
+        panels=panels,
         raw_payload_cache=cache,
         raw=raw,
     )
@@ -219,13 +270,46 @@ def dispatch_host_command(
         snapshot = host_state.refresh()
     elif command.tool_name == HOST_STREAM_TOOL_NAME:
         snapshot = host_state.refresh()
-        payload = snapshot.raw["stream"]
+        payload = build_interaction_stream_payload(
+            root,
+            history_path=resolved_history_path,
+            limit=int(command.payload.get("history_limit", history_limit)),
+            tool_filter=str(command.payload.get("tool_filter", "")),
+            layer_filter=str(command.payload.get("layer_filter", "")),
+        ).to_dict()
         host_state.cache_payload("stream", payload)
         snapshot = host_state.refresh()
     elif command.tool_name == HOST_COCKPIT_TOOL_NAME:
         snapshot = host_state.refresh()
-        payload = snapshot.raw["cockpit"]
+        payload = build_visibility_cockpit_payload(
+            root,
+            history_path=resolved_history_path,
+            limit=int(command.payload.get("history_limit", max(6, history_limit))),
+            tool_filter=str(command.payload.get("tool_filter", "")),
+            layer_filter=str(command.payload.get("layer_filter", "")),
+        ).to_dict()
         host_state.cache_payload("cockpit", payload)
+        snapshot = host_state.refresh()
+    elif command.tool_name == HOST_PROMOTE_CALL_TOOL_NAME:
+        payload = promote_history_call(
+            root,
+            resolved_history_path,
+            call_id=str(command.payload.get("call_id", "")),
+            pinned=bool(command.payload.get("pinned", True)),
+        )
+        host_state.cache_payload("promotion", payload)
+        record = payload.get("record") or {}
+        if record.get("call_id"):
+            host_state.set_active_call(str(record.get("call_id", "")), str(record.get("tool_name", "")))
+        snapshot = host_state.refresh()
+    elif command.tool_name == HOST_READ_PANELS_TOOL_NAME:
+        snapshot = host_state.refresh()
+        payload = read_host_panels(
+            snapshot,
+            mode=str(command.payload.get("mode", "active")),
+            panel_name=str(command.payload.get("panel_name", "")),
+        )
+        host_state.cache_payload("panel_read", payload)
         snapshot = host_state.refresh()
     else:
         raise ValueError(f"Unsupported shared host command: {command.tool_name}")
@@ -262,6 +346,135 @@ def default_host_state(project_root: Path | str, *, history_limit: int = 12) -> 
         history_path=default_mcp_inspection_history_path(root),
         history_limit=history_limit,
     )
+
+
+def read_host_panels(
+    snapshot: HostWorkspaceSnapshot,
+    *,
+    mode: str = "active",
+    panel_name: str = "",
+) -> dict[str, Any]:
+    """Read host panel contents for the active, named, or full workspace set."""
+    normalized_mode = (mode or "active").strip().lower()
+    normalized_panel = (panel_name or "").strip().lower()
+    if normalized_mode not in {"active", "panel", "all"}:
+        raise ValueError(f"Unsupported host panel read mode: {mode}")
+    if normalized_mode == "active":
+        active = snapshot.panels.get(snapshot.active_tab) or snapshot.panels.get("stream")
+        return {
+            "mode": "active",
+            "active_tab": snapshot.active_tab,
+            "panel_names": list(snapshot.panels.keys()),
+            "panel": active,
+        }
+    if normalized_mode == "panel":
+        if not normalized_panel:
+            raise ValueError("panel_name is required when mode='panel'")
+        panel = snapshot.panels.get(normalized_panel)
+        if panel is None:
+            raise ValueError(f"Unknown host panel: {panel_name}")
+        return {
+            "mode": "panel",
+            "active_tab": snapshot.active_tab,
+            "panel_names": list(snapshot.panels.keys()),
+            "panel": panel,
+        }
+    return {
+        "mode": "all",
+        "active_tab": snapshot.active_tab,
+        "panel_names": list(snapshot.panels.keys()),
+        "panels": snapshot.panels,
+    }
+
+
+def build_host_panel_registry(
+    *,
+    history_path: Path,
+    record_count: int,
+    retention: dict[str, Any],
+    stream_payload: dict[str, Any],
+    history_payload: dict[str, Any],
+    cockpit_payload: dict[str, Any],
+    active_projection: dict[str, Any] | None,
+    active_seed: dict[str, Any] | None,
+    latest_builder_score: dict[str, Any] | None,
+    latest_projection_score: dict[str, Any] | None,
+    raw_payload_cache: dict[str, Any],
+    raw_payload: dict[str, Any],
+) -> dict[str, dict[str, Any]]:
+    """Build the canonical named panel registry for the host workspace."""
+    scores_text = _scores_text(
+        record_count=record_count,
+        retention=retention,
+        latest_builder_score=latest_builder_score,
+        latest_projection_score=latest_projection_score,
+        raw_payload_cache=raw_payload_cache,
+    )
+    return {
+        "stream": {
+            "name": "stream",
+            "title": HOST_PANEL_TITLES["stream"],
+            "text": _stream_text(
+                record_count=record_count,
+                history_path=history_path,
+                retention=retention,
+                stream_payload=stream_payload,
+            ),
+            "data": stream_payload,
+        },
+        "history": {
+            "name": "history",
+            "title": HOST_PANEL_TITLES["history"],
+            "text": _history_text(
+                record_count=record_count,
+                history_path=history_path,
+                retention=retention,
+                history_payload=history_payload,
+            ),
+            "data": history_payload,
+        },
+        "cockpit": {
+            "name": "cockpit",
+            "title": HOST_PANEL_TITLES["cockpit"],
+            "text": _cockpit_text(
+                stream_payload=stream_payload,
+                active_projection=active_projection,
+                active_seed=active_seed,
+                scores_text=scores_text,
+            ),
+            "data": cockpit_payload,
+        },
+        "projection": {
+            "name": "projection",
+            "title": HOST_PANEL_TITLES["projection"],
+            "text": _projection_text(active_projection),
+            "data": active_projection or {},
+        },
+        "seed": {
+            "name": "seed",
+            "title": HOST_PANEL_TITLES["seed"],
+            "text": _seed_text(active_seed),
+            "data": active_seed or {},
+        },
+        "scores": {
+            "name": "scores",
+            "title": HOST_PANEL_TITLES["scores"],
+            "text": scores_text,
+            "data": {
+                "latest_builder_score": latest_builder_score,
+                "latest_projection_score": latest_projection_score,
+                "record_count": record_count,
+                "retention": retention,
+                "raw_payload_cache_keys": sorted(raw_payload_cache.keys()),
+            },
+        },
+        "raw": {
+            "name": "raw",
+            "title": HOST_PANEL_TITLES["raw"],
+            "text": json.dumps(raw_payload, indent=2, sort_keys=True),
+            "data": raw_payload,
+        },
+    }
 
 
 def _dispatch_project_query(
@@ -413,6 +626,219 @@ def read_score_artifacts(project_root: Path | str) -> dict[str, dict[str, Any] |
         "builder": _read_json(default_builder_task_score_path(root)),
         "projection": _read_json(default_context_projection_score_path(root)),
     }
+
+
+def _stream_text(
+    *,
+    record_count: int,
+    history_path: Path,
+    retention: dict[str, Any],
+    stream_payload: dict[str, Any],
+) -> str:
+    items = stream_payload.get("items", [])
+    lines = [
+        "nGraphMANIFOLD Command Stream",
+        f"records: {record_count}",
+        f"history: {history_path}",
+        (
+            "rolling trace: "
+            f"{retention.get('active_reasoning_count', 'n/a')} active / "
+            f"{retention.get('durable_evidence_count', 'n/a')} durable / "
+            f"limit={retention.get('rolling_trace_limit', 'n/a')}"
+        ),
+        "",
+    ]
+    if not items:
+        lines.append("No interaction records yet.")
+        return "\n".join(lines)
+    for index, item in enumerate(items[:8], start=1):
+        lines.append(f"[{index}] {item.get('captured_at', '')} {item.get('tool_name', '')} status={item.get('status', '')}")
+        lines.append(f"    query: {item.get('query') or '(no query text)'}")
+        lines.append(f"    result: {item.get('response') or '(no response summary)'}")
+        if item.get("selected_layer"):
+            lines.append(
+                f"    layer={item.get('selected_layer')} kind={item.get('selected_kind') or 'n/a'} "
+                f"score={item.get('selected_score')}"
+            )
+        if item.get("source_ref"):
+            lines.append(f"    source={item.get('source_ref')}")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def _history_text(
+    *,
+    record_count: int,
+    history_path: Path,
+    retention: dict[str, Any],
+    history_payload: dict[str, Any],
+) -> str:
+    calls = history_payload.get("calls", [])
+    lines = [
+        "nGraphMANIFOLD History Summary",
+        f"records: {record_count}",
+        f"history: {history_path}",
+        (
+            "rolling trace: "
+            f"{retention.get('active_reasoning_count', 'n/a')} active / "
+            f"{retention.get('durable_evidence_count', 'n/a')} durable / "
+            f"limit={retention.get('rolling_trace_limit', 'n/a')}"
+        ),
+        "",
+        "Recent Calls:",
+    ]
+    if not calls:
+        lines.append("No persisted calls yet.")
+        return "\n".join(lines)
+    for call in calls[:10]:
+        projection = ""
+        if call.get("selected_layer"):
+            projection = (
+                f" selected_layer={call.get('selected_layer')} candidates={call.get('candidate_count')}"
+            )
+        task = f" task={call.get('task_id')}" if call.get("task_id") else ""
+        lines.append(
+            f"- {call.get('captured_at')} {call.get('tool_name')} score={call.get('aggregate_score')} "
+            f"steps={call.get('step_count')} blockers={call.get('blocker_count')}{projection}{task}"
+        )
+    return "\n".join(lines)
+
+
+def _projection_text(active_projection: dict[str, Any] | None) -> str:
+    if not active_projection:
+        return "No active projection yet."
+    selected = active_projection.get("selected_candidate") or {}
+    flow = active_projection.get("selected_flow") or {}
+    lines = [
+        "nGraphMANIFOLD Active Projection",
+        f"query: {active_projection.get('query', 'n/a')}",
+        f"selected_layer: {active_projection.get('selected_layer', 'n/a')}",
+        f"selected_kind: {selected.get('kind', 'n/a')}",
+        f"selected_score: {selected.get('score', 'n/a')}",
+        f"source: {selected.get('source_ref', 'n/a')}",
+        "",
+        "Layer Summary:",
+    ]
+    for item in active_projection.get("layer_summaries", []):
+        lines.append(
+            f"- {item.get('name', 'n/a')} score={item.get('layer_score', 'n/a')} "
+            f"candidates={item.get('candidate_count', 'n/a')}"
+        )
+    lines.append("")
+    lines.append("Selected Flow:")
+    for item in flow.get("objects", []):
+        lines.append(
+            f"- {item.get('role')} rank {item.get('rank')} {item.get('kind')} "
+            f"score={item.get('score')}: {item.get('content_preview', '')}"
+        )
+    if not flow.get("objects"):
+        lines.append("- n/a")
+    return "\n".join(lines)
+
+
+def _seed_text(active_seed: dict[str, Any] | None) -> str:
+    if not active_seed:
+        return "No active seed flow yet."
+    selected = active_seed.get("selected_seed") or {}
+    flow = active_seed.get("selected_flow") or {}
+    traversal = active_seed.get("traversal_report") or {}
+    lines = [
+        "nGraphMANIFOLD Active Seed Flow",
+        f"query: {active_seed.get('query', 'n/a')}",
+        f"candidate_count: {active_seed.get('candidate_count', 'n/a')}",
+        f"selected_source: {selected.get('source_ref', 'n/a')}",
+        f"selected_kind: {selected.get('kind', 'n/a')}",
+        f"tool: {active_seed.get('tool_name', 'n/a')}",
+        f"steps: {len(traversal.get('steps', []))}",
+        f"blockers: {len(traversal.get('blockers', []))}",
+        "",
+        "Seed Flow:",
+    ]
+    for item in flow.get("objects", []):
+        lines.append(
+            f"- {item.get('role')} block {item.get('block_index')} {item.get('kind')}: "
+            f"{item.get('content_preview', '')}"
+        )
+    if not flow.get("objects"):
+        lines.append("- n/a")
+    return "\n".join(lines)
+
+
+def _scores_text(
+    *,
+    record_count: int,
+    retention: dict[str, Any],
+    latest_builder_score: dict[str, Any] | None,
+    latest_projection_score: dict[str, Any] | None,
+    raw_payload_cache: dict[str, Any],
+) -> str:
+    builder_report = (latest_builder_score or {}).get("usefulness_report", {})
+    projection_report = (latest_projection_score or {}).get("usefulness_report", {})
+    lines = [
+        "nGraphMANIFOLD Score Summaries",
+        f"builder_score: {builder_report.get('aggregate_score', 'n/a')} accepted={(latest_builder_score or {}).get('meets_acceptance', 'n/a')}",
+        f"projection_score: {projection_report.get('aggregate_score', 'n/a')} accepted={(latest_projection_score or {}).get('meets_acceptance', 'n/a')}",
+        f"history_records: {record_count}",
+        (
+            "rolling_trace: "
+            f"{retention.get('active_reasoning_count', 'n/a')} active / "
+            f"{retention.get('durable_evidence_count', 'n/a')} durable"
+        ),
+        f"raw_cache_keys: {', '.join(sorted(raw_payload_cache.keys())) or 'none'}",
+    ]
+    return "\n".join(lines)
+
+
+def _cockpit_text(
+    *,
+    stream_payload: dict[str, Any],
+    active_projection: dict[str, Any] | None,
+    active_seed: dict[str, Any] | None,
+    scores_text: str,
+) -> str:
+    lines = [
+        "nGraphMANIFOLD Cockpit",
+        "",
+        scores_text,
+        "",
+        "Latest Projection:",
+    ]
+    projection = active_projection or {}
+    selected = projection.get("selected_candidate") or {}
+    if projection:
+        lines.extend(
+            [
+                f"- query: {projection.get('query', 'n/a')}",
+                f"- selected_layer: {projection.get('selected_layer', 'n/a')}",
+                f"- selected_kind: {selected.get('kind', 'n/a')}",
+                f"- selected_score: {selected.get('score', 'n/a')}",
+                f"- source: {selected.get('source_ref', 'n/a')}",
+            ]
+        )
+    else:
+        lines.append("- none")
+    lines.extend(["", "Latest Seed:"])
+    seed = active_seed or {}
+    selected_seed = seed.get("selected_seed") or {}
+    if seed:
+        lines.extend(
+            [
+                f"- query: {seed.get('query', 'n/a')}",
+                f"- selected_source: {selected_seed.get('source_ref', 'n/a')}",
+                f"- steps: {len((seed.get('traversal_report') or {}).get('steps', []))}",
+                f"- blockers: {len((seed.get('traversal_report') or {}).get('blockers', []))}",
+            ]
+        )
+    else:
+        lines.append("- none")
+    lines.extend(["", "Recent Stream:"])
+    items = stream_payload.get("items", [])
+    if not items:
+        lines.append("- none")
+    for index, item in enumerate(items[:6], start=1):
+        lines.append(f"[{index}] {item.get('captured_at', '')} {item.get('tool_name', '')} {item.get('query') or '(no query text)'}")
+        lines.append(f"    {item.get('response') or '(no response summary)'}")
+    return "\n".join(lines)
 
 
 def _read_json(path: Path) -> dict[str, Any] | None:

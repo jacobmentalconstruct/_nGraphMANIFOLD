@@ -289,6 +289,8 @@ The first hardening slice now turns that into implementation discipline:
 - durable score-linked evidence is intentionally pinned
 - stale bridge transport files are cleaned
 - the visibility surfaces expose the split instead of hiding it
+- operator controls can now deliberately promote or demote the active
+  interaction record, with score-linked evidence protected from casual demotion
 
 ### Step 3: Build under the contract
 
@@ -460,6 +462,11 @@ In plain language:
 Now that the prototype is stable, this matters even more. If the surfaces start
 overlapping without clear ownership, operator trust drops. Hardening is partly
 about making each surface say one honest thing clearly.
+
+That now includes a presentation rule:
+
+- one main host workspace is the normal visible surface
+- detached windows are for intentional side inspection, not the default rhythm
 
 ## The Difference Between Memory, Logs, And Runtime Truth
 

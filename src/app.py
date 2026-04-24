@@ -12,9 +12,12 @@ from pathlib import Path
 
 from .core.config import AppSettings
 from .core.coordination import (
+    DEFAULT_HOST_BRIDGE_ATTACH_GRACE_MS,
     DEFAULT_HOST_BRIDGE_TIMEOUT_MS,
     HOST_COCKPIT_TOOL_NAME,
     HOST_HISTORY_VIEW_TOOL_NAME,
+    HOST_READ_PANELS_TOOL_NAME,
+    HOST_PROMOTE_CALL_TOOL_NAME,
     HOST_SEED_SEARCH_TOOL_NAME,
     HOST_STREAM_TOOL_NAME,
     HostBridgeError,
@@ -38,10 +41,12 @@ from .core.coordination import (
     dispatch_command_via_host_bridge,
     dispatch_host_command,
     ingest_project_documents_for_traversal,
+    load_host_bridge_session,
     lookup_english_lexicon_entry,
     run_context_projection_arbitration_scoring,
     run_real_builder_task_scoring,
     run_seed_search_traversal,
+    wait_for_live_host_bridge_session,
 )
 from .core.engine import ApplicationEngine
 from .core.logging import configure_logging
@@ -77,6 +82,8 @@ def build_parser() -> argparse.ArgumentParser:
             "mcp-cockpit",
             "mcp-stream",
             "mcp-search-seeds",
+            "mcp-promote-call",
+            "mcp-read-panels",
             "ingest-python-docs",
             "ingest-lexicon",
             "lookup-lexicon",
@@ -89,6 +96,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--dump-json",
         action="store_true",
         help="For inspection commands, write raw JSON to stdout instead of opening a panel or logging.",
+    )
+    parser.add_argument(
+        "--detached-window",
+        action="store_true",
+        help="For visible inspection commands, force a separate popup window instead of updating the live host workspace when one is available.",
     )
     parser.add_argument(
         "--use-host-bridge",
@@ -125,6 +137,37 @@ def build_parser() -> argparse.ArgumentParser:
         help="For ingest-lexicon or ingest-python-docs, optional maximum number of entries to ingest.",
     )
     parser.add_argument(
+        "--tool-filter",
+        default="",
+        help="For mcp-stream or mcp-cockpit, optional exact tool name filter.",
+    )
+    parser.add_argument(
+        "--layer-filter",
+        default="",
+        help="For mcp-stream or mcp-cockpit, optional exact selected-layer filter.",
+    )
+    parser.add_argument(
+        "--call-id",
+        default="",
+        help="For mcp-promote-call, optional explicit call id. Defaults to the latest history record.",
+    )
+    parser.add_argument(
+        "--panel-mode",
+        choices=("active", "panel", "all"),
+        default="active",
+        help="For mcp-read-panels, whether to read the active panel, one named panel, or all panels.",
+    )
+    parser.add_argument(
+        "--panel-name",
+        default="",
+        help="For mcp-read-panels --panel-mode panel, the named host panel to read.",
+    )
+    parser.add_argument(
+        "--demote",
+        action="store_true",
+        help="For mcp-promote-call, clear an operator pin instead of setting it.",
+    )
+    parser.add_argument(
         "--reset",
         action="store_true",
         help="For ingest-lexicon or ingest-python-docs, rebuild the cartridge from an empty database.",
@@ -158,14 +201,32 @@ def main(argv: Sequence[str] | None = None) -> int:
     settings = AppSettings.from_environment()
     engine = ApplicationEngine(settings)
 
-    def _run_bridge_enabled_host_command(command_name: str, payload: dict[str, object]) -> tuple[int, str]:
+    def _host_session_for_visible_command(command_name: str):
+        if args.dump_json or args.detached_window:
+            return None
+        try:
+            session = wait_for_live_host_bridge_session(
+                settings.project_root,
+                timeout_ms=DEFAULT_HOST_BRIDGE_ATTACH_GRACE_MS,
+            )
+        except Exception:
+            return None
+        if session is None:
+            return None
+        if command_name not in set(session.supported_tools):
+            return None
+        return session
+
+    def _run_bridge_enabled_host_command(command_name: str, payload: dict[str, object]) -> tuple[int, str, bool]:
+        live_session = None if args.use_host_bridge else _host_session_for_visible_command(command_name)
+        deliver_to_host = bool(args.use_host_bridge or live_session is not None)
         command = create_host_command_envelope(
             tool_name=command_name,
             payload=payload,
             actor="human",
-            source_surface="cli-bridge" if args.use_host_bridge else "cli",
+            source_surface="cli-bridge" if deliver_to_host else "cli",
         )
-        if args.use_host_bridge:
+        if deliver_to_host:
             try:
                 response = dispatch_command_via_host_bridge(
                     settings.project_root,
@@ -174,18 +235,18 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
             except HostBridgeUnavailableError as exc:
                 LOGGER.error("Host bridge unavailable: %s", exc)
-                return 1, json.dumps({"error": str(exc)}, indent=2, sort_keys=True)
+                return 1, json.dumps({"error": str(exc)}, indent=2, sort_keys=True), True
             except HostBridgeError as exc:
                 LOGGER.error("Host bridge failed: %s", exc)
-                return 1, json.dumps({"error": str(exc)}, indent=2, sort_keys=True)
+                return 1, json.dumps({"error": str(exc)}, indent=2, sort_keys=True), True
             rendered = json.dumps(response.payload or {}, indent=2, sort_keys=True)
-            return 0, rendered
+            return 0, rendered, True
         result = dispatch_host_command(
             settings.project_root,
             command,
             history_limit=args.history_limit,
         )
-        return 0, result.rendered_json
+        return 0, result.rendered_json, False
 
     if args.command == "status":
         status = engine.status()
@@ -253,64 +314,80 @@ def main(argv: Sequence[str] | None = None) -> int:
         return launch_mcp_inspector(settings, payload)
 
     if args.command == "mcp-history-view":
-        result = dispatch_host_command(
-            settings.project_root,
-            create_host_command_envelope(
-                tool_name=HOST_HISTORY_VIEW_TOOL_NAME,
-                payload={"history_limit": args.history_limit},
-                actor="human",
-                source_surface="cli",
-            ),
-            history_limit=args.history_limit,
+        exit_code, rendered, delivered_to_host = _run_bridge_enabled_host_command(
+            HOST_HISTORY_VIEW_TOOL_NAME,
+            {"history_limit": args.history_limit},
         )
-        payload = dict(result.payload)
-        inspector = build_history_aware_inspector_payload(
-            settings.project_root,
-            history_path=default_mcp_inspection_history_path(settings.project_root),
-            limit=args.history_limit,
-        )
-        payload["summary_text"] = inspector.to_summary_text()
-        rendered = json.dumps(payload, indent=2, sort_keys=True)
+        if exit_code != 0:
+            if args.dump_json:
+                sys.stdout.write(f"{rendered}\n")
+            return exit_code
+        history_payload = json.loads(rendered)
+        if isinstance(history_payload, dict) and "summary_text" not in history_payload:
+            inspector = build_history_aware_inspector_payload(
+                settings.project_root,
+                history_path=default_mcp_inspection_history_path(settings.project_root),
+                limit=args.history_limit,
+            )
+            history_payload["summary_text"] = inspector.to_summary_text()
+            rendered = json.dumps(history_payload, indent=2, sort_keys=True)
         if args.dump_json:
             sys.stdout.write(f"{rendered}\n")
+            return 0
+        if delivered_to_host:
+            LOGGER.info("History view delivered to the live host workspace.")
             return 0
         return launch_mcp_inspector(settings, rendered)
 
     if args.command == "mcp-cockpit":
-        result = dispatch_host_command(
-            settings.project_root,
-            create_host_command_envelope(
-                tool_name=HOST_COCKPIT_TOOL_NAME,
-                payload={"history_limit": max(6, args.history_limit)},
-                actor="human",
-                source_surface="cli",
-            ),
-            history_limit=max(6, args.history_limit),
+        exit_code, rendered, delivered_to_host = _run_bridge_enabled_host_command(
+            HOST_COCKPIT_TOOL_NAME,
+            {
+                "history_limit": max(6, args.history_limit),
+                "tool_filter": args.tool_filter,
+                "layer_filter": args.layer_filter,
+            },
         )
-        rendered = result.rendered_json
+        if exit_code != 0:
+            if args.dump_json:
+                sys.stdout.write(f"{rendered}\n")
+            return exit_code
         if args.dump_json:
             sys.stdout.write(f"{rendered}\n")
+            return 0
+        if delivered_to_host:
+            LOGGER.info("Cockpit view delivered to the live host workspace.")
             return 0
         return launch_visibility_cockpit(settings, rendered)
 
     if args.command == "mcp-stream":
-        result = dispatch_host_command(
-            settings.project_root,
-            create_host_command_envelope(
-                tool_name=HOST_STREAM_TOOL_NAME,
-                payload={"history_limit": args.history_limit},
-                actor="human",
-                source_surface="cli",
-            ),
-            history_limit=args.history_limit,
+        exit_code, rendered, delivered_to_host = _run_bridge_enabled_host_command(
+            HOST_STREAM_TOOL_NAME,
+            {
+                "history_limit": args.history_limit,
+                "tool_filter": args.tool_filter,
+                "layer_filter": args.layer_filter,
+            },
         )
+        if exit_code != 0:
+            if args.dump_json:
+                sys.stdout.write(f"{rendered}\n")
+            return exit_code
         if args.dump_json:
-            sys.stdout.write(f"{result.rendered_json}\n")
+            sys.stdout.write(f"{rendered}\n")
             return 0
-        return launch_interaction_stream(settings, history_limit=args.history_limit)
+        if delivered_to_host:
+            LOGGER.info("Stream view delivered to the live host workspace.")
+            return 0
+        return launch_interaction_stream(
+            settings,
+            history_limit=args.history_limit,
+            tool_filter=args.tool_filter,
+            layer_filter=args.layer_filter,
+        )
 
     if args.command == "mcp-search-seeds":
-        exit_code, payload = _run_bridge_enabled_host_command(
+        exit_code, payload, delivered_to_host = _run_bridge_enabled_host_command(
             HOST_SEED_SEARCH_TOOL_NAME,
             {"query": args.query, "seed_limit": args.seed_limit},
         )
@@ -321,10 +398,47 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.dump_json:
             sys.stdout.write(f"{payload}\n")
             return 0
-        if args.use_host_bridge:
+        if delivered_to_host:
             LOGGER.info("Seed search delivered to the live host workspace.")
             return 0
         return launch_mcp_inspector(settings, payload)
+
+    if args.command == "mcp-promote-call":
+        exit_code, rendered, delivered_to_host = _run_bridge_enabled_host_command(
+            HOST_PROMOTE_CALL_TOOL_NAME,
+            {
+                "call_id": args.call_id,
+                "pinned": not args.demote,
+            },
+        )
+        if exit_code != 0:
+            if args.dump_json:
+                sys.stdout.write(f"{rendered}\n")
+            return exit_code
+        if args.dump_json:
+            sys.stdout.write(f"{rendered}\n")
+            return 0
+        if delivered_to_host:
+            LOGGER.info("Promotion control delivered to the live host workspace.")
+            return 0
+        return launch_mcp_inspector(settings, rendered)
+
+    if args.command == "mcp-read-panels":
+        exit_code, rendered, _ = _run_bridge_enabled_host_command(
+            HOST_READ_PANELS_TOOL_NAME,
+            {
+                "mode": args.panel_mode,
+                "panel_name": args.panel_name,
+            },
+        )
+        if exit_code != 0:
+            if args.dump_json:
+                sys.stdout.write(f"{rendered}\n")
+            return exit_code
+        if args.dump_json:
+            sys.stdout.write(f"{rendered}\n")
+            return 0
+        return launch_mcp_inspector(settings, rendered)
 
     if args.command == "ingest-lexicon":
         result = build_english_lexicon_baseline(
@@ -365,7 +479,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         return launch_mcp_inspector(settings, payload)
 
     if args.command == "project-query":
-        exit_code, payload = _run_bridge_enabled_host_command(
+        exit_code, payload, delivered_to_host = _run_bridge_enabled_host_command(
             PROJECT_QUERY_TOOL_NAME,
             {"query": args.query, "limit": args.limit or 3},
         )
@@ -376,7 +490,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.dump_json:
             sys.stdout.write(f"{payload}\n")
             return 0
-        if args.use_host_bridge:
+        if delivered_to_host:
             LOGGER.info("Project query delivered to the live host workspace.")
             return 0
         return launch_mcp_inspector(settings, payload)

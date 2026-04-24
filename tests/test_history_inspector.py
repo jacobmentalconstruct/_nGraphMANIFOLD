@@ -20,6 +20,7 @@ from src.core.coordination import (
     build_visibility_cockpit_payload,
     default_builder_task_score_path,
     default_context_projection_score_path,
+    promote_history_call,
     prune_default_history_trace,
 )
 from src.ui.mcp_inspector import _summary_text
@@ -209,6 +210,54 @@ class HistoryAwareInspectorTests(unittest.TestCase):
         self.assertIn("Q: class object function", payload.to_stream_text())
         self.assertIn("R: python_docs_projection", payload.to_stream_text())
 
+    def test_interaction_stream_payload_applies_tool_and_layer_filters(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            history_path = root / "history.sqlite3"
+            query_call = {
+                "call_id": "interaction:v1:query",
+                "tool": {
+                    "tool_name": "ngraph.project.query",
+                    "capability_name": "coordination.project_context_query",
+                },
+                "status": "ok",
+                "capture": {
+                    "captured_at": "2026-04-23T03:30:00Z",
+                    "command": {"payload": {"query": "class object function"}},
+                    "response": {"projection_frame": {"selected_layer": "python_docs_projection", "selected_candidate": {}}},
+                    "usefulness_report": {"aggregate_score": 0.95},
+                },
+            }
+            traversal_call = {
+                "call_id": "interaction:v1:traverse",
+                "tool": {
+                    "tool_name": "ngraph.analysis.traverse_cartridge",
+                    "capability_name": "analysis.traverse_cartridge",
+                },
+                "status": "ok",
+                "capture": {
+                    "captured_at": "2026-04-23T03:31:00Z",
+                    "request": {"seed_semantic_id": "sem:v1:test"},
+                    "response": {"traversal_report": {"steps": [1], "blockers": []}},
+                    "usefulness_report": {"aggregate_score": 0.91},
+                },
+            }
+            store = McpInspectionHistoryStore(history_path)
+            store.record_call(query_call)
+            store.record_call(traversal_call)
+
+            payload = build_interaction_stream_payload(
+                root,
+                history_path=history_path,
+                tool_filter="ngraph.project.query",
+                layer_filter="python_docs_projection",
+            )
+
+        self.assertEqual(len(payload.items), 1)
+        self.assertEqual(payload.items[0].tool_name, "ngraph.project.query")
+        self.assertEqual(payload.raw["filters"]["tool"], "ngraph.project.query")
+        self.assertEqual(payload.raw["filters"]["layer"], "python_docs_projection")
+
     def test_mcp_stream_dump_json_emits_items(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             old_root = os.environ.get("NGRAPH_PROJECT_ROOT")
@@ -377,6 +426,38 @@ class HistoryAwareInspectorTests(unittest.TestCase):
             DEFAULT_MCP_ROLLING_TRACE_LIMIT,
         )
 
+    def test_visibility_cockpit_payload_applies_filters(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            history_path = root / "history.sqlite3"
+            call = {
+                "call_id": "interaction:v1:test",
+                "tool": {
+                    "tool_name": "ngraph.project.query",
+                    "capability_name": "coordination.project_context_query",
+                },
+                "status": "ok",
+                "capture": {
+                    "captured_at": "2026-04-23T04:00:00Z",
+                    "command": {"payload": {"query": "class object function"}},
+                    "response": {"projection_frame": {"selected_layer": "python_docs_projection", "selected_candidate": {}, "selected_flow": {"objects": []}, "projections": []}},
+                    "usefulness_report": {"aggregate_score": 0.95},
+                    "result": {"evidence_summary": {"selected_layer": "python_docs_projection", "candidate_count": 1}},
+                },
+            }
+            McpInspectionHistoryStore(history_path).record_call(call)
+
+            payload = build_visibility_cockpit_payload(
+                root,
+                history_path=history_path,
+                tool_filter="ngraph.project.query",
+                layer_filter="python_docs_projection",
+            )
+
+        self.assertEqual(len(payload.stream.items), 1)
+        self.assertEqual(payload.latest_projection["selected_layer"], "python_docs_projection")
+        self.assertEqual(payload.raw["filters"]["tool"], "ngraph.project.query")
+
     def test_mcp_cockpit_dump_json_emits_payload(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             old_root = os.environ.get("NGRAPH_PROJECT_ROOT")
@@ -443,6 +524,108 @@ class HistoryAwareInspectorTests(unittest.TestCase):
         self.assertEqual(snapshot.retention.rolling_trace_limit, 2)
         self.assertEqual(snapshot.retention.active_reasoning_count, 2)
         self.assertEqual(snapshot.retention.durable_evidence_count, 1)
+
+    def test_promote_history_call_defaults_to_latest_record(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            history_path = root / "history.sqlite3"
+            store = McpInspectionHistoryStore(history_path)
+            for index in range(2):
+                store.record_call(
+                    {
+                        "call_id": f"call-{index}",
+                        "tool": {
+                            "tool_name": "ngraph.project.query",
+                            "capability_name": "coordination.project_context_query",
+                        },
+                        "status": "ok",
+                        "capture": {
+                            "captured_at": f"2026-04-23T04:00:0{index}Z",
+                            "command": {"payload": {"query": f"query {index}"}},
+                            "response": {"projection_frame": {}},
+                            "usefulness_report": {"aggregate_score": 0.9},
+                        },
+                    }
+                )
+
+            payload = promote_history_call(root, history_path)
+
+        self.assertEqual(payload["call_id"], "call-1")
+        self.assertTrue(payload["record"]["pinned"])
+
+    def test_promote_history_call_refuses_to_demote_score_locked_call(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            history_path = root / "history.sqlite3"
+            builder_score_path = default_builder_task_score_path(root)
+            builder_score_path.parent.mkdir(parents=True, exist_ok=True)
+            store = McpInspectionHistoryStore(history_path)
+            store.record_call(
+                {
+                    "call_id": "locked-call",
+                    "tool": {
+                        "tool_name": "ngraph.project.query",
+                        "capability_name": "coordination.project_context_query",
+                    },
+                    "status": "ok",
+                    "capture": {
+                        "captured_at": "2026-04-23T04:00:00Z",
+                        "command": {"payload": {"query": "query"}},
+                        "response": {"projection_frame": {}},
+                        "usefulness_report": {"aggregate_score": 0.9},
+                    },
+                }
+            )
+            builder_score_path.write_text(
+                json.dumps(
+                    {
+                        "meets_acceptance": True,
+                        "usefulness_report": {"aggregate_score": 0.93},
+                        "scores": [{"call_id": "locked-call", "fixture": {"task_id": "locked"}}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            promote_history_call(root, history_path, call_id="locked-call", pinned=True)
+
+            with self.assertRaises(ValueError):
+                promote_history_call(root, history_path, call_id="locked-call", pinned=False)
+
+    def test_mcp_promote_call_dump_json_emits_promotion_payload(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            old_root = os.environ.get("NGRAPH_PROJECT_ROOT")
+            os.environ["NGRAPH_PROJECT_ROOT"] = temp
+            history_path = Path(temp) / "data" / "mcp_inspection" / "history.sqlite3"
+            McpInspectionHistoryStore(history_path).record_call(
+                {
+                    "call_id": "call-promote",
+                    "tool": {
+                        "tool_name": "ngraph.project.query",
+                        "capability_name": "coordination.project_context_query",
+                    },
+                    "status": "ok",
+                    "capture": {
+                        "captured_at": "2026-04-23T04:00:00Z",
+                        "command": {"payload": {"query": "query"}},
+                        "response": {"projection_frame": {}},
+                        "usefulness_report": {"aggregate_score": 0.9},
+                    },
+                }
+            )
+            stdout = io.StringIO()
+            try:
+                with contextlib.redirect_stdout(stdout):
+                    exit_code = main(["mcp-promote-call", "--dump-json", "--call-id", "call-promote"])
+            finally:
+                if old_root is None:
+                    os.environ.pop("NGRAPH_PROJECT_ROOT", None)
+                else:
+                    os.environ["NGRAPH_PROJECT_ROOT"] = old_root
+
+        payload = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["call_id"], "call-promote")
+        self.assertTrue(payload["record"]["pinned"])
 
 
 if __name__ == "__main__":

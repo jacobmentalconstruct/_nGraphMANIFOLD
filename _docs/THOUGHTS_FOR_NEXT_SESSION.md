@@ -47,6 +47,11 @@ The first hardening slice now exists in code:
 - score-referenced calls are pinned as durable evidence
 - bridge transport files are cleaned conservatively
 - retention state is visible in the operator surfaces
+- stream and cockpit filtering now exist in bounded exact-match form
+- operator promotion controls now exist for active or named interaction records
+- score-linked durable evidence is guarded against casual demotion
+- the host workspace now absorbs more of the visible operator story so useful
+  views stop scattering into default popup windows
 
 The project is not drifting randomly. It feels like a long spiral because we
 are turning around the same center from increasing radius: first object shape,
@@ -243,6 +248,14 @@ The first slice has now reduced that pressure:
 - history retention exists in bounded rolling-trace form
 - bridge transport cleanup exists in bounded local form
 - surface ownership is stated, though filtering policy is still open
+
+The next pressure after that is more selective:
+
+```text
+Decide which actions earn a place in the shared command spine,
+and decide which operational records should remain inspection-only
+instead of becoming semantic cartridge truth.
+```
 
 ## What Exists Now
 

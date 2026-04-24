@@ -20,6 +20,7 @@ DEFAULT_HOST_BRIDGE_POLL_INTERVAL_MS = 750
 DEFAULT_HOST_BRIDGE_WAIT_INTERVAL_MS = 100
 DEFAULT_HOST_BRIDGE_STALE_AFTER_SECONDS = 5.0
 DEFAULT_HOST_BRIDGE_FILE_RETENTION_SECONDS = 300.0
+DEFAULT_HOST_BRIDGE_ATTACH_GRACE_MS = 2500
 
 
 class HostBridgeError(RuntimeError):
@@ -158,9 +159,24 @@ def default_host_bridge_root(project_root: Path | str) -> Path:
 
 def default_host_bridge_supported_tools() -> tuple[str, ...]:
     """Return the tools that may target the live host in bridge v1."""
-    from .host_workspace import HOST_SEED_SEARCH_TOOL_NAME
+    from .host_workspace import (
+        HOST_COCKPIT_TOOL_NAME,
+        HOST_HISTORY_VIEW_TOOL_NAME,
+        HOST_PROMOTE_CALL_TOOL_NAME,
+        HOST_READ_PANELS_TOOL_NAME,
+        HOST_SEED_SEARCH_TOOL_NAME,
+        HOST_STREAM_TOOL_NAME,
+    )
 
-    return (PROJECT_QUERY_TOOL_NAME, HOST_SEED_SEARCH_TOOL_NAME)
+    return (
+        PROJECT_QUERY_TOOL_NAME,
+        HOST_SEED_SEARCH_TOOL_NAME,
+        HOST_HISTORY_VIEW_TOOL_NAME,
+        HOST_STREAM_TOOL_NAME,
+        HOST_COCKPIT_TOOL_NAME,
+        HOST_PROMOTE_CALL_TOOL_NAME,
+        HOST_READ_PANELS_TOOL_NAME,
+    )
 
 
 def activate_host_bridge_session(
@@ -394,6 +410,22 @@ def require_live_host_bridge_session(project_root: Path | str) -> HostBridgeSess
     if manifest is None:
         raise HostBridgeUnavailableError("No live host bridge session is available.")
     return manifest
+
+
+def wait_for_live_host_bridge_session(
+    project_root: Path | str,
+    *,
+    timeout_ms: int = DEFAULT_HOST_BRIDGE_ATTACH_GRACE_MS,
+    wait_interval_ms: int = DEFAULT_HOST_BRIDGE_WAIT_INTERVAL_MS,
+) -> HostBridgeSessionManifest | None:
+    """Wait briefly for a live host session to appear during startup churn."""
+    deadline = time.monotonic() + max(1, int(timeout_ms)) / 1000.0
+    while time.monotonic() < deadline:
+        manifest = load_host_bridge_session(project_root)
+        if manifest is not None:
+            return manifest
+        time.sleep(max(10, int(wait_interval_ms)) / 1000.0)
+    return load_host_bridge_session(project_root)
 
 
 def _process_one_bridge_request(

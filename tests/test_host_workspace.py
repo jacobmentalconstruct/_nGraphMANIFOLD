@@ -8,8 +8,13 @@ from pathlib import Path
 
 from src.core.config import AppSettings
 from src.core.coordination import (
+    HOST_COCKPIT_TOOL_NAME,
     HOST_HISTORY_VIEW_TOOL_NAME,
+    HOST_PANEL_ORDER,
+    HOST_PROMOTE_CALL_TOOL_NAME,
+    HOST_READ_PANELS_TOOL_NAME,
     HOST_SEED_SEARCH_TOOL_NAME,
+    HOST_STREAM_TOOL_NAME,
     PROJECT_QUERY_TOOL_NAME,
     build_english_lexicon_baseline,
     build_host_workspace_snapshot,
@@ -217,6 +222,145 @@ class HostWorkspaceTests(unittest.TestCase):
         self.assertIn("stream", snapshot.raw)
         self.assertIn("cockpit", snapshot.raw)
         self.assertIn("retention_policy", snapshot.raw)
+        self.assertEqual(snapshot.active_tab, "stream")
+        self.assertEqual(tuple(snapshot.panels.keys()), HOST_PANEL_ORDER)
+
+    def test_stream_and_cockpit_dispatch_accept_filters(self) -> None:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:
+            root = Path(temp)
+            self._build_layers(root)
+            state = default_host_state(root)
+            dispatch_host_command(
+                root,
+                create_host_command_envelope(
+                    tool_name=PROJECT_QUERY_TOOL_NAME,
+                    payload={"query": "class object function", "limit": 3},
+                    actor="human",
+                    source_surface="ui",
+                ),
+                state=state,
+            )
+            stream_result = dispatch_host_command(
+                root,
+                create_host_command_envelope(
+                    tool_name=HOST_STREAM_TOOL_NAME,
+                    payload={
+                        "history_limit": 6,
+                        "tool_filter": "ngraph.project.query",
+                        "layer_filter": "python_docs_projection",
+                    },
+                    actor="human",
+                    source_surface="ui",
+                ),
+                state=state,
+            )
+            cockpit_result = dispatch_host_command(
+                root,
+                create_host_command_envelope(
+                    tool_name=HOST_COCKPIT_TOOL_NAME,
+                    payload={
+                        "history_limit": 6,
+                        "tool_filter": "ngraph.project.query",
+                        "layer_filter": "python_docs_projection",
+                    },
+                    actor="human",
+                    source_surface="ui",
+                ),
+                state=state,
+            )
+
+        self.assertEqual(stream_result.payload["raw"]["filters"]["tool"], "ngraph.project.query")
+        self.assertEqual(stream_result.payload["raw"]["filters"]["layer"], "python_docs_projection")
+        self.assertEqual(cockpit_result.payload["raw"]["filters"]["tool"], "ngraph.project.query")
+
+    def test_read_panels_dispatch_returns_active_named_and_all_views(self) -> None:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:
+            root = Path(temp)
+            self._build_layers(root)
+            state = default_host_state(root)
+            dispatch_host_command(
+                root,
+                create_host_command_envelope(
+                    tool_name=PROJECT_QUERY_TOOL_NAME,
+                    payload={"query": "class object function", "limit": 3},
+                    actor="human",
+                    source_surface="ui",
+                ),
+                state=state,
+            )
+            state.set_active_tab("projection")
+            active_result = dispatch_host_command(
+                root,
+                create_host_command_envelope(
+                    tool_name=HOST_READ_PANELS_TOOL_NAME,
+                    payload={"mode": "active"},
+                    actor="human",
+                    source_surface="ui",
+                ),
+                state=state,
+            )
+            named_result = dispatch_host_command(
+                root,
+                create_host_command_envelope(
+                    tool_name=HOST_READ_PANELS_TOOL_NAME,
+                    payload={"mode": "panel", "panel_name": "scores"},
+                    actor="human",
+                    source_surface="ui",
+                ),
+                state=state,
+            )
+            all_result = dispatch_host_command(
+                root,
+                create_host_command_envelope(
+                    tool_name=HOST_READ_PANELS_TOOL_NAME,
+                    payload={"mode": "all"},
+                    actor="human",
+                    source_surface="ui",
+                ),
+                state=state,
+            )
+
+        self.assertEqual(active_result.payload["mode"], "active")
+        self.assertEqual(active_result.payload["active_tab"], "projection")
+        self.assertEqual(active_result.payload["panel"]["name"], "projection")
+        self.assertIn("Active Projection", active_result.payload["panel"]["text"])
+        self.assertEqual(named_result.payload["panel"]["name"], "scores")
+        self.assertIn("Score Summaries", named_result.payload["panel"]["text"])
+        self.assertEqual(tuple(all_result.payload["panels"].keys()), HOST_PANEL_ORDER)
+        self.assertIn("panel_read", all_result.snapshot.raw_payload_cache)
+
+    def test_promote_call_dispatch_updates_active_record_and_payload(self) -> None:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:
+            root = Path(temp)
+            self._build_layers(root)
+            state = default_host_state(root)
+            query_result = dispatch_host_command(
+                root,
+                create_host_command_envelope(
+                    tool_name=PROJECT_QUERY_TOOL_NAME,
+                    payload={"query": "class object function", "limit": 3},
+                    actor="human",
+                    source_surface="ui",
+                ),
+                state=state,
+            )
+            call_id = str(query_result.payload["call_id"])
+
+            promote_result = dispatch_host_command(
+                root,
+                create_host_command_envelope(
+                    tool_name=HOST_PROMOTE_CALL_TOOL_NAME,
+                    payload={"call_id": call_id, "pinned": True},
+                    actor="human",
+                    source_surface="ui",
+                ),
+                state=state,
+            )
+
+        self.assertEqual(promote_result.payload["call_id"], call_id)
+        self.assertTrue(promote_result.payload["record"]["pinned"])
+        self.assertEqual(promote_result.snapshot.active_interaction["call_id"], call_id)
+        self.assertIn("promotion", promote_result.snapshot.raw_payload_cache)
 
 
 if __name__ == "__main__":

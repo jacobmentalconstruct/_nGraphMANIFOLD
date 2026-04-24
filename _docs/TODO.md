@@ -7,16 +7,15 @@ authoritative ledger, and `PROJECT_STATUS.md` remains the quick park marker.
 
 ## Just Completed
 
-- [x] Rolling Trace Retention And Bridge Cleanup
+- [x] Host Workspace Surface Consolidation
 
 What that means:
 
-- [x] unpinned interaction history now uses a bounded rolling trace
-- [x] score-referenced call ids are pinned as durable evidence
-- [x] host, stream, cockpit, and history payloads expose retention state
-- [x] stale bridge request/response/session files are cleaned conservatively
-- [x] the bridge remains file-backed and subordinate to command/state
-- [x] the hardening pass did not create a new truth store
+- [x] host workspace now includes history and cockpit summaries as first-class tabs
+- [x] host-owned stream/cockpit/history commands are bridge-routable
+- [x] visible CLI use now prefers the live host workspace when one is available
+- [x] detached popup windows remain available through `--detached-window`
+- [x] the new presentation model reduces popup sprawl without inventing a new UI subsystem
 
 ## Current Active Tranche
 
@@ -39,16 +38,15 @@ Current interpretation:
 
 ## Immediate Next Step
 
-- [ ] Decide whether `mcp-stream` and `mcp-cockpit` need filtering by tool/layer
+- [ ] Decide which additional UI actions should join the shared command spine
 
 Why this next:
 
-- retention and bridge cleanup now exist, so the next question is how much
-  live visibility should be filtered before the surfaces become noisy
-- the surfaces now have declared ownership, which makes filtering a bounded
-  refinement rather than a blind UI expansion
-- this is the healthiest next step before adding more commands or more corpus
-  scope
+- retention, bridge cleanup, filtering, and promotion now exist
+- the next question is which additional user actions deserve the same canonical
+  command path instead of ad hoc UI-only handling
+- this keeps expansion bounded while teeing up the later truth-surface decision
+- it also lets us keep refining one main operator window instead of proliferating detached views
 
 Current recommended framing:
 
@@ -63,11 +61,10 @@ Durable Evidence:
 
 ## Next Work Queue
 
-- [ ] Decide whether operator-facing pin/promotion controls are needed beyond score-artifact pinning
+- [ ] Decide which additional UI actions should join the shared command spine
+- [ ] Decide whether operator promotion should later support labels/notes or remain a simple pin
 - [ ] Decide whether the bridge should remain file-backed or later move to a
       thinner local IPC transport
-- [ ] Decide whether `mcp-stream` and `mcp-cockpit` need filtering by tool/layer
-- [ ] Decide whether more UI actions should join the shared command spine
 - [ ] Decide whether command/result SemanticObjects remain inspection-only or
       become persisted truth later
 - [ ] Decide whether to expand the bounded project-document set beyond the
@@ -87,7 +84,7 @@ Durable Evidence:
 
 ## Proposed Next Tranche
 
-- [ ] Controlled Expansion And Visibility Filtering
+- [ ] Shared Command Expansion And Truth-Surface Decisions
 
 ### Later Horizon
 
@@ -130,5 +127,6 @@ If reopening the project quickly, the shortest accurate read is:
 prototype substrate: stable
 visibility layer: stable
 local host bridge: stable in bounded form
-next step: harden history and bridge discipline before expanding scope
+rolling trace + promotion controls: stable
+next step: expand the shared command spine carefully, then decide truth surfaces
 ```

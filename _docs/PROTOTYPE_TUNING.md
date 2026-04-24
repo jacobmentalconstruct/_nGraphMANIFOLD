@@ -150,6 +150,9 @@ The new hardening slice adds one more constraint to that doctrine:
 - retained interaction history must remain bounded enough to stay vendorable
 - durable evidence must remain intentional, not accidental
 - bridge transport cleanup must not leave behind silent local debris
+- filtered visibility must narrow attention without changing truth
+- operator promotion controls may preserve evidence deliberately, but they must
+  not circumvent score-linked durability guardrails or silently create new truth stores
 
 ## Interpretation
 
@@ -176,5 +179,7 @@ embeddings, merged cartridges, a real MCP server, and broad UI expansion.
   usefulness fixtures beyond the current qualitative tuning gate.
 - Decide whether cockpit/stream filtering belongs in post-prototype hardening
   or should remain deferred.
+- Decide whether operator-promoted durable evidence should eventually appear in
+  scoring or remain purely operational memory.
 - Decide whether future tuning should explicitly score bridged host-session
   usefulness, not only query/projection correctness.

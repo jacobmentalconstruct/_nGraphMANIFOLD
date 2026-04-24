@@ -59,6 +59,21 @@ score-referenced calls are pinned as durable evidence, and bridge transport
 files are cleaned conservatively when sessions are activated or polled. The
 history, stream, cockpit, and host workspace now expose the active-vs-durable
 split so the operator can see what is live trace versus retained evidence.
+The next visibility refinement is also in place: `mcp-stream` and
+`mcp-cockpit` now accept optional `--tool-filter` and `--layer-filter`
+arguments so the operator can narrow the current read surface without changing
+the underlying history truth.
+Operator-facing promotion controls are now in place as well. The host workspace
+can promote or demote the active interaction record, and
+`python -m src.app mcp-promote-call` can pin the latest or named call into
+durable evidence without changing cartridge truth. Score-referenced calls
+remain protected from casual demotion.
+The presentation model is now more disciplined: the host workspace is the
+default visible operator surface, and detached stream/cockpit/history windows
+are now an explicit opt-in rather than the normal path.
+Host-owned visible commands now wait briefly for a live workspace session
+during startup churn before falling back, which prevents the "main window plus
+extra popups" race seen in early consolidation testing.
 
 Start with:
 
@@ -96,9 +111,10 @@ Open the shared host workspace:
 python -m src.app ui
 ```
 
-The host workspace now shows command stream, active projection, active seed
-flow, latest score summaries, and Raw JSON from one in-process shared host
-snapshot. The host now also publishes a local bridge session under
+The host workspace now shows command stream, history summary, cockpit summary,
+active projection, active seed flow, latest score summaries, and Raw JSON from
+one in-process shared host snapshot. The host now also publishes a local
+bridge session under
 `data/host_bridge/` so opt-in external commands can target that already-open
 window. This is a local file-backed bridge, not a network service.
 
@@ -163,6 +179,12 @@ Headless summary/raw payload:
 python -m src.app mcp-history-view --dump-json
 ```
 
+Detached popup form:
+
+```bat
+python -m src.app mcp-history-view --detached-window
+```
+
 Open a basic polling stream of query/response objects from inspection history:
 
 ```bat
@@ -181,6 +203,28 @@ Headless stream payload:
 python -m src.app mcp-stream --dump-json
 ```
 
+Detached popup form:
+
+```bat
+python -m src.app mcp-stream --detached-window
+```
+
+Promote the latest or named interaction into durable evidence:
+
+```bat
+python -m src.app mcp-promote-call --dump-json
+python -m src.app mcp-promote-call --call-id "<call-id>" --dump-json
+```
+
+Demote an operator-pinned record:
+
+```bat
+python -m src.app mcp-promote-call --call-id "<call-id>" --demote --dump-json
+```
+
+Score-linked durable evidence remains locked against demotion through this
+surface.
+
 Open the unified read-only visibility cockpit:
 
 ```bat
@@ -191,6 +235,12 @@ Headless cockpit payload:
 
 ```bat
 python -m src.app mcp-cockpit --dump-json
+```
+
+Detached popup form:
+
+```bat
+python -m src.app mcp-cockpit --detached-window
 ```
 
 Search ingested project documents for traversal seeds and inspect the selected

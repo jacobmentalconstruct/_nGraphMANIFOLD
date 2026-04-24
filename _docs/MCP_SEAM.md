@@ -296,6 +296,39 @@ plainly:
 The next hardening work should preserve these roles rather than letting
 multiple surfaces drift into saying the same thing differently.
 
+The first bounded filtering refinement now exists:
+
+- `mcp-stream` accepts optional exact `tool_filter`
+- `mcp-stream` accepts optional exact `layer_filter`
+- `mcp-cockpit` accepts the same filters
+- filtered views report their active filters in raw payloads
+
+These filters narrow the read surface only. They do not mutate persisted
+history, scoring artifacts, or cartridge truth.
+
+The next bounded operator control is now in place as well:
+
+- `mcp-promote-call` promotes the latest or named history record
+- the host workspace exposes `Promote Active` and `Demote Active`
+- promotion updates durable-evidence state in the history ledger only
+- score-linked records remain locked against casual demotion
+
+This keeps the active reasoning / durable evidence split visible and controllable
+without turning MCP interaction captures into cartridge truth.
+
+The presentation rule is now clarified too:
+
+- the host workspace is the default visible operator surface
+- host-owned stream, cockpit, history, and promotion commands can route through
+  the local bridge to that existing workspace
+- host-owned visible commands now wait briefly for a live session to appear
+  before falling back, which keeps startup races from spraying detached windows
+- detached windows are still available, but only through explicit
+  `--detached-window` usage
+
+That keeps the shared visible workflow centered on one main surface instead of
+letting useful but fragmented windows become the default operator experience.
+
 ## Usefulness Scoring
 
 Scoring dimensions:

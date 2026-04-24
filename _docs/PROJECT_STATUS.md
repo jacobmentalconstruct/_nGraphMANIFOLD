@@ -9,7 +9,7 @@ remains the authoritative phase ledger.
 
 Just-completed tranche:
 
-- Rolling Trace Retention And Bridge Cleanup
+- Host Workspace Surface Consolidation
 
 Status:
 
@@ -21,7 +21,7 @@ Started:
 
 Parked:
 
-- 2026-04-23
+- 2026-04-24
 
 ## What Shifted
 
@@ -44,13 +44,22 @@ The next danger is no longer "nothing works yet." The next danger is
 structural drift caused by accumulating meaningful but unmanaged history,
 bridge state, and overlapping visibility surfaces.
 
-This first hardening slice now addresses that directly:
+Recent hardening slices now address that directly:
 
 - MCP inspection history uses a rolling-trace policy
 - old unpinned interaction rows are pruned automatically
 - score-referenced call ids are pinned as durable evidence
 - stale bridge request/response/session files are cleaned conservatively
 - the host, stream, cockpit, and history surfaces now expose retention state
+- stream and cockpit surfaces now support bounded tool/layer filtering
+- operator-facing promotion controls can now pin or unpin the active or named
+  interaction record without changing semantic cartridge truth
+- host workspace now acts as the default visible operator surface for stream,
+  cockpit, and history views, with detached popup windows becoming explicit
+  opt-ins
+- visible host-owned commands now use a short attach grace period so a freshly
+  opened workspace is given time to publish its live session before any popup
+  fallback is considered
 
 ## Stable Prototype State
 
@@ -120,8 +129,7 @@ Current active tranche:
 
 Immediate focus inside that tranche:
 
-- decide whether `mcp-stream` and `mcp-cockpit` need filtering by tool/layer
-- decide whether more UI actions should join the shared command spine
+- decide which additional UI actions should join the shared command spine
 - decide whether command/result SemanticObjects remain inspection-only or
   become persisted cartridge truth later
 - decide whether to expand the bounded project-document set beyond the current
@@ -129,7 +137,7 @@ Immediate focus inside that tranche:
 
 Recommended next tranche after this hardening slice:
 
-- Controlled Expansion And Visibility Filtering
+- Shared Command Expansion And Truth-Surface Decisions
 
 The first concrete hardening problem is:
 
@@ -252,13 +260,20 @@ Still explicitly out of scope unless a future tranche says otherwise:
 
 Latest tranche verification:
 
-- `python -m unittest tests.test_history_inspector tests.test_host_bridge tests.test_host_workspace` passed with `19` tests
-- `python -m unittest discover -s tests` passed with `109` tests
+- `python -m unittest tests.test_history_inspector tests.test_host_workspace` passed with `21` tests
+- `python -m unittest discover -s tests` passed with `117` tests
 - `python -m compileall src tests` passed
 - `python -m src.app mcp-score-tasks --dump-json` remained at `0.93`, accepted
 - `python -m src.app project-query-score --dump-json` remained at `0.96`, accepted
 - `python -m src.app mcp-history --dump-json` now reports rolling-trace retention
 - `python -m src.app mcp-cockpit --dump-json` now exposes the same retention split
+- filtered stream and cockpit dumps now honor `--tool-filter` and `--layer-filter`
+- `python -m src.app mcp-promote-call --dump-json` now promotes the latest
+  interaction record and reports retention state
+- host bridge support now includes host-owned cockpit/stream/history/promotion
+  commands for default workspace-first presentation
+- fresh visible smoke now routes `mcp-cockpit`, `mcp-history-view`, and
+  `mcp-stream` into the live host workspace without opening extra windows
 - bridged CLI smoke succeeded for
   `project-query --use-host-bridge --dump-json`
 - forbidden runtime/source-name scan over Python files in `src/` and `tests/`
@@ -266,7 +281,7 @@ Latest tranche verification:
   `NodeWALKER`, `docling`, and `Docling`
 - `python -m src.app status` now reports:
   - `active_tranche=Post-Prototype Hardening And Expansion`
-  - `next_tranche=Controlled Expansion And Visibility Filtering`
+  - `next_tranche=Shared Command Expansion And Truth-Surface Decisions`
 
 Useful live commands:
 
@@ -277,6 +292,7 @@ Useful live commands:
 - `python -m src.app project-query --query "class object function" --use-host-bridge`
 - `python -m src.app mcp-search-seeds --query "Current Park Point" --dump-json`
 - `python -m src.app mcp-search-seeds --query "Current Park Point" --use-host-bridge`
+- `python -m src.app mcp-promote-call --dump-json`
 
 ## Next-Session Handoff
 

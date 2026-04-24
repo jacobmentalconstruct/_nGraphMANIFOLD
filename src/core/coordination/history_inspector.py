@@ -252,6 +252,8 @@ def build_interaction_stream_payload(
     *,
     history_path: Path | str,
     limit: int = 50,
+    tool_filter: str = "",
+    layer_filter: str = "",
 ) -> InteractionStreamPayload:
     """Return recent command/result pairs in chronological display order."""
     del project_root
@@ -260,6 +262,7 @@ def build_interaction_stream_payload(
         _stream_item_from_record(record.to_dict())
         for record in reversed(snapshot.records)
     )
+    items = _filter_stream_items(items, tool_filter=tool_filter, layer_filter=layer_filter)
     return InteractionStreamPayload(
         version=HISTORY_AWARE_INSPECTOR_VERSION,
         history_path=snapshot.history_path,
@@ -268,6 +271,7 @@ def build_interaction_stream_payload(
         raw={
             **snapshot.to_dict(),
             "surface_owner": "stream",
+            "filters": {"tool": tool_filter, "layer": layer_filter},
         },
     )
 
@@ -277,15 +281,27 @@ def build_visibility_cockpit_payload(
     *,
     history_path: Path | str,
     limit: int = 12,
+    tool_filter: str = "",
+    layer_filter: str = "",
 ) -> VisibilityCockpitPayload:
     """Return one read-only cockpit payload combining scores, stream, and latest selections."""
     root = Path(project_root).resolve()
     snapshot = McpInspectionHistoryStore(history_path).snapshot(limit=limit)
     builder_score = _read_score_artifact(default_builder_task_score_path(root))
     projection_score = _read_score_artifact(default_context_projection_score_path(root))
-    stream = build_interaction_stream_payload(root, history_path=history_path, limit=limit)
-    latest_projection = _latest_project_query_projection(snapshot.to_dict())
-    latest_seed = _latest_builder_seed(root, builder_score)
+    stream = build_interaction_stream_payload(
+        root,
+        history_path=history_path,
+        limit=limit,
+        tool_filter=tool_filter,
+        layer_filter=layer_filter,
+    )
+    latest_projection = _latest_project_query_projection(
+        snapshot.to_dict(),
+        tool_filter=tool_filter,
+        layer_filter=layer_filter,
+    )
+    latest_seed = _latest_builder_seed(root, builder_score, tool_filter=tool_filter)
     return VisibilityCockpitPayload(
         version=HISTORY_AWARE_INSPECTOR_VERSION,
         history_path=snapshot.history_path,
@@ -302,6 +318,7 @@ def build_visibility_cockpit_payload(
             "latest_projection": latest_projection,
             "latest_seed": latest_seed,
             "surface_owner": "cockpit",
+            "filters": {"tool": tool_filter, "layer": layer_filter},
         },
     )
 
@@ -396,13 +413,22 @@ def _projection_flow_items(capture: dict[str, Any]) -> tuple[dict[str, Any], ...
     return tuple(dict(item) for item in objects[:3] if isinstance(item, dict))
 
 
-def _latest_project_query_projection(snapshot: dict[str, Any]) -> dict[str, Any] | None:
+def _latest_project_query_projection(
+    snapshot: dict[str, Any],
+    *,
+    tool_filter: str = "",
+    layer_filter: str = "",
+) -> dict[str, Any] | None:
+    if tool_filter and PROJECT_QUERY_TOOL_NAME != tool_filter:
+        return None
     for record in snapshot.get("records", ()):
         if record.get("tool_name") != PROJECT_QUERY_TOOL_NAME:
             continue
         call = record.get("call", {})
         capture = call.get("capture", {})
         frame = capture.get("response", {}).get("projection_frame", {})
+        if layer_filter and str(frame.get("selected_layer") or "") != layer_filter:
+            continue
         selected = frame.get("selected_candidate") or {}
         return {
             "call_id": record.get("call_id", ""),
@@ -427,7 +453,11 @@ def _latest_project_query_projection(snapshot: dict[str, Any]) -> dict[str, Any]
 def _latest_builder_seed(
     project_root: Path,
     builder_score_artifact: dict[str, Any] | None,
+    *,
+    tool_filter: str = "",
 ) -> dict[str, Any] | None:
+    if tool_filter and tool_filter != "ngraph.analysis.traverse_cartridge":
+        return None
     if not builder_score_artifact:
         return None
     scores = builder_score_artifact.get("scores", [])
@@ -455,6 +485,22 @@ def _latest_builder_seed(
         "call_id": preferred.get("call_id", ""),
         "seed_flow": flow.to_dict() if flow else None,
     }
+
+
+def _filter_stream_items(
+    items: tuple[InteractionStreamItem, ...],
+    *,
+    tool_filter: str = "",
+    layer_filter: str = "",
+) -> tuple[InteractionStreamItem, ...]:
+    filtered: list[InteractionStreamItem] = []
+    for item in items:
+        if tool_filter and item.tool_name != tool_filter:
+            continue
+        if layer_filter and item.selected_layer != layer_filter:
+            continue
+        filtered.append(item)
+    return tuple(filtered)
 
 
 def _compact(value: str, *, limit: int = 180) -> str:

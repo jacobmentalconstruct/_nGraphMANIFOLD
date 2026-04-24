@@ -10,7 +10,12 @@ import unittest
 from pathlib import Path
 
 from src.core.coordination import (
+    HOST_COCKPIT_TOOL_NAME,
     HOST_HISTORY_VIEW_TOOL_NAME,
+    HOST_PROMOTE_CALL_TOOL_NAME,
+    HOST_READ_PANELS_TOOL_NAME,
+    HOST_SEED_SEARCH_TOOL_NAME,
+    HOST_STREAM_TOOL_NAME,
     PROJECT_QUERY_TOOL_NAME,
     HostBridgeError,
     HostBridgeUnavailableError,
@@ -19,6 +24,7 @@ from src.core.coordination import (
     build_python_docs_corpus,
     cleanup_host_bridge_transport,
     create_host_command_envelope,
+    default_host_bridge_supported_tools,
     default_host_state,
     default_host_bridge_root,
     dispatch_command_via_host_bridge,
@@ -27,10 +33,21 @@ from src.core.coordination import (
     load_host_bridge_session,
     process_pending_host_bridge_requests,
     require_live_host_bridge_session,
+    wait_for_live_host_bridge_session,
 )
 
 
 class HostBridgeTests(unittest.TestCase):
+    def test_default_supported_tools_cover_host_owned_views(self) -> None:
+        supported = set(default_host_bridge_supported_tools())
+        self.assertIn(PROJECT_QUERY_TOOL_NAME, supported)
+        self.assertIn(HOST_SEED_SEARCH_TOOL_NAME, supported)
+        self.assertIn(HOST_HISTORY_VIEW_TOOL_NAME, supported)
+        self.assertIn(HOST_STREAM_TOOL_NAME, supported)
+        self.assertIn(HOST_COCKPIT_TOOL_NAME, supported)
+        self.assertIn(HOST_PROMOTE_CALL_TOOL_NAME, supported)
+        self.assertIn(HOST_READ_PANELS_TOOL_NAME, supported)
+
     def _write_dictionary(self, root: Path) -> None:
         source = root / "assets" / "_corpus_examples" / "dictionary_alpha_arrays.json"
         source.parent.mkdir(parents=True, exist_ok=True)
@@ -100,6 +117,22 @@ class HostBridgeTests(unittest.TestCase):
             with self.assertRaises(HostBridgeUnavailableError):
                 require_live_host_bridge_session(root)
 
+    def test_wait_for_live_host_bridge_session_observes_startup_manifest(self) -> None:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:
+            root = Path(temp)
+
+            def worker() -> None:
+                time.sleep(0.1)
+                activate_host_bridge_session(root)
+
+            thread = threading.Thread(target=worker)
+            thread.start()
+            manifest = wait_for_live_host_bridge_session(root, timeout_ms=1000, wait_interval_ms=25)
+            thread.join(timeout=2.0)
+
+        self.assertIsNotNone(manifest)
+        self.assertEqual(manifest.status, "active")
+
     def test_bridge_request_processing_updates_live_host_state(self) -> None:
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:
             root = Path(temp)
@@ -163,7 +196,7 @@ class HostBridgeTests(unittest.TestCase):
             "python_docs_projection",
         )
 
-    def test_unsupported_tool_is_rejected_before_bridge_enqueue(self) -> None:
+    def test_truly_unsupported_tool_is_rejected_before_bridge_enqueue(self) -> None:
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:
             root = Path(temp)
             activate_host_bridge_session(root)
@@ -172,7 +205,7 @@ class HostBridgeTests(unittest.TestCase):
                 enqueue_host_bridge_request(
                     root,
                     create_host_command_envelope(
-                        tool_name=HOST_HISTORY_VIEW_TOOL_NAME,
+                        tool_name="ngraph.unsupported.tool",
                         payload={"history_limit": 5},
                         actor="human",
                         source_surface="cli-bridge",

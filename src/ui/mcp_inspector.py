@@ -7,6 +7,7 @@ import logging
 
 from src.core.config import AppSettings
 from src.core.coordination import (
+    build_interaction_stream_payload,
     default_host_state,
 )
 
@@ -98,6 +99,8 @@ def launch_interaction_stream(
     *,
     history_limit: int = 50,
     poll_ms: int = 1500,
+    tool_filter: str = "",
+    layer_filter: str = "",
 ) -> int:
     """Open a basic polling stream of recent query/result records."""
     try:
@@ -138,10 +141,24 @@ def launch_interaction_stream(
 
         def _refresh() -> None:
             snapshot = host_state.refresh()
-            stream_payload = snapshot.raw["stream"]
-            _sync_stream_items(stream_text, snapshot.stream_items)
-            _write_text(raw_text, json.dumps(stream_payload, indent=2, sort_keys=True))
-            status_var.set(f"records={snapshot.record_count} showing={len(snapshot.stream_items)}")
+            stream_payload = build_interaction_stream_payload(
+                settings.project_root,
+                history_path=snapshot.history_path,
+                limit=history_limit,
+                tool_filter=tool_filter,
+                layer_filter=layer_filter,
+            )
+            _sync_stream_items(stream_text, stream_payload.items)
+            _write_text(raw_text, stream_payload.to_json())
+            filter_bits = []
+            if tool_filter:
+                filter_bits.append(f"tool={tool_filter}")
+            if layer_filter:
+                filter_bits.append(f"layer={layer_filter}")
+            filter_text = f" filters={' '.join(filter_bits)}" if filter_bits else ""
+            status_var.set(
+                f"records={snapshot.record_count} showing={len(stream_payload.items)}{filter_text}"
+            )
 
         def _poll() -> None:
             _refresh()

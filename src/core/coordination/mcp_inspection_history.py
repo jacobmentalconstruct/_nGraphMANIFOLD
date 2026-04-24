@@ -235,6 +235,20 @@ class McpInspectionHistoryStore:
             ).fetchone()
         return _record_from_row(row) if row is not None else None
 
+    def get_call(self, call_id: str) -> McpInspectionHistoryRecord | None:
+        self.initialize()
+        with self.connection() as conn:
+            row = conn.execute(
+                """
+                SELECT *
+                FROM mcp_inspection_history
+                WHERE call_id = ?
+                LIMIT 1
+                """,
+                (str(call_id),),
+            ).fetchone()
+        return _record_from_row(row) if row is not None else None
+
     def snapshot(
         self,
         limit: int = 10,
@@ -354,4 +368,33 @@ def prune_default_history_trace(
         "pruned_count": pruned_count,
         "retention": retention.to_dict(),
         "pruned_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
+
+
+def promote_history_call(
+    project_root: Path | str,
+    history_path: Path | str,
+    *,
+    call_id: str = "",
+    pinned: bool = True,
+) -> dict[str, Any]:
+    """Promote or demote one history call with score-artifact guardrails."""
+    store = McpInspectionHistoryStore(history_path)
+    target = store.get_call(call_id) if call_id else store.latest()
+    if target is None:
+        raise ValueError("No matching history call was found for promotion control.")
+    score_locked_ids = set(default_pinned_call_ids_for_score_artifacts(project_root))
+    score_locked = target.call_id in score_locked_ids
+    if not pinned and score_locked:
+        raise ValueError("Score-referenced calls cannot be demoted through operator controls.")
+    changed = store.pin_call(target.call_id, pinned=pinned)
+    updated = store.get_call(target.call_id)
+    retention_policy = prune_default_history_trace(project_root, history_path)
+    return {
+        "call_id": target.call_id,
+        "requested_pinned": bool(pinned),
+        "changed": bool(changed),
+        "score_locked": score_locked,
+        "record": updated.to_dict() if updated is not None else None,
+        "retention_policy": retention_policy,
     }
