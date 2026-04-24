@@ -338,6 +338,9 @@ def dispatch_host_command(
             resolved_history_path,
             call_id=str(command.payload.get("call_id", "")),
             pinned=bool(command.payload.get("pinned", True)),
+            label=str(command.payload.get("label", "")),
+            reason=str(command.payload.get("reason", "")),
+            note=str(command.payload.get("note", "")),
         )
         host_state.cache_payload("promotion", payload)
         record = payload.get("record") or {}
@@ -719,6 +722,13 @@ def _stream_text(
             )
         if item.get("source_ref"):
             lines.append(f"    source={item.get('source_ref')}")
+        if item.get("operator_label") or item.get("operator_reason"):
+            lines.append(
+                "    operator="
+                f"{item.get('operator_label') or 'n/a'} / {item.get('operator_reason') or 'n/a'}"
+            )
+        if item.get("operator_note"):
+            lines.append(f"    note={item.get('operator_note')}")
         lines.append("")
     return "\n".join(lines)
 
@@ -754,9 +764,15 @@ def _history_text(
                 f" selected_layer={call.get('selected_layer')} candidates={call.get('candidate_count')}"
             )
         task = f" task={call.get('task_id')}" if call.get("task_id") else ""
+        operator = ""
+        if call.get("operator_label") or call.get("operator_reason"):
+            operator = (
+                f" operator={call.get('operator_label') or 'n/a'}"
+                f"/{call.get('operator_reason') or 'n/a'}"
+            )
         lines.append(
             f"- {call.get('captured_at')} {call.get('tool_name')} score={call.get('aggregate_score')} "
-            f"steps={call.get('step_count')} blockers={call.get('blocker_count')}{projection}{task}"
+            f"steps={call.get('step_count')} blockers={call.get('blocker_count')}{projection}{task}{operator}"
         )
     return "\n".join(lines)
 
@@ -935,6 +951,13 @@ def _cockpit_text(
     for index, item in enumerate(items[:6], start=1):
         lines.append(f"[{index}] {item.get('captured_at', '')} {item.get('tool_name', '')} {item.get('query') or '(no query text)'}")
         lines.append(f"    {item.get('response') or '(no response summary)'}")
+        if item.get("operator_label") or item.get("operator_reason"):
+            lines.append(
+                "    operator="
+                f"{item.get('operator_label') or 'n/a'} / {item.get('operator_reason') or 'n/a'}"
+            )
+        if item.get("operator_note"):
+            lines.append(f"    note={item.get('operator_note')}")
     return "\n".join(lines)
 
 

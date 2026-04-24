@@ -31,6 +31,9 @@ class HistoryInspectorCallSummary:
     selected_layer: str = ""
     candidate_count: int = 0
     task_id: str = ""
+    pinned: bool = False
+    operator_label: str = ""
+    operator_reason: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -45,6 +48,9 @@ class HistoryInspectorCallSummary:
             "selected_layer": self.selected_layer,
             "candidate_count": self.candidate_count,
             "task_id": self.task_id,
+            "pinned": self.pinned,
+            "operator_label": self.operator_label,
+            "operator_reason": self.operator_reason,
         }
 
 
@@ -98,9 +104,15 @@ class HistoryAwareInspectorPayload:
             projection = ""
             if call.selected_layer:
                 projection = f" selected_layer={call.selected_layer} candidates={call.candidate_count}"
+            operator = ""
+            if call.operator_label or call.operator_reason:
+                operator = (
+                    f" operator={call.operator_label or 'n/a'}"
+                    f"/{call.operator_reason or 'n/a'}"
+                )
             lines.append(
                 f"- {call.captured_at} {call.tool_name} score={call.aggregate_score} "
-                f"steps={call.step_count} blockers={call.blocker_count}{projection}{task}"
+                f"steps={call.step_count} blockers={call.blocker_count}{projection}{task}{operator}"
             )
         return "\n".join(lines)
 
@@ -121,6 +133,10 @@ class InteractionStreamItem:
     source_ref: str = ""
     content_preview: str = ""
     aggregate_score: float = 0.0
+    pinned: bool = False
+    operator_label: str = ""
+    operator_reason: str = ""
+    operator_note: str = ""
     projection_flow: tuple[dict[str, Any], ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
@@ -137,6 +153,10 @@ class InteractionStreamItem:
             "source_ref": self.source_ref,
             "content_preview": self.content_preview,
             "aggregate_score": self.aggregate_score,
+            "pinned": self.pinned,
+            "operator_label": self.operator_label,
+            "operator_reason": self.operator_reason,
+            "operator_note": self.operator_note,
             "projection_flow": list(self.projection_flow),
         }
 
@@ -184,6 +204,13 @@ class InteractionStreamPayload:
                 lines.append(f"       preview={item.content_preview}")
             if item.source_ref:
                 lines.append(f"       source={item.source_ref}")
+            if item.operator_label or item.operator_reason:
+                lines.append(
+                    "       operator="
+                    f"{item.operator_label or 'n/a'} / {item.operator_reason or 'n/a'}"
+                )
+            if item.operator_note:
+                lines.append(f"       note={item.operator_note}")
             lines.append(f"       call_id={item.call_id} aggregate={item.aggregate_score}")
             lines.append("")
         return "\n".join(lines)
@@ -331,6 +358,7 @@ def _summarize_record(
     capture = call.get("capture", {})
     traversal = capture.get("response", {}).get("traversal_report", {})
     evidence = capture.get("result", {}).get("evidence_summary", {})
+    operator_metadata = record.get("operator_metadata") or {}
     return HistoryInspectorCallSummary(
         call_id=record["call_id"],
         captured_at=record["captured_at"],
@@ -343,6 +371,9 @@ def _summarize_record(
         selected_layer=str(evidence.get("selected_layer") or ""),
         candidate_count=int(evidence.get("candidate_count", 0)),
         task_id=task_ids_by_call.get(record["call_id"], ""),
+        pinned=bool(record.get("pinned", False)),
+        operator_label=str(operator_metadata.get("label") or ""),
+        operator_reason=str(operator_metadata.get("reason") or ""),
     )
 
 
@@ -350,6 +381,7 @@ def _stream_item_from_record(record: dict[str, Any]) -> InteractionStreamItem:
     call = record["call"]
     capture = call.get("capture", {})
     query, response, selected = _query_response_summary(capture)
+    operator_metadata = record.get("operator_metadata") or {}
     return InteractionStreamItem(
         call_id=record["call_id"],
         captured_at=record["captured_at"],
@@ -363,6 +395,10 @@ def _stream_item_from_record(record: dict[str, Any]) -> InteractionStreamItem:
         source_ref=str(selected.get("source_ref") or ""),
         content_preview=_compact(str(selected.get("content_preview") or "")),
         aggregate_score=float(record["aggregate_score"]),
+        pinned=bool(record.get("pinned", False)),
+        operator_label=str(operator_metadata.get("label") or ""),
+        operator_reason=str(operator_metadata.get("reason") or ""),
+        operator_note=str(operator_metadata.get("note") or ""),
         projection_flow=tuple(dict(item) for item in _projection_flow_items(capture)),
     )
 

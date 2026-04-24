@@ -4,7 +4,7 @@ _Status: Reflective handoff for research and next-session planning_
 
 _Created: 2026-04-22_
 
-_Updated: 2026-04-24 after shared-command expansion and bounded tuning pass_
+_Updated: 2026-04-24 after operator metadata decisions_
 
 This document is not the governing contract. The governing contract remains
 `builder_constraint_contract.md`. This file is a thinking surface: a place to
@@ -67,6 +67,11 @@ The first hardening slice now exists in code:
   - keep caller-owned overrides
   - add command-aware bridge defaults for heavier scoring work
   - report the effective bridge policy explicitly instead of hiding it
+- operator-promoted evidence now has a bounded second answer too:
+  - keep promotion on the inspection side
+  - allow `label`, `reason`, and `note`
+  - render that metadata visibly in history/stream/host surfaces
+  - do not let those annotations become cartridge truth
 
 The project is not drifting randomly. It feels like a long spiral because we
 are turning around the same center from increasing radius: first object shape,
@@ -87,8 +92,8 @@ That is the real next step.
 The immediate next pressure is narrower and healthier than "add more stuff":
 
 ```text
-Decide how heavier bridged scoring runs should behave, and decide whether
-operator-promoted evidence needs richer metadata than a simple pin.
+Decide whether the current file-backed bridge and bounded doc-profile split are
+the right discipline for the next band.
 ```
 
 The truth-surface side is no longer vague. We answered it in bounded form:

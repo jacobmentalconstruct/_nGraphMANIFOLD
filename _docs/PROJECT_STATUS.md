@@ -9,7 +9,7 @@ remains the authoritative phase ledger.
 
 Just-completed tranche:
 
-- Bridge Timeout Policy And Explicit Reporting
+- Operator Metadata Decisions
 
 Status:
 
@@ -78,6 +78,13 @@ Recent hardening slices now address that directly:
   behavior is inspectable instead of implicit
 - status surfaces now expose a machine-readable `bridge_timeout_policy`
   manifest for the current host bridge defaults
+- operator-promoted durable evidence now supports bounded history-side metadata:
+  label, reason, and note
+- promotion metadata is visible in history summaries, stream summaries, cockpit
+  stream excerpts, host workspace panels, and raw inspection payloads
+- `mcp-promote-call` now accepts `--label`, `--reason`, and `--note`
+- the host workspace now exposes compact label/reason/note fields for active
+  promotion without turning the operator surface into a new truth store
 
 ## Stable Prototype State
 
@@ -150,16 +157,16 @@ Current active tranche:
 
 Immediate focus inside that tranche:
 
-- decide whether command/result SemanticObjects remain inspection-only or
-  become persisted cartridge truth later
-- decide whether to expand the bounded project-document set beyond the current
-  four docs
-- decide whether operator-promoted durable evidence needs labels, notes, or
-  reason metadata beyond a simple pin
+- decide whether the file-backed host bridge should remain the local transport
+  for the next band or whether a thinner IPC path is justified later
+- decide whether the current `core` / `expanded` project-doc profile split is
+  enough or whether another bounded profile is warranted
+- keep the interaction truth boundary inspection-only unless a future tranche
+  explicitly reopens it
 
 Recommended next tranche after this hardening slice:
 
-- Operator Metadata Decisions
+- Bridge Transport And Profile Discipline
 
 The first concrete hardening problem is:
 
@@ -282,10 +289,12 @@ Still explicitly out of scope unless a future tranche says otherwise:
 
 Latest tranche verification:
 
-- `python -m unittest tests.test_history_inspector tests.test_host_workspace` passed with `21` tests
+- `python -m unittest tests.test_history_inspector tests.test_host_workspace` passed with `25` tests
 - `python -m unittest tests.test_host_bridge tests.test_host_workspace` passed with `16` tests
-- `python -m unittest discover -s tests` passed with `123` tests
+- `python -m unittest discover -s tests` passed with `125` tests
 - `python -m compileall src tests` passed
+- `python -m src.app mcp-promote-call --dump-json --label keeper --reason checkpoint --note "Preserve this query result."`
+  now records bounded operator metadata in inspection history
 - `python -m src.app mcp-score-tasks --dump-json` remained at `0.93`, accepted
 - `python -m src.app project-query-score --dump-json` remained at `0.96`, accepted
 - `python -m src.app status --dump-json` now emits the current `bridge_timeout_policy`
@@ -308,7 +317,7 @@ Latest tranche verification:
   `NodeWALKER`, `docling`, and `Docling`
 - `python -m src.app status` now reports:
   - `active_tranche=Post-Prototype Hardening And Expansion`
-  - `next_tranche=Operator Metadata Decisions`
+  - `next_tranche=Bridge Transport And Profile Discipline`
 
 Useful live commands:
 

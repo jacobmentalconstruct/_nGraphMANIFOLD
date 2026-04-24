@@ -291,6 +291,9 @@ The first hardening slice now turns that into implementation discipline:
 - the visibility surfaces expose the split instead of hiding it
 - operator controls can now deliberately promote or demote the active
   interaction record, with score-linked evidence protected from casual demotion
+- durable evidence can now also carry bounded operator authorship:
+  label, reason, and note stored in history so later sessions can recover why
+  a record mattered without turning that annotation into cartridge truth
 
 ### Step 3: Build under the contract
 

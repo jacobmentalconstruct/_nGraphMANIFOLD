@@ -349,6 +349,13 @@ The next bounded operator control is now in place as well:
 - the host workspace exposes `Promote Active` and `Demote Active`
 - promotion updates durable-evidence state in the history ledger only
 - score-linked records remain locked against casual demotion
+- promotion now supports bounded operator metadata:
+  - `label`
+  - `reason`
+  - `note`
+- that metadata is rendered in history summaries, stream items, cockpit stream
+  excerpts, and host workspace panel text
+- this metadata remains inspection-history evidence, not cartridge truth
 
 This keeps the active reasoning / durable evidence split visible and controllable
 without turning MCP interaction captures into cartridge truth.
@@ -404,10 +411,11 @@ candidate is:
 
 - `analysis.traverse_cartridge`
 
-The next seam pressure is no longer "can the live host be targeted?" The next
-seam pressure is whether operator-promoted evidence needs richer metadata and
-whether the current file-backed bridge should remain the local transport for
-the next band now that timeout ownership has an explicit policy.
+The next seam pressure is no longer "can operator-promoted evidence carry
+basic metadata?" That now exists. The next seam pressure is whether the
+current file-backed bridge should remain the local transport for the next band
+and whether the current bounded document profiles are disciplined enough to
+stay useful without becoming a quiet scope expansion.
 
 ## Project Document Ingestion
 

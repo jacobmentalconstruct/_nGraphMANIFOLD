@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS mcp_inspection_history (
     status TEXT NOT NULL,
     aggregate_score REAL NOT NULL,
     pinned INTEGER NOT NULL DEFAULT 0,
+    operator_metadata_json TEXT NOT NULL DEFAULT '{}',
     call_json TEXT NOT NULL
 );
 
@@ -46,6 +47,7 @@ class McpInspectionHistoryRecord:
     status: str
     aggregate_score: float
     pinned: bool
+    operator_metadata: dict[str, Any]
     call: dict[str, Any]
 
     def to_dict(self) -> dict[str, Any]:
@@ -57,6 +59,7 @@ class McpInspectionHistoryRecord:
             "status": self.status,
             "aggregate_score": self.aggregate_score,
             "pinned": self.pinned,
+            "operator_metadata": self.operator_metadata,
             "call": self.call,
         }
 
@@ -121,6 +124,10 @@ class McpInspectionHistoryStore:
                 conn.execute(
                     "ALTER TABLE mcp_inspection_history ADD COLUMN pinned INTEGER NOT NULL DEFAULT 0"
                 )
+            if "operator_metadata_json" not in columns:
+                conn.execute(
+                    "ALTER TABLE mcp_inspection_history ADD COLUMN operator_metadata_json TEXT NOT NULL DEFAULT '{}'"
+                )
             conn.execute("PRAGMA user_version = 1")
 
     @contextmanager
@@ -145,9 +152,9 @@ class McpInspectionHistoryStore:
                 """
                 INSERT OR REPLACE INTO mcp_inspection_history(
                     call_id, tool_name, capability_name, captured_at, status,
-                    aggregate_score, pinned, call_json
+                    aggregate_score, pinned, operator_metadata_json, call_json
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     record.call_id,
@@ -157,19 +164,44 @@ class McpInspectionHistoryStore:
                     record.status,
                     record.aggregate_score,
                     1 if record.pinned else 0,
+                    canonical_json(record.operator_metadata),
                     canonical_json(record.call),
                 ),
             )
         return record
 
-    def pin_call(self, call_id: str, *, pinned: bool = True) -> bool:
+    def update_call_record(
+        self,
+        call_id: str,
+        *,
+        pinned: bool | None = None,
+        operator_metadata: dict[str, Any] | None = None,
+    ) -> bool:
         self.initialize()
+        current = self.get_call(call_id)
+        if current is None:
+            return False
+        next_pinned = current.pinned if pinned is None else bool(pinned)
+        next_metadata = dict(current.operator_metadata)
+        if operator_metadata:
+            next_metadata.update(operator_metadata)
         with self.connection() as conn:
             cursor = conn.execute(
-                "UPDATE mcp_inspection_history SET pinned = ? WHERE call_id = ?",
-                (1 if pinned else 0, str(call_id)),
+                """
+                UPDATE mcp_inspection_history
+                SET pinned = ?, operator_metadata_json = ?
+                WHERE call_id = ?
+                """,
+                (
+                    1 if next_pinned else 0,
+                    canonical_json(next_metadata),
+                    str(call_id),
+                ),
             )
             return int(cursor.rowcount) > 0
+
+    def pin_call(self, call_id: str, *, pinned: bool = True) -> bool:
+        return self.update_call_record(call_id, pinned=pinned)
 
     def prune_rolling_trace(self, *, rolling_trace_limit: int = DEFAULT_MCP_ROLLING_TRACE_LIMIT) -> int:
         self.initialize()
@@ -295,6 +327,7 @@ def _record_from_call(call: dict[str, Any]) -> McpInspectionHistoryRecord:
         status=str(call.get("status", "")),
         aggregate_score=float(usefulness.get("aggregate_score", 0.0)),
         pinned=bool(call.get("pinned", False)),
+        operator_metadata=dict(call.get("operator_metadata", {}) or {}),
         call=dict(call),
     )
 
@@ -308,6 +341,7 @@ def _record_from_row(row: sqlite3.Row) -> McpInspectionHistoryRecord:
         status=row["status"],
         aggregate_score=float(row["aggregate_score"]),
         pinned=bool(row["pinned"]),
+        operator_metadata=json.loads(row["operator_metadata_json"] or "{}"),
         call=json.loads(row["call_json"]),
     )
 
@@ -377,6 +411,9 @@ def promote_history_call(
     *,
     call_id: str = "",
     pinned: bool = True,
+    label: str = "",
+    reason: str = "",
+    note: str = "",
 ) -> dict[str, Any]:
     """Promote or demote one history call with score-artifact guardrails."""
     store = McpInspectionHistoryStore(history_path)
@@ -387,7 +424,12 @@ def promote_history_call(
     score_locked = target.call_id in score_locked_ids
     if not pinned and score_locked:
         raise ValueError("Score-referenced calls cannot be demoted through operator controls.")
-    changed = store.pin_call(target.call_id, pinned=pinned)
+    metadata_update = _promotion_metadata_update(target.operator_metadata, label=label, reason=reason, note=note)
+    changed = store.update_call_record(
+        target.call_id,
+        pinned=pinned,
+        operator_metadata=metadata_update,
+    )
     updated = store.get_call(target.call_id)
     retention_policy = prune_default_history_trace(project_root, history_path)
     return {
@@ -395,6 +437,31 @@ def promote_history_call(
         "requested_pinned": bool(pinned),
         "changed": bool(changed),
         "score_locked": score_locked,
+        "operator_metadata_changed": bool(metadata_update),
         "record": updated.to_dict() if updated is not None else None,
         "retention_policy": retention_policy,
     }
+
+
+def _promotion_metadata_update(
+    current: dict[str, Any],
+    *,
+    label: str,
+    reason: str,
+    note: str,
+) -> dict[str, Any]:
+    update: dict[str, Any] = {}
+    normalized_label = (label or "").strip()
+    normalized_reason = (reason or "").strip()
+    normalized_note = (note or "").strip()
+    if normalized_label:
+        update["label"] = normalized_label
+    if normalized_reason:
+        update["reason"] = normalized_reason
+    if normalized_note:
+        update["note"] = normalized_note
+    if update:
+        update["updated_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        if not current.get("created_at"):
+            update["created_at"] = update["updated_at"]
+    return update

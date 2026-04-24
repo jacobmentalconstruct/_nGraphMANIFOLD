@@ -86,6 +86,9 @@ def launch_ui(settings: AppSettings) -> int:
 
         query_var = tk.StringVar(value="class object function")
         limit_var = tk.IntVar(value=3)
+        promote_label_var = tk.StringVar()
+        promote_reason_var = tk.StringVar()
+        promote_note_var = tk.StringVar()
         status_var = tk.StringVar(value=f"records={snapshot.record_count}")
         ttk.Entry(controls, textvariable=query_var).grid(row=0, column=0, sticky="ew", padx=(0, 6))
         ttk.Spinbox(controls, from_=1, to=20, textvariable=limit_var, width=4).grid(
@@ -110,6 +113,31 @@ def launch_ui(settings: AppSettings) -> int:
         projection_score_button = ttk.Button(controls, text="Projection Score")
         projection_score_button.grid(row=0, column=10, padx=(0, 6))
         ttk.Label(controls, textvariable=status_var).grid(row=0, column=11, sticky="e")
+        metadata_row = ttk.Frame(controls)
+        metadata_row.grid(row=1, column=0, columnspan=12, sticky="ew", pady=(8, 0))
+        metadata_row.columnconfigure(1, weight=1)
+        metadata_row.columnconfigure(3, weight=1)
+        metadata_row.columnconfigure(5, weight=2)
+        ttk.Label(metadata_row, text="Label").grid(row=0, column=0, padx=(0, 4), sticky="w")
+        ttk.Entry(metadata_row, textvariable=promote_label_var, width=18).grid(
+            row=0,
+            column=1,
+            padx=(0, 8),
+            sticky="ew",
+        )
+        ttk.Label(metadata_row, text="Reason").grid(row=0, column=2, padx=(0, 4), sticky="w")
+        ttk.Entry(metadata_row, textvariable=promote_reason_var, width=24).grid(
+            row=0,
+            column=3,
+            padx=(0, 8),
+            sticky="ew",
+        )
+        ttk.Label(metadata_row, text="Note").grid(row=0, column=4, padx=(0, 4), sticky="w")
+        ttk.Entry(metadata_row, textvariable=promote_note_var).grid(
+            row=0,
+            column=5,
+            sticky="ew",
+        )
 
         tabs = ttk.Notebook(frame)
         tabs.grid(row=1, column=0, sticky="nsew")
@@ -278,6 +306,9 @@ def launch_ui(settings: AppSettings) -> int:
                 payload={
                     "call_id": host_state.active_call_id,
                     "pinned": bool(pinned),
+                    "label": promote_label_var.get().strip(),
+                    "reason": promote_reason_var.get().strip(),
+                    "note": promote_note_var.get().strip(),
                 },
                 actor="human",
                 source_surface="ui",

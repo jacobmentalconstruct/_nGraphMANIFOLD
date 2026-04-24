@@ -434,7 +434,13 @@ class HostWorkspaceTests(unittest.TestCase):
                 root,
                 create_host_command_envelope(
                     tool_name=HOST_PROMOTE_CALL_TOOL_NAME,
-                    payload={"call_id": call_id, "pinned": True},
+                    payload={
+                        "call_id": call_id,
+                        "pinned": True,
+                        "label": "keeper",
+                        "reason": "checkpoint",
+                        "note": "Preserve this query result.",
+                    },
                     actor="human",
                     source_surface="ui",
                 ),
@@ -443,8 +449,13 @@ class HostWorkspaceTests(unittest.TestCase):
 
         self.assertEqual(promote_result.payload["call_id"], call_id)
         self.assertTrue(promote_result.payload["record"]["pinned"])
+        self.assertEqual(promote_result.payload["record"]["operator_metadata"]["label"], "keeper")
+        self.assertEqual(promote_result.payload["record"]["operator_metadata"]["reason"], "checkpoint")
+        self.assertEqual(promote_result.payload["record"]["operator_metadata"]["note"], "Preserve this query result.")
         self.assertEqual(promote_result.snapshot.active_interaction["call_id"], call_id)
         self.assertIn("promotion", promote_result.snapshot.raw_payload_cache)
+        self.assertEqual(promote_result.snapshot.recent_calls[0].operator_label, "keeper")
+        self.assertIn("operator=keeper/checkpoint", promote_result.snapshot.panels["history"]["text"])
 
 
 if __name__ == "__main__":

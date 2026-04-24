@@ -183,6 +183,21 @@ def build_parser() -> argparse.ArgumentParser:
         help="For mcp-promote-call, clear an operator pin instead of setting it.",
     )
     parser.add_argument(
+        "--label",
+        default="",
+        help="For mcp-promote-call, optional short operator label for durable evidence.",
+    )
+    parser.add_argument(
+        "--reason",
+        default="",
+        help="For mcp-promote-call, optional short operator reason for promotion.",
+    )
+    parser.add_argument(
+        "--note",
+        default="",
+        help="For mcp-promote-call, optional freeform operator note stored with the record.",
+    )
+    parser.add_argument(
         "--reset",
         action="store_true",
         help="For ingest-lexicon or ingest-python-docs, rebuild the cartridge from an empty database.",
@@ -478,6 +493,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             {
                 "call_id": args.call_id,
                 "pinned": not args.demote,
+                "label": args.label,
+                "reason": args.reason,
+                "note": args.note,
             },
         )
         if exit_code != 0:

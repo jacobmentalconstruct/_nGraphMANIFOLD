@@ -351,6 +351,15 @@ def _insert_stream_item(text_widget, item, index: int) -> None:
         text_widget.insert("end", f"  PREVIEW {item.content_preview}\n", ("card_body",))
     if item.source_ref:
         text_widget.insert("end", f"  SOURCE  {item.source_ref}\n", ("subtle",))
+    if item.operator_label or item.operator_reason:
+        text_widget.insert(
+            "end",
+            "  OPERATOR "
+            f"{item.operator_label or 'n/a'} / {item.operator_reason or 'n/a'}\n",
+            ("subtle",),
+        )
+    if item.operator_note:
+        text_widget.insert("end", f"  NOTE    {item.operator_note}\n", ("subtle",))
     for flow_item in getattr(item, "projection_flow", ()):
         text_widget.insert(
             "end",
@@ -402,10 +411,16 @@ def _summary_text(payload: dict) -> str:
                 f" selected_layer={call.get('selected_layer')} "
                 f"candidates={call.get('candidate_count')}"
             )
+        operator = ""
+        if call.get("operator_label") or call.get("operator_reason"):
+            operator = (
+                f" operator={call.get('operator_label') or 'n/a'}"
+                f"/{call.get('operator_reason') or 'n/a'}"
+            )
         lines.append(
             f"- {call.get('captured_at')} {call.get('tool_name')} "
             f"score={call.get('aggregate_score')} steps={call.get('step_count')} "
-            f"blockers={call.get('blocker_count')}{projection}{task}"
+            f"blockers={call.get('blocker_count')}{projection}{task}{operator}"
         )
     return "\n".join(lines)
 
@@ -664,4 +679,11 @@ def _cockpit_stream_text(payload: dict) -> str:
             f"{item.get('query', '(no query)')}"
         )
         lines.append(f"    {item.get('response', '(no response)')}")
+        if item.get("operator_label") or item.get("operator_reason"):
+            lines.append(
+                "    operator="
+                f"{item.get('operator_label') or 'n/a'} / {item.get('operator_reason') or 'n/a'}"
+            )
+        if item.get("operator_note"):
+            lines.append(f"    note={item.get('operator_note')}")
     return "\n".join(lines)

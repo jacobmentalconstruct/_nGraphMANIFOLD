@@ -68,6 +68,10 @@ can promote or demote the active interaction record, and
 `python -m src.app mcp-promote-call` can pin the latest or named call into
 durable evidence without changing cartridge truth. Score-referenced calls
 remain protected from casual demotion.
+Operator promotion now also supports bounded metadata on the history side:
+labels, reasons, and freeform notes can be attached to durable evidence so a
+later session can tell why a record was kept without promoting that metadata
+into semantic cartridge truth.
 The presentation model is now more disciplined: the host workspace is the
 default visible operator surface, and detached stream/cockpit/history windows
 are now an explicit opt-in rather than the normal path.
@@ -247,6 +251,7 @@ Promote the latest or named interaction into durable evidence:
 ```bat
 python -m src.app mcp-promote-call --dump-json
 python -m src.app mcp-promote-call --call-id "<call-id>" --dump-json
+python -m src.app mcp-promote-call --call-id "<call-id>" --label keeper --reason checkpoint --note "Why this matters" --dump-json
 ```
 
 Demote an operator-pinned record:
@@ -256,7 +261,8 @@ python -m src.app mcp-promote-call --call-id "<call-id>" --demote --dump-json
 ```
 
 Score-linked durable evidence remains locked against demotion through this
-surface.
+surface. Promotion metadata stays in the inspection-history ledger as operator
+context, not cartridge truth.
 
 Open the unified read-only visibility cockpit:
 

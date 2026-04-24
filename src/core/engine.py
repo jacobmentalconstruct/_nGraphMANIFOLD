@@ -30,5 +30,5 @@ class ApplicationEngine:
             status="scaffold_ready",
             project_root=self._settings.project_root,
             active_tranche="Post-Prototype Hardening And Expansion",
-            next_tranche="Operator Metadata Decisions",
+            next_tranche="Bridge Transport And Profile Discipline",
         )

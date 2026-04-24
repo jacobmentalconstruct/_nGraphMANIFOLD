@@ -193,6 +193,9 @@ The new hardening slice adds one more constraint to that doctrine:
 - filtered visibility must narrow attention without changing truth
 - operator promotion controls may preserve evidence deliberately, but they must
   not circumvent score-linked durability guardrails or silently create new truth stores
+- operator metadata may improve continuity, but it must remain bounded
+  (`label`, `reason`, `note`) and remain part of inspection history rather than
+  becoming cartridge truth or an uncontrolled taxonomy
 
 ## Interpretation
 
@@ -221,5 +224,7 @@ embeddings, merged cartridges, a real MCP server, and broad UI expansion.
   or should remain deferred.
 - Decide whether operator-promoted durable evidence should eventually appear in
   scoring or remain purely operational memory.
+- Decide whether bounded operator metadata is enough, or whether later tranches
+  need a richer promotion taxonomy.
 - Decide whether future tuning should explicitly score bridged host-session
   usefulness, not only query/projection correctness.

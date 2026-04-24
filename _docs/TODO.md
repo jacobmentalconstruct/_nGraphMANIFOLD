@@ -7,16 +7,15 @@ authoritative ledger, and `PROJECT_STATUS.md` remains the quick park marker.
 
 ## Just Completed
 
-- [x] Bridge Timeout Policy And Explicit Reporting
+- [x] Operator Metadata Decisions
 
 What that means:
 
-- [x] longer-running bridged scoring commands now use command-aware defaults instead of a flat bridge timeout
-- [x] builder-task scoring defaults to a heavy bridge timeout policy
-- [x] projection scoring defaults to a medium bridge timeout policy
-- [x] `--bridge-timeout-ms` remains the explicit caller-owned override
-- [x] bridged JSON payloads now expose additive `_bridge` metadata
-- [x] `status --dump-json` now exposes a machine-readable `bridge_timeout_policy` manifest
+- [x] promoted durable evidence now supports label / reason / note metadata
+- [x] `mcp-promote-call` accepts `--label`, `--reason`, and `--note`
+- [x] host workspace promotion controls now capture compact operator metadata
+- [x] history, stream, cockpit, and host panels now expose operator metadata visibly
+- [x] operator metadata remains inspection-history evidence, not semantic cartridge truth
 
 ## Current Active Tranche
 
@@ -39,32 +38,32 @@ Current interpretation:
 
 ## Immediate Next Step
 
-- [ ] Decide whether operator promotion should support labels, notes, or reason metadata beyond a simple pin
+- [ ] Decide whether the file-backed bridge should remain the local transport for the next band or later move to thinner IPC
 
 Why this next:
 
-- the bridge policy question now has a real runtime answer instead of an open debate
-- durable evidence promotion is the next operator-facing pressure that still lacks explicit structure
-- labels and notes would improve later continuity without forcing interaction events into cartridge truth
+- operator metadata now exists, so the next ambiguity is transport discipline rather than evidence shape
+- the expanded doc profile is useful but heavier, which makes bridge/runtime discipline the next practical pressure
+- the project now needs one clean answer about whether file-backed local transport remains the right bounded choice for the next band
 
 Current recommended framing:
 
 ```text
-Active Reasoning:
-  recent rolling trace, auto-pruned, operational, not sacred
+Bridge Discipline:
+  local, inspectable, file-backed, bounded, subordinate
 
-Durable Evidence:
-  accepted scores, journaled phase decisions, pinned/proven captures,
-  preserved intentionally
+Profile Discipline:
+  keep `core` / `expanded` explicit, only widen scope if usefulness
+  or continuity clearly justify the added weight
 ```
 
 ## Next Work Queue
 
-- [ ] Decide whether operator promotion should later support labels/notes or remain a simple pin
 - [ ] Decide whether command/result SemanticObjects remain inspection-only or become persisted truth later
-- [ ] Decide whether to expand the bounded project-document set beyond the current four docs
+- [ ] Decide whether the current `core` / `expanded` project-doc profile split is enough for now
 - [ ] Decide whether the bridge should remain file-backed or later move to a
       thinner local IPC transport
+- [ ] Decide whether operator metadata should later support taxonomy or richer structure beyond label / reason / note
 - [ ] Keep docs, score artifacts, and journal continuity current while hardening
 
 ## Visible Horizon
@@ -80,7 +79,7 @@ Durable Evidence:
 
 ## Proposed Next Tranche
 
-- [ ] Operator Metadata Decisions
+- [ ] Bridge Transport And Profile Discipline
 
 ### Later Horizon
 
@@ -124,7 +123,8 @@ prototype substrate: stable
 visibility layer: stable
 local host bridge: stable in bounded form
 rolling trace + promotion controls: stable
+operator metadata: stable
 panel readback + shared command expansion: stable
 bridge timeout policy: stable
-next step: decide operator metadata cleanly, then widen scope in a controlled way
+next step: decide bridge/profile discipline cleanly, then widen scope in a controlled way
 ```

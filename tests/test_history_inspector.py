@@ -553,6 +553,49 @@ class HistoryAwareInspectorTests(unittest.TestCase):
         self.assertEqual(payload["call_id"], "call-1")
         self.assertTrue(payload["record"]["pinned"])
 
+    def test_promote_history_call_persists_operator_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            history_path = root / "history.sqlite3"
+            store = McpInspectionHistoryStore(history_path)
+            store.record_call(
+                {
+                    "call_id": "call-meta",
+                    "tool": {
+                        "tool_name": "ngraph.project.query",
+                        "capability_name": "coordination.project_context_query",
+                    },
+                    "status": "ok",
+                    "capture": {
+                        "captured_at": "2026-04-23T04:00:00Z",
+                        "command": {"payload": {"query": "query"}},
+                        "response": {"projection_frame": {}},
+                        "usefulness_report": {"aggregate_score": 0.9},
+                    },
+                }
+            )
+
+            payload = promote_history_call(
+                root,
+                history_path,
+                call_id="call-meta",
+                label="keeper",
+                reason="milestone",
+                note="use this later",
+            )
+            history_payload = build_history_aware_inspector_payload(root, history_path=history_path)
+            stream_payload = build_interaction_stream_payload(root, history_path=history_path)
+
+        self.assertEqual(payload["record"]["operator_metadata"]["label"], "keeper")
+        self.assertEqual(payload["record"]["operator_metadata"]["reason"], "milestone")
+        self.assertEqual(payload["record"]["operator_metadata"]["note"], "use this later")
+        self.assertEqual(history_payload.calls[0].operator_label, "keeper")
+        self.assertEqual(history_payload.calls[0].operator_reason, "milestone")
+        self.assertIn("operator=keeper/milestone", history_payload.to_summary_text())
+        self.assertEqual(stream_payload.items[0].operator_note, "use this later")
+        self.assertIn("operator=keeper / milestone", stream_payload.to_stream_text())
+        self.assertIn("note=use this later", stream_payload.to_stream_text())
+
     def test_promote_history_call_refuses_to_demote_score_locked_call(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -626,6 +669,56 @@ class HistoryAwareInspectorTests(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertEqual(payload["call_id"], "call-promote")
         self.assertTrue(payload["record"]["pinned"])
+
+    def test_mcp_promote_call_dump_json_emits_operator_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            old_root = os.environ.get("NGRAPH_PROJECT_ROOT")
+            os.environ["NGRAPH_PROJECT_ROOT"] = temp
+            history_path = Path(temp) / "data" / "mcp_inspection" / "history.sqlite3"
+            McpInspectionHistoryStore(history_path).record_call(
+                {
+                    "call_id": "call-meta",
+                    "tool": {
+                        "tool_name": "ngraph.project.query",
+                        "capability_name": "coordination.project_context_query",
+                    },
+                    "status": "ok",
+                    "capture": {
+                        "captured_at": "2026-04-23T04:00:00Z",
+                        "command": {"payload": {"query": "query"}},
+                        "response": {"projection_frame": {}},
+                        "usefulness_report": {"aggregate_score": 0.9},
+                    },
+                }
+            )
+            stdout = io.StringIO()
+            try:
+                with contextlib.redirect_stdout(stdout):
+                    exit_code = main(
+                        [
+                            "mcp-promote-call",
+                            "--dump-json",
+                            "--call-id",
+                            "call-meta",
+                            "--label",
+                            "keeper",
+                            "--reason",
+                            "reviewed",
+                            "--note",
+                            "keep this handy",
+                        ]
+                    )
+            finally:
+                if old_root is None:
+                    os.environ.pop("NGRAPH_PROJECT_ROOT", None)
+                else:
+                    os.environ["NGRAPH_PROJECT_ROOT"] = old_root
+
+        payload = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["record"]["operator_metadata"]["label"], "keeper")
+        self.assertEqual(payload["record"]["operator_metadata"]["reason"], "reviewed")
+        self.assertEqual(payload["record"]["operator_metadata"]["note"], "keep this handy")
 
 
 if __name__ == "__main__":
