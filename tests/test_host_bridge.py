@@ -77,6 +77,7 @@ class HostBridgeTests(unittest.TestCase):
         self.assertEqual(query_policy["runtime_class"], "standard")
         self.assertEqual(override_policy["timeout_ms"], 42000)
         self.assertEqual(override_policy["timeout_source"], "caller_override")
+        self.assertEqual(builder_policy["global_default_timeout_ms"], DEFAULT_HOST_BRIDGE_TIMEOUT_MS)
 
     def _write_dictionary(self, root: Path) -> None:
         source = root / "assets" / "_corpus_examples" / "dictionary_alpha_arrays.json"

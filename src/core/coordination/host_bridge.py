@@ -200,12 +200,44 @@ def build_host_bridge_timeout_policy_manifest() -> dict[str, Any]:
         "ngraph.host.read_panels",
     )
     return {
+        "transport_kind": "file_backed_local",
         "global_default_timeout_ms": DEFAULT_HOST_BRIDGE_TIMEOUT_MS,
         "attach_grace_ms": DEFAULT_HOST_BRIDGE_ATTACH_GRACE_MS,
+        "stale_after_seconds": DEFAULT_HOST_BRIDGE_STALE_AFTER_SECONDS,
+        "file_retention_seconds": DEFAULT_HOST_BRIDGE_FILE_RETENTION_SECONDS,
+        "poll_interval_ms": DEFAULT_HOST_BRIDGE_POLL_INTERVAL_MS,
+        "wait_interval_ms": DEFAULT_HOST_BRIDGE_WAIT_INTERVAL_MS,
         "tool_policies": {
             tool_name: resolve_host_bridge_timeout_policy(tool_name)
             for tool_name in tool_names
         },
+    }
+
+
+def build_host_bridge_runtime_snapshot(project_root: Path | str) -> dict[str, Any]:
+    """Return a compact runtime snapshot of the current local bridge state."""
+    bridge_root = default_host_bridge_root(project_root)
+    request_dir = _request_dir(bridge_root)
+    response_dir = _response_dir(bridge_root)
+    session = load_host_bridge_session(project_root)
+    heartbeat_age_seconds = 0.0
+    if session is not None:
+        heartbeat = _parse_timestamp(session.heartbeat_at)
+        if heartbeat is not None:
+            heartbeat_age_seconds = round(
+                (datetime.now(timezone.utc) - heartbeat).total_seconds(),
+                3,
+            )
+    return {
+        "transport_kind": "file_backed_local",
+        "bridge_root": str(bridge_root),
+        "session_present": session is not None,
+        "session_id": session.session_id if session is not None else "",
+        "session_status": session.status if session is not None else "inactive",
+        "supported_tool_count": len(session.supported_tools) if session is not None else 0,
+        "pending_request_count": sum(1 for _ in request_dir.glob("*.json")) if request_dir.exists() else 0,
+        "pending_response_count": sum(1 for _ in response_dir.glob("*.json")) if response_dir.exists() else 0,
+        "heartbeat_age_seconds": heartbeat_age_seconds,
     }
 
 

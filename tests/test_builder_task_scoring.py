@@ -76,6 +76,9 @@ class RealBuilderTaskScoringTests(unittest.TestCase):
         self.assertTrue(Path(run.history_path).name, "history.sqlite3")
         self.assertEqual(run.document_profile, "expanded")
         self.assertIn("_docs/TODO.md", run.document_paths)
+        self.assertGreater(run.corpus_object_count, 0)
+        self.assertGreater(run.corpus_relation_count, 0)
+        self.assertGreater(run.elapsed_ms, 0)
 
     def test_real_builder_task_scoring_writes_score_artifact(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -93,6 +96,8 @@ class RealBuilderTaskScoringTests(unittest.TestCase):
 
         self.assertEqual(payload["version"], "v1")
         self.assertTrue(payload["meets_acceptance"])
+        self.assertGreater(payload["elapsed_ms"], 0)
+        self.assertGreater(payload["corpus_object_count"], 0)
 
     def test_mcp_score_tasks_command_emits_scoring_run(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -115,6 +120,7 @@ class RealBuilderTaskScoringTests(unittest.TestCase):
         self.assertTrue(payload["meets_acceptance"])
         self.assertEqual(len(payload["scores"]), 4)
         self.assertEqual(payload["document_profile"], "core")
+        self.assertGreater(payload["elapsed_ms"], 0)
 
 
 if __name__ == "__main__":

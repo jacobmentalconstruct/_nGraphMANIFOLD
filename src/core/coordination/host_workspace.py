@@ -850,7 +850,9 @@ def _scores_text(
     lines = [
         "nGraphMANIFOLD Score Summaries",
         f"builder_score: {builder_report.get('aggregate_score', 'n/a')} accepted={(latest_builder_score or {}).get('meets_acceptance', 'n/a')}",
+        f"builder_profile: {(latest_builder_score or {}).get('document_profile', 'n/a')} elapsed_ms={(latest_builder_score or {}).get('elapsed_ms', 'n/a')}",
         f"projection_score: {projection_report.get('aggregate_score', 'n/a')} accepted={(latest_projection_score or {}).get('meets_acceptance', 'n/a')}",
+        f"projection_elapsed_ms: {(latest_projection_score or {}).get('elapsed_ms', 'n/a')}",
         f"history_records: {record_count}",
         (
             "rolling_trace: "
@@ -865,6 +867,8 @@ def _scores_text(
 def _status_text(status_payload: dict[str, Any]) -> str:
     truth_policy = status_payload.get("interaction_truth_policy", {})
     bridge_policy = status_payload.get("bridge_timeout_policy", {})
+    bridge_runtime = status_payload.get("bridge_runtime", {})
+    project_doc_profiles = status_payload.get("project_doc_profiles", {})
     builder_timeout = (bridge_policy.get("tool_policies", {}) or {}).get(HOST_BUILDER_SCORE_TOOL_NAME, {})
     projection_timeout = (bridge_policy.get("tool_policies", {}) or {}).get(HOST_PROJECTION_SCORE_TOOL_NAME, {})
     lines = [
@@ -875,11 +879,22 @@ def _status_text(status_payload: dict[str, Any]) -> str:
         f"next_tranche: {status_payload.get('next_tranche', 'n/a')}",
         f"interaction_truth_surface: {truth_policy.get('classification', 'n/a')}",
         f"interaction_persistence_policy: {truth_policy.get('persistence_policy', 'n/a')}",
+        f"bridge_transport_kind: {bridge_policy.get('transport_kind', 'n/a')}",
         f"bridge_default_timeout_ms: {bridge_policy.get('global_default_timeout_ms', 'n/a')}",
         f"bridge_attach_grace_ms: {bridge_policy.get('attach_grace_ms', 'n/a')}",
+        f"bridge_stale_after_seconds: {bridge_policy.get('stale_after_seconds', 'n/a')}",
+        f"bridge_file_retention_seconds: {bridge_policy.get('file_retention_seconds', 'n/a')}",
         f"builder_score_bridge_timeout_ms: {builder_timeout.get('timeout_ms', 'n/a')}",
         f"projection_score_bridge_timeout_ms: {projection_timeout.get('timeout_ms', 'n/a')}",
+        f"bridge_session_present: {bridge_runtime.get('session_present', 'n/a')}",
+        f"bridge_pending_requests: {bridge_runtime.get('pending_request_count', 'n/a')}",
+        f"bridge_pending_responses: {bridge_runtime.get('pending_response_count', 'n/a')}",
+        f"bridge_supported_tool_count: {bridge_runtime.get('supported_tool_count', 'n/a')}",
     ]
+    if project_doc_profiles:
+        lines.append("project_doc_profiles:")
+        for name, profile in sorted(project_doc_profiles.items()):
+            lines.append(f"- {name}: {profile.get('document_count', 'n/a')} docs")
     return "\n".join(lines)
 
 
@@ -962,7 +977,11 @@ def _cockpit_text(
 
 
 def _build_status_payload(project_root: Path) -> dict[str, Any]:
-    from .host_bridge import build_host_bridge_timeout_policy_manifest
+    from .host_bridge import (
+        build_host_bridge_runtime_snapshot,
+        build_host_bridge_timeout_policy_manifest,
+    )
+    from .project_documents import summarize_project_document_profiles
 
     settings = AppSettings(
         project_root=project_root,
@@ -977,6 +996,8 @@ def _build_status_payload(project_root: Path) -> dict[str, Any]:
         "next_tranche": status.next_tranche,
         "interaction_truth_policy": interaction_truth_policy(),
         "bridge_timeout_policy": build_host_bridge_timeout_policy_manifest(),
+        "bridge_runtime": build_host_bridge_runtime_snapshot(project_root),
+        "project_doc_profiles": summarize_project_document_profiles(),
     }
 
 

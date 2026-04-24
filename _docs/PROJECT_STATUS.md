@@ -9,7 +9,7 @@ remains the authoritative phase ledger.
 
 Just-completed tranche:
 
-- Operator Metadata Decisions
+- Bridge Transport And Profile Discipline
 
 Status:
 
@@ -85,6 +85,20 @@ Recent hardening slices now address that directly:
 - `mcp-promote-call` now accepts `--label`, `--reason`, and `--note`
 - the host workspace now exposes compact label/reason/note fields for active
   promotion without turning the operator surface into a new truth store
+- status surfaces now expose bridge transport kind, live bridge runtime state,
+  and the bounded project-doc profile manifest
+- builder-task and projection scoring now emit explicit `elapsed_ms`
+- builder-task scoring now emits `corpus_object_count` and
+  `corpus_relation_count`
+- switching between `expanded` and `core` project-doc profiles now purges
+  out-of-profile docs from the project-doc cartridge instead of quietly
+  carrying them forward
+- current measured profile comparison is now inspectable:
+  - `core`: `605` objects / `2251` relations / `0.93` accepted / `60093 ms`
+  - `expanded`: `879` objects / `3288` relations / `0.93` accepted / `84682 ms`
+- journal continuity now has a clearer forward rule:
+  phase parks should preserve compact lessons learned, key decisions, evidence
+  used, and rejected alternatives when a tranche teaches something important
 
 ## Stable Prototype State
 
@@ -157,16 +171,18 @@ Current active tranche:
 
 Immediate focus inside that tranche:
 
-- decide whether the file-backed host bridge should remain the local transport
-  for the next band or whether a thinner IPC path is justified later
-- decide whether the current `core` / `expanded` project-doc profile split is
-  enough or whether another bounded profile is warranted
+- preserve the now-explicit answer:
+  - keep the bridge file-backed for the next band
+  - keep `core` and `expanded`
+  - do not add thinner IPC or another profile without new measured need
+- review the larger collaboration loop and its failure modes now that the
+  bridge/profile policy is no longer an open question
 - keep the interaction truth boundary inspection-only unless a future tranche
   explicitly reopens it
 
 Recommended next tranche after this hardening slice:
 
-- Bridge Transport And Profile Discipline
+- Loop Safeguards And Controlled Expansion Review
 
 The first concrete hardening problem is:
 
@@ -291,13 +307,19 @@ Latest tranche verification:
 
 - `python -m unittest tests.test_history_inspector tests.test_host_workspace` passed with `25` tests
 - `python -m unittest tests.test_host_bridge tests.test_host_workspace` passed with `16` tests
-- `python -m unittest discover -s tests` passed with `125` tests
+- `python -m unittest tests.test_project_documents tests.test_host_workspace tests.test_builder_task_scoring tests.test_context_projection_scoring tests.test_host_bridge`
+  passed with `29` tests
+- `python -m unittest discover -s tests` passed with `126` tests
 - `python -m compileall src tests` passed
 - `python -m src.app mcp-promote-call --dump-json --label keeper --reason checkpoint --note "Preserve this query result."`
   now records bounded operator metadata in inspection history
 - `python -m src.app mcp-score-tasks --dump-json` remained at `0.93`, accepted
+- `python -m src.app mcp-score-tasks --project-doc-profile expanded --dump-json`
+  remained at `0.93`, accepted
 - `python -m src.app project-query-score --dump-json` remained at `0.96`, accepted
 - `python -m src.app status --dump-json` now emits the current `bridge_timeout_policy`
+- `python -m src.app status --dump-json` now also emits `bridge_runtime` and
+  `project_doc_profiles`
 - `python -m src.app mcp-tools --dump-json` now emits through the shared host dispatcher
 - `python -m src.app mcp-read-panels --dump-json --use-host-bridge` now reads
   the live active panel correctly
@@ -317,7 +339,7 @@ Latest tranche verification:
   `NodeWALKER`, `docling`, and `Docling`
 - `python -m src.app status` now reports:
   - `active_tranche=Post-Prototype Hardening And Expansion`
-  - `next_tranche=Bridge Transport And Profile Discipline`
+  - `next_tranche=Loop Safeguards And Controlled Expansion Review`
 
 Useful live commands:
 

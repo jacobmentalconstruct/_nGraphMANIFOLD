@@ -91,6 +91,23 @@ named `core` and `expanded` profiles. The bridge now also exposes an explicit
 timeout policy: caller overrides are still supported, but longer-running
 bridged scoring commands use larger command-aware defaults and report that
 policy back in bridged JSON payloads through an additive `_bridge` section.
+`status --dump-json` now also reports bridge transport kind, live bridge
+runtime state, and the bounded project-doc profile manifest. Builder-task and
+projection scoring now emit elapsed time, and builder-task scoring now records
+corpus object/relation counts. This tranche also fixed a real discipline bug:
+switching from `expanded` back to `core` now purges out-of-profile project docs
+from the cartridge instead of quietly carrying them forward.
+
+Recent local comparison:
+
+- `core`: `605` objects / `2251` relations / `0.93` accepted / `60093 ms`
+- `expanded`: `879` objects / `3288` relations / `0.93` accepted / `84682 ms`
+
+Current working answer:
+
+- keep the bridge file-backed for now
+- keep `core` and `expanded`
+- do not add thinner IPC or a third profile without new measured need
 
 Start with:
 
@@ -109,6 +126,15 @@ How we work now, in one breath:
 - `TODO.md` shows the operational transition and next step
 - scoring and inspection surfaces decide whether an experiment is actually
   useful enough to keep
+
+Journal continuity now carries one more bounded rule:
+
+- tranche parks should preserve not only what changed and verification, but
+  also compact lessons learned, key decisions, evidence used, and rejected
+  alternatives when those are meaningful
+- this remains phase-level memory, not a minute-by-minute transcript
+- `_docs/DEV-LOG.md` is the readable external mirror of that phase memory and
+  is generated from the authoritative journal DB on request
 
 ## Run
 
@@ -203,6 +229,8 @@ defaults: builder-task scoring uses a heavy default and projection scoring uses
 a medium default. `--bridge-timeout-ms` remains available as an explicit caller
 override. The expanded profile is intentionally opt-in because it is more
 informative but materially heavier than the core four-doc profile.
+The scoring payload now also reports `document_profile`,
+`corpus_object_count`, `corpus_relation_count`, and `elapsed_ms`.
 
 Show the history-aware inspector summary:
 

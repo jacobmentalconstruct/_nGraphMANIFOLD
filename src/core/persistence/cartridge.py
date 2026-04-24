@@ -267,6 +267,19 @@ class SemanticCartridge:
                 self._refresh_manifest(conn)
         return len(semantic_ids)
 
+    def source_refs(self) -> list[str]:
+        """Return distinct source references currently stored in the cartridge."""
+        self.initialize()
+        with self.connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT DISTINCT source_ref
+                FROM semantic_occurrences
+                ORDER BY source_ref
+                """
+            ).fetchall()
+        return [str(row["source_ref"]) for row in rows]
+
     def get_occurrence(self, occurrence_id: str) -> dict[str, Any] | None:
         """Return a stored occurrence projection."""
         self.initialize()

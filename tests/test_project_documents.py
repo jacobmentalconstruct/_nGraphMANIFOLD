@@ -16,9 +16,11 @@ from src.core.coordination import (
     EXPANDED_PROJECT_DOCUMENTS,
     TRAVERSAL_TOOL_NAME,
     default_project_document_cartridge_path,
+    ingest_project_documents,
     ingest_project_documents_for_traversal,
     resolve_project_document_profile,
 )
+from src.core.persistence import SemanticCartridge
 
 
 class ProjectDocumentIngestionTests(unittest.TestCase):
@@ -38,6 +40,18 @@ class ProjectDocumentIngestionTests(unittest.TestCase):
         )
         (root / "_docs" / "STRANGLER_PLAN.md").write_text(
             "# Strangler Plan\n\nUse bounded tranches and preserve non-goals.",
+            encoding="utf-8",
+        )
+        (root / "_docs" / "TODO.md").write_text(
+            "# TODO\n\nKeep the project-doc profile bounded.",
+            encoding="utf-8",
+        )
+        (root / "_docs" / "EXPERIENTIAL_WORKFLOW.md").write_text(
+            "# Experiential Workflow\n\nOperator notes and scoring stay visible.",
+            encoding="utf-8",
+        )
+        (root / "_docs" / "PROTOTYPE_TUNING.md").write_text(
+            "# Prototype Tuning\n\nProfiles can differ in weight.",
             encoding="utf-8",
         )
 
@@ -73,6 +87,21 @@ class ProjectDocumentIngestionTests(unittest.TestCase):
         self.assertEqual(payload["tool_call"]["tool"]["tool_name"], TRAVERSAL_TOOL_NAME)
         self.assertTrue(payload["tool_call"]["capture"]["usefulness_report"]["meets_acceptance"])
         self.assertTrue(payload["seed_source_ref"].endswith("PROJECT_STATUS.md"))
+
+    def test_switching_from_expanded_to_core_purges_out_of_profile_docs(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self._write_project_docs(root)
+            cartridge_path = default_project_document_cartridge_path(root)
+            ingest_project_documents(root, cartridge_path=cartridge_path, document_profile="expanded")
+            ingest_project_documents(root, cartridge_path=cartridge_path, document_profile="core")
+            cartridge = SemanticCartridge(cartridge_path)
+            source_refs = cartridge.source_refs()
+
+        self.assertEqual(len(source_refs), 4)
+        self.assertTrue(all(not ref.endswith("TODO.md") for ref in source_refs))
+        self.assertTrue(all(not ref.endswith("EXPERIENTIAL_WORKFLOW.md") for ref in source_refs))
+        self.assertTrue(all(not ref.endswith("PROTOTYPE_TUNING.md") for ref in source_refs))
 
     def test_default_cartridge_path_is_project_owned(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

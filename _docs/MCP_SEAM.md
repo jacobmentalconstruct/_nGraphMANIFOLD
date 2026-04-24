@@ -261,6 +261,16 @@ The bridge policy is now more explicit:
 - `--bridge-timeout-ms` remains the caller-owned override
 - bridged JSON payloads now include additive `_bridge` metadata describing the
   effective timeout policy and delivery context
+- `status --dump-json` now also exposes:
+  - `bridge_timeout_policy`
+  - `bridge_runtime`
+  - bounded project-doc profile summaries
+
+The current practical answer is now earned rather than guessed:
+
+- keep the bridge file-backed for the next band
+- do not add thinner IPC yet
+- revisit only if bridge/runtime friction becomes a repeated measured problem
 
 The next seam pressure is not "more transport." It is how the current bridge
 stays bounded, inspectable, and legible as the project enters post-prototype
@@ -447,6 +457,12 @@ data/cartridges/project_documents.sqlite3
 
 It records the registered traversal call into the same MCP inspection history.
 
+The profile boundary is now stricter than before. Switching from `expanded`
+back to `core` now purges out-of-profile project docs from the cartridge
+instead of quietly keeping them around. That matters because profile
+discipline is only real if the smaller profile actually becomes smaller at
+runtime.
+
 Next work should score whether this helps answer real builder continuation
 questions.
 
@@ -478,6 +494,11 @@ data/mcp_inspection/builder_task_scores.json
 The controlled expanded-doc run also remained accepted at `0.93`, but it is
 materially heavier than the core profile. That runtime weight is now part of
 the bridge-policy question.
+
+Recent measured comparison:
+
+- `core`: `605` objects / `2251` relations / `0.93` accepted / `60093 ms`
+- `expanded`: `879` objects / `3288` relations / `0.93` accepted / `84682 ms`
 
 ## History-Aware Inspector
 

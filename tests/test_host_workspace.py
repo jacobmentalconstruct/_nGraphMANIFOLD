@@ -345,17 +345,28 @@ class HostWorkspaceTests(unittest.TestCase):
             5000,
         )
         self.assertEqual(
+            status_result.payload["bridge_timeout_policy"]["transport_kind"],
+            "file_backed_local",
+        )
+        self.assertEqual(
             status_result.payload["bridge_timeout_policy"]["tool_policies"][HOST_BUILDER_SCORE_TOOL_NAME]["runtime_class"],
             "heavy",
         )
+        self.assertFalse(status_result.payload["bridge_runtime"]["session_present"])
+        self.assertEqual(status_result.payload["project_doc_profiles"]["core"]["document_count"], 4)
+        self.assertEqual(status_result.payload["project_doc_profiles"]["expanded"]["document_count"], 7)
         self.assertIn("tools", tools_result.payload)
         self.assertTrue(builder_result.payload["meets_acceptance"])
+        self.assertEqual(builder_result.payload["document_profile"], "expanded")
+        self.assertGreater(builder_result.payload["elapsed_ms"], 0)
         self.assertIn("meets_acceptance", projection_result.payload)
+        self.assertGreater(projection_result.payload["elapsed_ms"], 0)
         self.assertIn("scores", projection_result.payload)
         self.assertIn("status", projection_result.snapshot.panels)
         self.assertIn("tools", projection_result.snapshot.panels)
         self.assertIn("builder_score", projection_result.snapshot.raw_payload_cache)
         self.assertIn("projection_score", projection_result.snapshot.raw_payload_cache)
+        self.assertIn("project_doc_profiles:", status_result.snapshot.panels["status"]["text"])
 
     def test_read_panels_dispatch_returns_active_named_and_all_views(self) -> None:
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:

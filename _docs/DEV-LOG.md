@@ -1,24 +1,22 @@
 # DEV-LOG
 
-_This file is a generated mirror of the authoritative app journal. The source of truth remains_
-`_docs/_journalDB/app_journal.sqlite3`_. Export generated: `2026-04-24T12:19:59Z`._
+_Generated mirror export created at user request for external assistant review._
 
-Append-only export order follows `journal_entries.id ASC`.
+_Source of truth: `_docs/_journalDB/app_journal.sqlite3`_
 
----
+_Exported at: `2026-04-24T17:05:56+00:00`_
 
-## Entry 1 - Builder Constraint Contract
+_Exported entries: 41_
 
-- `created_at`: `2026-04-22T00:14:07Z`
-- `updated_at`: `2026-04-22T00:14:07Z`
-- `kind`: `contract`
-- `status`: `active`
-- `source`: `system`
-- `author`: `project-authority-kit`
-- `importance`: `10`
-- `entry_uid`: `contract_8c991116f859`
+This file is a generated append-only mirror of the authoritative app journal.
+Do not treat it as a second canonical continuity surface.
 
-### Body
+## 1. Builder Constraint Contract
+
+- created_at: `2026-04-22T00:14:07Z`
+- kind: `contract`
+- status: `active`
+- tags_json: `["contract", "builder", "authority"]`
 
 # Builder Constraint Contract
 
@@ -1351,17 +1349,7 @@ Without limiting the broader rules already established, prohibited behavior incl
 
 These examples do not replace the contract; they illustrate it.
 
-### Tags
-
-```json
-[
-  "contract",
-  "builder",
-  "authority"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
@@ -1369,22 +1357,14 @@ These examples do not replace the contract; they illustrate it.
 }
 ```
 
----
+## 2. Builder Constraint Companion Docs
 
-## Entry 2 - Builder Constraint Companion Docs
-
-- `created_at`: `2026-04-22T00:23:59Z`
-- `updated_at`: `2026-04-22T00:23:59Z`
-- `kind`: `documentation`
-- `status`: `complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `2`
-- `entry_uid`: `entry_20260422T002359Z_builder_constraint_companions`
-- `related_path`: `_docs`
-- `related_ref`: `builder_constraint_contract.md`
-
-### Body
+- created_at: `2026-04-22T00:23:59Z`
+- kind: `documentation`
+- status: `complete`
+- related_path: `_docs`
+- related_ref: `builder_constraint_contract.md`
+- tags_json: `["documentation","contract","planning","builder-memory"]`
 
 Documentation phase: builder constraint companion surfaces.
 
@@ -1408,18 +1388,7 @@ Testing and verification:
 Deferred work:
 - A future tranche may add a lightweight project-local checker script that consumes builder_constraint_index.yaml and reports obvious contract violations.
 
-### Tags
-
-```json
-[
-  "documentation",
-  "contract",
-  "planning",
-  "builder-memory"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
@@ -1430,11 +1399,6 @@ Deferred work:
     "_docs/builder_constraint_contract.md",
     "_docs/_journalDB/app_journal.sqlite3"
   ],
-  "verification": [
-    "yaml_parse",
-    "journal_schema_inspection",
-    "file_presence_check"
-  ],
   "contract_companion_docs": [
     "_docs/BUILDER_DIRECTIVE.md",
     "_docs/builder_constraint_index.yaml",
@@ -1443,22 +1407,14 @@ Deferred work:
 }
 ```
 
----
+## 3. Semantic OS Doctrine Foundation
 
-## Entry 3 - Semantic OS Doctrine Foundation
-
-- `created_at`: `2026-04-22T00:52:55Z`
-- `updated_at`: `2026-04-22T00:52:55Z`
-- `kind`: `documentation`
-- `status`: `complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `3`
-- `entry_uid`: `entry_20260422T005255Z_semantic_os_doctrine`
-- `related_path`: `_docs`
-- `related_ref`: `ARCHITECTURE.md`
-
-### Body
+- created_at: `2026-04-22T00:52:55Z`
+- kind: `documentation`
+- status: `complete`
+- related_path: `_docs`
+- related_ref: `ARCHITECTURE.md`
+- tags_json: `["architecture","doctrine","strangler","provenance","tools"]`
 
 Documentation phase: semantic OS doctrine and strangler plan.
 
@@ -1486,19 +1442,7 @@ Deferred work:
 - Decide exact semantic_id hash envelope.
 - Decide which .dev-tools gates become mandatory before implementation tranches are marked complete.
 
-### Tags
-
-```json
-[
-  "architecture",
-  "doctrine",
-  "strangler",
-  "provenance",
-  "tools"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
@@ -1510,36 +1454,23 @@ Deferred work:
     "_docs/semantic_os_conceptual_build_plan.md",
     "_docs/_journalDB/app_journal.sqlite3"
   ],
-  "tranche": "doctrine_foundation",
-  "verification": [
-    "file_presence_check",
-    "ascii_check_new_docs",
-    "boundary_reference_check"
-  ],
   "non_goals_observed": [
     "no_runtime_code",
     "no_parts_copy",
     "no_scaffold_creation"
-  ]
+  ],
+  "tranche": "doctrine_foundation"
 }
 ```
 
----
+## 4. Phase 1 Scaffold Foundation Parked
 
-## Entry 4 - Phase 1 Scaffold Foundation Parked
-
-- `created_at`: `2026-04-22T00:59:34Z`
-- `updated_at`: `2026-04-22T00:59:34Z`
-- `kind`: `implementation`
-- `status`: `complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `3`
-- `entry_uid`: `entry_20260422T005934Z_phase1_scaffold`
-- `related_path`: `.`
-- `related_ref`: `STRANGLER_PLAN.md#phase-1-scaffold-foundation`
-
-### Body
+- created_at: `2026-04-22T00:59:34Z`
+- kind: `implementation`
+- status: `complete`
+- related_path: `.`
+- related_ref: `STRANGLER_PLAN.md#phase-1-scaffold-foundation`
+- tags_json: `["scaffold","phase-1","parking","verification","boundary-incident"]`
 
 Implementation phase: Phase 1 scaffold foundation.
 
@@ -1582,22 +1513,11 @@ Parked status:
 - Phase 1 is parked complete.
 - Next tranche is Phase 2: Canonical Semantic Object.
 
-### Tags
-
-```json
-[
-  "scaffold",
-  "phase-1",
-  "parking",
-  "verification",
-  "boundary-incident"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
+  "boundary_incident": "Broad __pycache__ cleanup removed generated caches under .parts and .dev-tools; documented with mitigation.",
   "changed_files": [
     "README.md",
     "LICENSE.md",
@@ -1629,35 +1549,20 @@ Parked status:
     "_docs/TOOLS.md",
     "_docs/_journalDB/app_journal.sqlite3"
   ],
-  "tranche": "phase_1_scaffold_foundation",
+  "next_tranche": "Phase 2: Canonical Semantic Object",
   "status": "parked_complete",
-  "verification": [
-    "python -m src.app status",
-    "python -m unittest discover -s tests",
-    "python -m compileall src tests",
-    "file_tree_snapshot tool gate"
-  ],
-  "boundary_incident": "Broad __pycache__ cleanup removed generated caches under .parts and .dev-tools; documented with mitigation.",
-  "next_tranche": "Phase 2: Canonical Semantic Object"
+  "tranche": "phase_1_scaffold_foundation"
 }
 ```
 
----
+## 5. Phase 2 Canonical Semantic Object Parked
 
-## Entry 5 - Phase 2 Canonical Semantic Object Parked
-
-- `created_at`: `2026-04-22T01:05:38Z`
-- `updated_at`: `2026-04-22T01:05:38Z`
-- `kind`: `implementation`
-- `status`: `complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `3`
-- `entry_uid`: `entry_20260422T010538Z_phase2_semantic_object`
-- `related_path`: `src/core/representation`
-- `related_ref`: `STRANGLER_PLAN.md#phase-2-canonical-semantic-object`
-
-### Body
+- created_at: `2026-04-22T01:05:38Z`
+- kind: `implementation`
+- status: `complete`
+- related_path: `src/core/representation`
+- related_ref: `STRANGLER_PLAN.md#phase-2-canonical-semantic-object`
+- tags_json: `["representation","semantic-object","phase-2","parking","verification"]`
 
 Implementation phase: Phase 2 canonical semantic object.
 
@@ -1695,19 +1600,7 @@ Parked status:
 - Phase 2 is parked complete.
 - Next tranche is Phase 3: Persistence Cartridge.
 
-### Tags
-
-```json
-[
-  "representation",
-  "semantic-object",
-  "phase-2",
-  "parking",
-  "verification"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
@@ -1725,36 +1618,21 @@ Parked status:
     "_docs/SOURCE_PROVENANCE.md",
     "_docs/_journalDB/app_journal.sqlite3"
   ],
-  "tranche": "phase_2_canonical_semantic_object",
-  "status": "parked_complete",
-  "verification": [
-    "python -m src.app status",
-    "python -m unittest discover -s tests",
-    "python -m compileall src tests",
-    "forbidden runtime reference scan",
-    "domain_boundary_audit tool gate"
-  ],
+  "next_tranche": "Phase 3: Persistence Cartridge",
   "parts_borrowing": "none",
-  "next_tranche": "Phase 3: Persistence Cartridge"
+  "status": "parked_complete",
+  "tranche": "phase_2_canonical_semantic_object"
 }
 ```
 
----
+## 6. Phase 3 Persistence Cartridge Parked
 
-## Entry 6 - Phase 3 Persistence Cartridge Parked
-
-- `created_at`: `2026-04-22T01:20:18Z`
-- `updated_at`: `2026-04-22T01:20:18Z`
-- `kind`: `implementation`
-- `status`: `complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `3`
-- `entry_uid`: `entry_20260422T012018Z_phase3_persistence_cartridge`
-- `related_path`: `src/core/persistence`
-- `related_ref`: `STRANGLER_PLAN.md#phase-3-persistence-cartridge`
-
-### Body
+- created_at: `2026-04-22T01:20:18Z`
+- kind: `implementation`
+- status: `complete`
+- related_path: `src/core/persistence`
+- related_ref: `STRANGLER_PLAN.md#phase-3-persistence-cartridge`
+- tags_json: `["persistence","semantic-cartridge","sqlite","phase-3","parking"]`
 
 Implementation phase: Phase 3 persistence cartridge.
 
@@ -1793,19 +1671,7 @@ Parked status:
 - Phase 3 is parked complete.
 - Next tranche is Phase 4: Intake Adapter.
 
-### Tags
-
-```json
-[
-  "persistence",
-  "semantic-cartridge",
-  "sqlite",
-  "phase-3",
-  "parking"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
@@ -1823,17 +1689,8 @@ Parked status:
     "_docs/SOURCE_PROVENANCE.md",
     "_docs/_journalDB/app_journal.sqlite3"
   ],
-  "tranche": "phase_3_persistence_cartridge",
-  "status": "parked_complete",
-  "verification": [
-    "python -m src.app status",
-    "python -m unittest discover -s tests",
-    "python -m compileall src tests",
-    "forbidden runtime reference scan",
-    "sqlite_schema_inspector tool gate"
-  ],
+  "next_tranche": "Phase 4: Intake Adapter",
   "parts_borrowing": "none",
-  "schema_version": 1,
   "schema_tables": [
     "cartridge_manifest",
     "semantic_objects",
@@ -1843,26 +1700,20 @@ Parked status:
     "derived_vector_views",
     "derived_graph_views"
   ],
-  "next_tranche": "Phase 4: Intake Adapter"
+  "schema_version": 1,
+  "status": "parked_complete",
+  "tranche": "phase_3_persistence_cartridge"
 }
 ```
 
----
+## 7. Phase 4 Intake Adapter Parked
 
-## Entry 7 - Phase 4 Intake Adapter Parked
-
-- `created_at`: `2026-04-22T01:25:58Z`
-- `updated_at`: `2026-04-22T01:25:58Z`
-- `kind`: `implementation`
-- `status`: `complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `3`
-- `entry_uid`: `entry_20260422T012558Z_phase4_intake_adapter`
-- `related_path`: `src/core/transformation`
-- `related_ref`: `STRANGLER_PLAN.md#phase-4-intake-adapter`
-
-### Body
+- created_at: `2026-04-22T01:25:58Z`
+- kind: `implementation`
+- status: `complete`
+- related_path: `src/core/transformation`
+- related_ref: `STRANGLER_PLAN.md#phase-4-intake-adapter`
+- tags_json: `["transformation","intake","semantic-object","phase-4","parking"]`
 
 Implementation phase: Phase 4 intake adapter.
 
@@ -1900,19 +1751,7 @@ Parked status:
 - Phase 4 is parked complete.
 - Next tranche is Phase 5: Relation And Enrichment Pass.
 
-### Tags
-
-```json
-[
-  "transformation",
-  "intake",
-  "semantic-object",
-  "phase-4",
-  "parking"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
@@ -1929,35 +1768,20 @@ Parked status:
     "_docs/SOURCE_PROVENANCE.md",
     "_docs/_journalDB/app_journal.sqlite3"
   ],
-  "tranche": "phase_4_intake_adapter",
-  "status": "parked_complete",
-  "verification": [
-    "python -m src.app status",
-    "python -m unittest discover -s tests",
-    "python -m compileall src tests",
-    "forbidden runtime reference scan",
-    "domain_boundary_audit tool gate"
-  ],
+  "next_tranche": "Phase 5: Relation And Enrichment Pass",
   "parts_borrowing": "none",
-  "next_tranche": "Phase 5: Relation And Enrichment Pass"
+  "status": "parked_complete",
+  "tranche": "phase_4_intake_adapter"
 }
 ```
 
----
+## 8. Phase 5 Relation Enrichment
 
-## Entry 8 - Phase 5 Relation Enrichment
-
-- `created_at`: `2026-04-22T01:34:39Z`
-- `updated_at`: `2026-04-22T01:36:01Z`
-- `kind`: `phase`
-- `status`: `complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `entry_20260422T013423Z_phase5_relation_enrichment`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-
-### Body
+- created_at: `2026-04-22T01:34:39Z`
+- kind: `phase`
+- status: `complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- tags_json: `["phase5", "analysis", "relations", "persistence", "contract"]`
 
 Files changed:
 - README.md
@@ -1998,42 +1822,22 @@ After parking documentation and runtime tranche marker updates, python -m unitte
 Traceability correction:
 Adjusted adjacency metadata so follows relations record their own source block and target block direction. Added a regression test for adjacency metadata direction. Final unit test count is now 24 passing tests.
 
-### Tags
-
-```json
-[
-  "phase5",
-  "analysis",
-  "relations",
-  "persistence",
-  "contract"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
-  "tranche": "Phase 5",
-  "next_tranche": "Phase 6"
+  "next_tranche": "Phase 6",
+  "tranche": "Phase 5"
 }
 ```
 
----
+## 9. Phase 6 Traversal And Analysis
 
-## Entry 9 - Phase 6 Traversal And Analysis
-
-- `created_at`: `2026-04-22T01:43:11Z`
-- `updated_at`: `2026-04-22T01:43:11Z`
-- `kind`: `phase`
-- `status`: `complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `entry_20260422T014254Z_phase6_traversal_analysis`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-
-### Body
+- created_at: `2026-04-22T01:43:11Z`
+- kind: `phase`
+- status: `complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- tags_json: `["phase6", "analysis", "traversal", "persistence", "contract"]`
 
 Files changed:
 - README.md
@@ -2067,42 +1871,22 @@ Verification:
 Next:
 Phase 7 - Minimal Execution Pathway.
 
-### Tags
-
-```json
-[
-  "phase6",
-  "analysis",
-  "traversal",
-  "persistence",
-  "contract"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
-  "tranche": "Phase 6",
-  "next_tranche": "Phase 7"
+  "next_tranche": "Phase 7",
+  "tranche": "Phase 6"
 }
 ```
 
----
+## 10. Phase 7 Minimal Execution Pathway
 
-## Entry 10 - Phase 7 Minimal Execution Pathway
-
-- `created_at`: `2026-04-22T01:51:42Z`
-- `updated_at`: `2026-04-22T01:51:42Z`
-- `kind`: `phase`
-- `status`: `complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `entry_20260422T015123Z_phase7_minimal_execution`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-
-### Body
+- created_at: `2026-04-22T01:51:42Z`
+- kind: `phase`
+- status: `complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- tags_json: `["phase7", "execution", "prototype-spine", "contract"]`
 
 Files changed:
 - README.md
@@ -2136,18 +1920,7 @@ Verification:
 Next:
 Phase 8 - Thin MCP Usefulness Seam.
 
-### Tags
-
-```json
-[
-  "phase7",
-  "execution",
-  "prototype-spine",
-  "contract"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
@@ -2156,21 +1929,13 @@ Phase 8 - Thin MCP Usefulness Seam.
 }
 ```
 
----
+## 11. Phase 8 Thin MCP Usefulness Seam
 
-## Entry 11 - Phase 8 Thin MCP Usefulness Seam
-
-- `created_at`: `2026-04-22T01:56:42Z`
-- `updated_at`: `2026-04-22T01:56:42Z`
-- `kind`: `phase`
-- `status`: `complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `entry_20260422T015622Z_phase8_mcp_usefulness_seam`
-- `related_path`: `_docs/MCP_SEAM.md`
-
-### Body
+- created_at: `2026-04-22T01:56:42Z`
+- kind: `phase`
+- status: `complete`
+- related_path: `_docs/MCP_SEAM.md`
+- tags_json: `["phase8", "mcp-seam", "coordination", "usefulness", "tuning"]`
 
 Files changed:
 - README.md
@@ -2204,19 +1969,7 @@ Verification:
 Next:
 Prototype Tuning And Scoring: create repeatable builder-task fixtures and measure whether the seam actually reduces inspection, reasoning, and action cost for builder use.
 
-### Tags
-
-```json
-[
-  "phase8",
-  "mcp-seam",
-  "coordination",
-  "usefulness",
-  "tuning"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
@@ -2225,21 +1978,13 @@ Prototype Tuning And Scoring: create repeatable builder-task fixtures and measur
 }
 ```
 
----
+## 12. Prototype Tuning And Scoring
 
-## Entry 12 - Prototype Tuning And Scoring
-
-- `created_at`: `2026-04-22T03:04:00Z`
-- `updated_at`: `2026-04-22T03:04:00Z`
-- `kind`: `phase`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `entry_20260422T030400Z_prototype_tuning_scoring`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-
-### Body
+- created_at: `2026-04-22T03:04:00Z`
+- kind: `phase`
+- status: `parked_complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- tags_json: `["prototype", "tuning", "scoring", "mcp-seam"]`
 
 Files changed:
 - README.md
@@ -2272,46 +2017,27 @@ Verification:
 - domain_boundary_audit passed on src: files_scanned=27, total_violations=0.
 - domain_boundary_audit passed on tests: files_scanned=10, total_violations=0.
 
-### Tags
-
-```json
-[
-  "prototype",
-  "tuning",
-  "scoring",
-  "mcp-seam"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
   "acceptance_threshold": 0.7,
   "aggregate_scores": {
-    "relation_evidence_trace": 0.91,
+    "execution_report_trace": 0.91,
     "persistence_round_trip": 0.91,
-    "execution_report_trace": 0.91
+    "relation_evidence_trace": 0.91
   },
   "next_candidate": "analysis.traverse_cartridge"
 }
 ```
 
----
+## 13. Local MCP Adapter And Raw Inspector
 
-## Entry 13 - Local MCP Adapter And Raw Inspector
-
-- `created_at`: `2026-04-22T03:19:56Z`
-- `updated_at`: `2026-04-22T03:19:56Z`
-- `kind`: `phase`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `entry_20260422T031956Z_local_mcp_adapter_raw_inspector`
-- `related_path`: `_docs/MCP_SEAM.md`
-
-### Body
+- created_at: `2026-04-22T03:19:56Z`
+- kind: `phase`
+- status: `parked_complete`
+- related_path: `_docs/MCP_SEAM.md`
+- tags_json: `["mcp-seam", "local-adapter", "inspector", "ui"]`
 
 Files changed:
 - README.md
@@ -2343,47 +2069,28 @@ Verification:
 - domain_boundary_audit passed on src: files_scanned=29, total_violations=0.
 - domain_boundary_audit passed on tests: files_scanned=11, total_violations=0.
 
-### Tags
-
-```json
-[
-  "mcp-seam",
-  "local-adapter",
-  "inspector",
-  "ui"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
+  "acceptance_threshold": 0.7,
+  "adapter_score": 0.93,
+  "capability": "analysis.traverse_cartridge",
   "commands": [
     "python -m src.app mcp-inspect",
     "python -m src.app mcp-inspect --dump-json"
   ],
-  "acceptance_threshold": 0.7,
-  "next_candidate": "true_mcp_tool_registration",
-  "capability": "analysis.traverse_cartridge",
-  "adapter_score": 0.93
+  "next_candidate": "true_mcp_tool_registration"
 }
 ```
 
----
+## 14. True MCP Tool Registration Candidate
 
-## Entry 14 - True MCP Tool Registration Candidate
-
-- `created_at`: `2026-04-22T03:28:51Z`
-- `updated_at`: `2026-04-22T03:28:51Z`
-- `kind`: `phase`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `entry_20260422T032851Z_true_mcp_tool_registration_candidate`
-- `related_path`: `_docs/MCP_SEAM.md`
-
-### Body
+- created_at: `2026-04-22T03:28:51Z`
+- kind: `phase`
+- status: `parked_complete`
+- related_path: `_docs/MCP_SEAM.md`
+- tags_json: `["mcp-seam", "tool-registry", "registration-candidate", "inspector"]`
 
 Files changed:
 - README.md
@@ -2419,48 +2126,29 @@ Verification:
 - python -m src.app mcp-tools --dump-json emitted registry_id, readiness registration_candidate, and ngraph.analysis.traverse_cartridge.
 - python -m src.app mcp-inspect --dump-json emitted call_id, ngraph.analysis.traverse_cartridge, and aggregate_score 0.93.
 
-### Tags
-
-```json
-[
-  "mcp-seam",
-  "tool-registry",
-  "registration-candidate",
-  "inspector"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
+  "adapter_score": 0.93,
+  "capability": "analysis.traverse_cartridge",
   "commands": [
     "python -m src.app mcp-tools --dump-json",
     "python -m src.app mcp-inspect",
     "python -m src.app mcp-inspect --dump-json"
   ],
-  "capability": "analysis.traverse_cartridge",
-  "adapter_score": 0.93,
   "next_candidate": "persistent_mcp_inspection_history",
   "registered_tool": "ngraph.analysis.traverse_cartridge"
 }
 ```
 
----
+## 15. Persistent MCP Inspection History
 
-## Entry 15 - Persistent MCP Inspection History
-
-- `created_at`: `2026-04-22T03:39:17Z`
-- `updated_at`: `2026-04-22T03:39:17Z`
-- `kind`: `phase`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `entry_20260422T033917Z_persistent_mcp_inspection_history`
-- `related_path`: `_docs/MCP_SEAM.md`
-
-### Body
+- created_at: `2026-04-22T03:39:17Z`
+- kind: `phase`
+- status: `parked_complete`
+- related_path: `_docs/MCP_SEAM.md`
+- tags_json: `["mcp-seam", "inspection-history", "tool-registry", "sqlite"]`
 
 Files changed:
 - README.md
@@ -2497,48 +2185,29 @@ Verification:
 - mcp-inspect --dump-json emitted record_count, ngraph.analysis.traverse_cartridge, and aggregate_score 0.93.
 - mcp-history --dump-json --history-limit 1 emitted history_path and record_count.
 
-### Tags
-
-```json
-[
-  "mcp-seam",
-  "inspection-history",
-  "tool-registry",
-  "sqlite"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
+  "adapter_score": 0.93,
   "commands": [
     "python -m src.app mcp-inspect",
     "python -m src.app mcp-history",
     "python -m src.app mcp-history --dump-json"
   ],
-  "registered_tool": "ngraph.analysis.traverse_cartridge",
   "history_path": "data/mcp_inspection/history.sqlite3",
   "next_candidate": "project_document_ingestion_candidate",
-  "adapter_score": 0.93
+  "registered_tool": "ngraph.analysis.traverse_cartridge"
 }
 ```
 
----
+## 16. Project Document Ingestion Candidate
 
-## Entry 16 - Project Document Ingestion Candidate
-
-- `created_at`: `2026-04-22T03:45:54Z`
-- `updated_at`: `2026-04-22T03:45:54Z`
-- `kind`: `phase`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `entry_20260422T034554Z_project_document_ingestion_candidate`
-- `related_path`: `_docs/MCP_SEAM.md`
-
-### Body
+- created_at: `2026-04-22T03:45:54Z`
+- kind: `phase`
+- status: `parked_complete`
+- related_path: `_docs/MCP_SEAM.md`
+- tags_json: `["mcp-seam", "project-docs", "ingestion", "traversal"]`
 
 Files changed:
 - README.md
@@ -2565,47 +2234,28 @@ Verification:
 - python -m unittest tests.test_project_documents passed with 4 tests.
 - Temporary-root smoke for python -m src.app mcp-ingest-docs --dump-json emitted document_paths, object_count, and ngraph.analysis.traverse_cartridge.
 
-### Tags
-
-```json
-[
-  "mcp-seam",
-  "project-docs",
-  "ingestion",
-  "traversal"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
   "cartridge_path": "data/cartridges/project_documents.sqlite3",
-  "next_candidate": "real_builder_task_scoring",
   "documents": [
     "README.md",
     "_docs/PROJECT_STATUS.md",
     "_docs/MCP_SEAM.md",
     "_docs/STRANGLER_PLAN.md"
-  ]
+  ],
+  "next_candidate": "real_builder_task_scoring"
 }
 ```
 
----
+## 17. Real Builder Task Scoring
 
-## Entry 17 - Real Builder Task Scoring
-
-- `created_at`: `2026-04-22T03:49:12Z`
-- `updated_at`: `2026-04-22T03:50:50Z`
-- `kind`: `phase`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `entry_20260422T034912Z_real_builder_task_scoring`
-- `related_path`: `_docs/MCP_SEAM.md`
-
-### Body
+- created_at: `2026-04-22T03:49:12Z`
+- kind: `phase`
+- status: `parked_complete`
+- related_path: `_docs/MCP_SEAM.md`
+- tags_json: `["mcp-seam", "builder-task-scoring", "project-docs", "usefulness"]`
 
 Files changed:
 - README.md
@@ -2643,48 +2293,29 @@ Final gate update:
 - Real project mcp-ingest-docs --dump-json emitted document_paths, object_count, and ngraph.analysis.traverse_cartridge.
 - Real project mcp-score-tasks --dump-json emitted aggregate_score 0.93 and meets_acceptance true.
 
-### Tags
-
-```json
-[
-  "mcp-seam",
-  "builder-task-scoring",
-  "project-docs",
-  "usefulness"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
   "aggregate_score": 0.93,
   "next_candidate": "history_aware_mcp_inspector",
+  "score_artifact": "data/mcp_inspection/builder_task_scores.json",
   "tasks": [
     "current_tranche_lookup",
     "mcp_surface_lookup",
     "strangler_next_work_lookup",
     "operator_command_lookup"
-  ],
-  "score_artifact": "data/mcp_inspection/builder_task_scores.json"
+  ]
 }
 ```
 
----
+## 18. History-Aware MCP Inspector
 
-## Entry 18 - History-Aware MCP Inspector
-
-- `created_at`: `2026-04-22T04:28:53Z`
-- `updated_at`: `2026-04-22T04:28:53Z`
-- `kind`: `phase`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `entry_20260422T042852Z_history_aware_mcp_inspector`
-- `related_path`: `_docs/TODO.md`
-
-### Body
+- created_at: `2026-04-22T04:28:53Z`
+- kind: `phase`
+- status: `parked_complete`
+- related_path: `_docs/TODO.md`
+- tags_json: `["mcp-seam", "history-inspector", "parking", "todo"]`
 
 Files changed:
 - README.md
@@ -2721,329 +2352,194 @@ Verification:
 - domain_boundary_audit passed on tests: files_scanned=15, total_violations=0.
 - python -m src.app mcp-history-view --dump-json emitted summary_text, calls, and raw history payload.
 
-### Tags
-
-```json
-[
-  "mcp-seam",
-  "history-inspector",
-  "parking",
-  "todo"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
+  "command": "python -m src.app mcp-history-view",
   "display_pid": 72784,
-  "tests": 64,
   "next_candidate": "traversal_search_and_seed_selection",
-  "command": "python -m src.app mcp-history-view"
+  "tests": 64
 }
 ```
 
----
+## 19. Traversal Search And Seed Selection
 
-## Entry 19 - Traversal Search And Seed Selection
-
-- `created_at`: `2026-04-22T10:47:36Z`
-- `updated_at`: `2026-04-22T10:49:10Z`
-- `kind`: `tranche`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `journal_a7c2311f39ea`
-- `related_path`: `_docs/TODO.md`
-
-### Body
+- created_at: `2026-04-22T10:47:36Z`
+- kind: `tranche`
+- status: `parked_complete`
+- related_path: `_docs/TODO.md`
+- tags_json: `["tranche", "mcp", "seed-search", "traversal", "parking"]`
 
 Completed the Traversal Search And Seed Selection tranche. Added a coordination-owned seed search surface over the bounded project-document semantic cartridge, deterministic query-term ranking, selected traversal execution through ngraph.analysis.traverse_cartridge, and MCP inspection-history recording for selected seed traversals. Added persistence support for loading all objects and deleting stale objects for a re-ingested source so the project-document cartridge reflects current docs instead of retaining removed blocks. Wired the new python -m src.app mcp-search-seeds command with --query, --seed-limit, and --dump-json support, and launched a user-facing inspector for query Current Park Point (display pid 130460). Added focused tests for ranking, selected traversal history recording, and command output. Updated README, PROJECT_STATUS, MCP_SEAM, ARCHITECTURE, STRANGLER_PLAN, SOURCE_PROVENANCE, TOOLS, PROTOTYPE_TUNING, TODO, engine status, and scaffold expectations. Explicit non-goals held: no embeddings, no repo-wide scan, no full-text engine, no second registered tool candidate, no polished dashboard, and no runtime dependency on .parts or .dev-tools. Verification: focused seed/project/scaffold tests passed; python -m unittest discover -s tests passed with 67 tests; python -m compileall src tests passed; forbidden runtime reference scan over src/ and tests/ was clean; domain_boundary_audit passed on src with files_scanned=35 and total_violations=0; domain_boundary_audit passed on tests with files_scanned=16 and total_violations=0. Next recommended tranche: Search-Scored Traversal Tuning, to compare search-selected seeds against previous hint-selected calls and decide with evidence whether a second registered tool is justified.
 
 Display correction: the first detached launch used an incorrectly quoted query and exited after argparse rejected the split words. Temporary stdout/stderr files from that check were removed. The user-facing seed-search inspector was relaunched successfully with query Current Park Point and is running as display pid 135904.
 
-### Tags
+### Files Changed
 
-```json
-[
-  "tranche",
-  "mcp",
-  "seed-search",
-  "traversal",
-  "parking"
-]
-```
+- README.md
+- _docs/ARCHITECTURE.md
+- _docs/MCP_SEAM.md
+- _docs/PROJECT_STATUS.md
+- _docs/PROTOTYPE_TUNING.md
+- _docs/SOURCE_PROVENANCE.md
+- _docs/STRANGLER_PLAN.md
+- _docs/TODO.md
+- _docs/TOOLS.md
+- src/app.py
+- src/core/coordination/__init__.py
+- src/core/coordination/project_documents.py
+- src/core/coordination/seed_search.py
+- src/core/engine.py
+- src/core/persistence/cartridge.py
+- tests/test_scaffold.py
+- tests/test_seed_search.py
+- data/cartridges/project_documents.sqlite3
+- data/mcp_inspection/history.sqlite3
 
-### Metadata
+### Raw Metadata
 
 ```json
 {
-  "files_changed": [
-    "README.md",
-    "_docs/ARCHITECTURE.md",
-    "_docs/MCP_SEAM.md",
-    "_docs/PROJECT_STATUS.md",
-    "_docs/PROTOTYPE_TUNING.md",
-    "_docs/SOURCE_PROVENANCE.md",
-    "_docs/STRANGLER_PLAN.md",
-    "_docs/TODO.md",
-    "_docs/TOOLS.md",
-    "src/app.py",
-    "src/core/coordination/__init__.py",
-    "src/core/coordination/project_documents.py",
-    "src/core/coordination/seed_search.py",
-    "src/core/engine.py",
-    "src/core/persistence/cartridge.py",
-    "tests/test_scaffold.py",
-    "tests/test_seed_search.py",
-    "data/cartridges/project_documents.sqlite3",
-    "data/mcp_inspection/history.sqlite3"
-  ],
   "display_pid": 130460,
   "next_tranche": "Search-Scored Traversal Tuning"
 }
 ```
 
----
+## 20. Webster Lexical Baseline
 
-## Entry 20 - Webster Lexical Baseline
-
-- `created_at`: `2026-04-22T12:23:04Z`
-- `updated_at`: `2026-04-22T12:23:04Z`
-- `kind`: `tranche`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `journal_33c330ebec73`
-- `related_path`: `_docs/WEBSTERS_BASELINE.md`
-
-### Body
+- created_at: `2026-04-22T12:23:04Z`
+- kind: `tranche`
+- status: `parked_complete`
+- related_path: `_docs/WEBSTERS_BASELINE.md`
+- tags_json: `["tranche", "websters", "lexical-baseline", "corpus", "parking"]`
 
 Completed the Webster Lexical Baseline tranche. Added a structured lexical parser for assets/_corpus_examples/dictionary_alpha_arrays.json that streams the alpha-array dictionary without loading the full file, preserves headword and definition_raw as the reliable baseline, and marks senses, domain labels, cross references, derived forms, and usage examples as conservative parser candidates. Added a batched SemanticCartridge.upsert_objects path so large corpus builds refresh manifests once per batch build rather than once per object. Added build_websters_baseline and lookup_websters_entry coordination surfaces, plus CLI commands python -m src.app ingest-websters and python -m src.app lookup-websters. Built the full data/cartridges/base_websters.sqlite3 cartridge with 102104 lexical entries, 102104 semantic objects, 117553 relations, and 102104 provenance records. Verified lookup-websters for tortuous and true-blue, including caution text for inferred fields. Added _docs/WEBSTERS_BASELINE.md and updated README, PROJECT_STATUS, TODO, ARCHITECTURE, STRANGLER_PLAN, SOURCE_PROVENANCE, TOOLS, engine status, and tests. Explicit non-goals held: no raw sliding-window dictionary ingestion, no perfect Webster grammar parser claim, no embeddings, no Python docs ingestion, no conversation corpus ingestion, and no merge into the project-document cartridge. Verification: python -m unittest discover -s tests passed with 75 tests; python -m compileall src tests passed; forbidden runtime reference scan over src/ and tests/ was clean; domain_boundary_audit passed on src with files_scanned=37 and total_violations=0; domain_boundary_audit passed on tests with files_scanned=17 and total_violations=0. User-facing lookup panel launched for tortuous with pid 143456. Next recommended tranche: Lexical Baseline Scoring And Layered Retrieval.
 
-### Tags
+### Files Changed
 
-```json
-[
-  "tranche",
-  "websters",
-  "lexical-baseline",
-  "corpus",
-  "parking"
-]
-```
+- README.md
+- _docs/ARCHITECTURE.md
+- _docs/PROJECT_STATUS.md
+- _docs/SOURCE_PROVENANCE.md
+- _docs/STRANGLER_PLAN.md
+- _docs/TODO.md
+- _docs/TOOLS.md
+- _docs/WEBSTERS_BASELINE.md
+- src/app.py
+- src/core/coordination/__init__.py
+- src/core/coordination/websters_baseline.py
+- src/core/engine.py
+- src/core/persistence/cartridge.py
+- src/core/transformation/__init__.py
+- src/core/transformation/lexical.py
+- tests/test_persistence.py
+- tests/test_scaffold.py
+- tests/test_websters_baseline.py
+- data/cartridges/base_websters.sqlite3
 
-### Metadata
+### Raw Metadata
 
 ```json
 {
-  "files_changed": [
-    "README.md",
-    "_docs/ARCHITECTURE.md",
-    "_docs/PROJECT_STATUS.md",
-    "_docs/SOURCE_PROVENANCE.md",
-    "_docs/STRANGLER_PLAN.md",
-    "_docs/TODO.md",
-    "_docs/TOOLS.md",
-    "_docs/WEBSTERS_BASELINE.md",
-    "src/app.py",
-    "src/core/coordination/__init__.py",
-    "src/core/coordination/websters_baseline.py",
-    "src/core/engine.py",
-    "src/core/persistence/cartridge.py",
-    "src/core/transformation/__init__.py",
-    "src/core/transformation/lexical.py",
-    "tests/test_persistence.py",
-    "tests/test_scaffold.py",
-    "tests/test_websters_baseline.py",
-    "data/cartridges/base_websters.sqlite3"
-  ],
-  "websters_entries": 102104,
-  "websters_relations": 117553,
   "display_pid": 143456,
-  "next_tranche": "Lexical Baseline Scoring And Layered Retrieval"
+  "next_tranche": "Lexical Baseline Scoring And Layered Retrieval",
+  "websters_entries": 102104,
+  "websters_relations": 117553
 }
 ```
 
----
+## 21. Park: Python Docs Projection Corpus Reassessment
 
-## Entry 21 - Park: Python Docs Projection Corpus Reassessment
-
-- `created_at`: `2026-04-22T15:03:22Z`
-- `updated_at`: `2026-04-22T15:03:22Z`
-- `kind`: `phase_park`
-- `status`: `complete`
-- `source`: `codex`
-- `author`: `codex`
-- `importance`: `0`
-- `entry_uid`: `journal_538f9341903b`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-
-### Body
+- created_at: `2026-04-22T15:03:22Z`
+- kind: `phase_park`
+- status: `complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- tags_json: `["python-docs", "projection", "context-stack", "park"]`
 
 Reassessed the Python docs projection update against the builder constraint contract. Verified that the Python layer is project-owned, uses the project-local Python docs text corpus, summarizes isolated snippets with standard-library ast, and writes a separate python_docs cartridge without merging truth layers. Rebuilt the bounded Python docs cartridge: 387 semantic objects, 2170 relations, 90 API signatures, 106 code examples, 77 doctest examples, 42 grammar rules, and 183 AST-parseable snippets. Ran a three-layer probe over Webster, Python docs, and project documents; object/class/function/code phrases now resolve differently per layer, supporting the context-stack theory while confirming true query rebinding and layer arbitration remain next-tranche work. Full tests, compile, forbidden runtime reference scan, and domain boundary audits passed. Updated PROJECT_STATUS, TODO, ARCHITECTURE, STRANGLER_PLAN, and WEBSTERS_BASELINE for park continuity.
 
-### Tags
-
-```json
-[
-  "python-docs",
-  "projection",
-  "context-stack",
-  "park"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
-  "tranche": "Python Docs Projection Corpus",
-  "next_tranche": "Context Projection / Rebinding Layer",
-  "tests": "python -m unittest discover -s tests: 80 passed",
   "compileall": "passed",
+  "next_tranche": "Context Projection / Rebinding Layer",
   "src_domain_audit": "files_scanned=40,total_violations=0",
-  "tests_domain_audit": "files_scanned=18,total_violations=0"
+  "tests": "python -m unittest discover -s tests: 80 passed",
+  "tests_domain_audit": "files_scanned=18,total_violations=0",
+  "tranche": "Python Docs Projection Corpus"
 }
 ```
 
----
+## 22. Docs: Next Session Thought Handoff
 
-## Entry 22 - Docs: Next Session Thought Handoff
-
-- `created_at`: `2026-04-22T15:10:03Z`
-- `updated_at`: `2026-04-22T15:10:03Z`
-- `kind`: `docs_handoff`
-- `status`: `complete`
-- `source`: `codex`
-- `author`: `codex`
-- `importance`: `0`
-- `entry_uid`: `journal_45d4a3f6f8c6`
-- `related_path`: `_docs/THOUGHTS_FOR_NEXT_SESSION.md`
-
-### Body
+- created_at: `2026-04-22T15:10:03Z`
+- kind: `docs_handoff`
+- status: `complete`
+- related_path: `_docs/THOUGHTS_FOR_NEXT_SESSION.md`
+- tags_json: `["docs", "handoff", "context-projection", "next-session"]`
 
 Added _docs/THOUGHTS_FOR_NEXT_SESSION.md as a long-form non-authoritative handoff for the next session. The document captures the current prototype state, three-cartridge model, what the layered probe taught us, why Webster is an English prior rather than ground truth, why Python docs now function as a Python prior, why project docs are the local doctrine prior, and why the next tranche should build a context projection / rebinding layer instead of ingesting more data. Linked the handoff from PROJECT_STATUS.md, TODO.md, and ARCHITECTURE.md so future continuation starts from the current conceptual state. Sanity check confirmed the handoff file exists, expected sections are present, links are present, and content is ASCII-clean.
 
-### Tags
-
-```json
-[
-  "docs",
-  "handoff",
-  "context-projection",
-  "next-session"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
+  "ascii_check": "passed",
   "handoff_file": "_docs/THOUGHTS_FOR_NEXT_SESSION.md",
   "linked_from": [
     "_docs/PROJECT_STATUS.md",
     "_docs/TODO.md",
     "_docs/ARCHITECTURE.md"
-  ],
-  "ascii_check": "passed"
+  ]
 }
 ```
 
----
+## 23. Park: Context Projection And Generic English Lexicon Naming
 
-## Entry 23 - Park: Context Projection And Generic English Lexicon Naming
-
-- `created_at`: `2026-04-22T22:24:17Z`
-- `updated_at`: `2026-04-22T22:26:27Z`
-- `kind`: `phase_park`
-- `status`: `complete`
-- `source`: `codex`
-- `author`: `codex`
-- `importance`: `0`
-- `entry_uid`: `journal_6b56740463ce`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-
-### Body
+- created_at: `2026-04-22T22:24:17Z`
+- kind: `phase_park`
+- status: `complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- tags_json: `["phase-park", "context-projection", "english-lexicon", "naming-sanitization", "mcp-inspection"]`
 
 Completed the Context Projection / Rebinding Layer tranche in bounded prototype form. Sanitized active app naming around the dictionary-derived baseline so code, commands, tests, generated cartridge names, and current documentation use generic English lexical terminology instead of source-branded component names. Rebuilt and verified data/cartridges/base_english_lexicon.sqlite3 with 102104 entries, 102104 semantic objects, 117553 relations, and 102104 provenance records, then removed the old generated source-branded cartridge file after verification. Added src/core/coordination/context_projection.py and the project-query command, which projects a raw query through english_lexical_prior, python_docs_projection, and project_local_docs while preserving per-layer candidates, scores, evidence notes, source references, heading context, compact metadata, selected layer, selected candidate, and caution text. Fresh probes showed object returns all three layers, for element in iterable return False selects python_docs_projection, semantic object provenance relations selects project_local_docs, and class object function selects python_docs_projection with class Foo(object): pass as the top candidate. Verification passed: python -m unittest discover -s tests passed with 85 tests; python -m compileall src tests passed; forbidden runtime/source-name scan over src/ and tests/ was clean; app-owned Markdown/text docs scan over README.md and _docs/ was clean apart from append-only historical journal records; domain_boundary_audit passed on src with files_scanned=41,total_violations=0 and tests with files_scanned=19,total_violations=0. Updated PROJECT_STATUS, TODO, ARCHITECTURE, STRANGLER_PLAN, README, ENGLISH_LEXICAL_BASELINE, SOURCE_PROVENANCE, and TOOLS for the sanitized naming and parked status. Next recommended tranche is Projection Scoring And MCP Inspection: tune projection usefulness, record project-query calls into inspection history, expose projection frames in the inspector, and decide whether project-query graduates to an MCP-shaped registered tool candidate.
 
 Post-park alignment: advanced the runtime status surface so python -m src.app status now reports active_tranche=Projection Scoring And MCP Inspection and next_tranche=MCP Projection Tool Candidate Decision. Updated tests/test_scaffold.py accordingly. Re-ran python -m unittest discover -s tests: 85 passed; python -m compileall src tests: passed; forbidden runtime/source-name scan over src/ and tests/: clean; domain_boundary_audit remained clean on src and tests.
 
-### Tags
-
-```json
-[
-  "phase-park",
-  "context-projection",
-  "english-lexicon",
-  "naming-sanitization",
-  "mcp-inspection"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
-  "tranche": "Context Projection / Rebinding Layer",
+  "active_lexicon_cartridge": "data/cartridges/base_english_lexicon.sqlite3",
+  "compileall": "passed",
+  "next_tranche": "Projection Scoring And MCP Inspection",
+  "src_domain_audit": "files_scanned=41,total_violations=0",
   "status": "parked_complete",
   "tests": "python -m unittest discover -s tests: 85 passed",
-  "compileall": "passed",
-  "src_domain_audit": "files_scanned=41,total_violations=0",
   "tests_domain_audit": "files_scanned=19,total_violations=0",
-  "active_lexicon_cartridge": "data/cartridges/base_english_lexicon.sqlite3",
-  "next_tranche": "Projection Scoring And MCP Inspection"
+  "tranche": "Context Projection / Rebinding Layer"
 }
 ```
 
----
+## 24. Park: Shared Command Spine For UI/MCP Projection
 
-## Entry 24 - Park: Shared Command Spine For UI/MCP Projection
-
-- `created_at`: `2026-04-22T23:16:05Z`
-- `updated_at`: `2026-04-22T23:16:05Z`
-- `kind`: `note`
-- `status`: `open`
-- `source`: `agent`
-- `author`: ``
-- `importance`: `0`
-- `entry_uid`: `journal_021e992c6d98`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-
-### Body
+- created_at: `2026-04-22T23:16:05Z`
+- kind: `note`
+- status: `open`
+- related_path: `_docs/PROJECT_STATUS.md`
+- tags_json: `["phase-park", "command-spine", "mcp-inspection", "project-query", "ui-mcp-alignment"]`
 
 Implemented the shared command spine pilot around project-query. Added coordination-owned CommandEnvelope, ToolResultEnvelope, and InteractionCapture types; routed CLI project-query through the shared path; registered ngraph.project.query as an MCP-shaped candidate; recorded project-query captures in MCP inspection history beside traversal records; extended inspector summaries with selected layer and candidate count; added SemanticObject projection adapters for command/result envelopes without persisting interaction events as cartridge truth. Updated project documentation, refreshed project-doc ingestion, refreshed builder scoring, and parked the next tranche as UI Command Spine Pilot.
 
-### Tags
+## 25. Park: UI Command Spine Pilot
 
-```json
-[
-  "phase-park",
-  "command-spine",
-  "mcp-inspection",
-  "project-query",
-  "ui-mcp-alignment"
-]
-```
-
----
-
-## Entry 25 - Park: UI Command Spine Pilot
-
-- `created_at`: `2026-04-22T23:48:28Z`
-- `updated_at`: `2026-04-22T23:48:28Z`
-- `kind`: `phase_park`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `journal_173718aa6811`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-
-### Body
+- created_at: `2026-04-22T23:48:28Z`
+- kind: `phase_park`
+- status: `parked_complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- tags_json: `["phase-park", "ui-command-spine", "mcp-inspection", "project-query", "layer-arbitration"]`
 
 Parked the UI Command Spine Pilot tranche.
 
@@ -3065,33 +2561,13 @@ Verification:
 Next tranche:
 Layer Arbitration And Rebinding Scoring. Focus on deterministic fixtures that compare plain-English, Python, and project-local readings; tune selected-layer arbitration; keep the evidence visible through history/inspector instead of expanding UI surface area first.
 
-### Tags
+## 26. Park: Layer Arbitration And Rebinding Scoring
 
-```json
-[
-  "phase-park",
-  "ui-command-spine",
-  "mcp-inspection",
-  "project-query",
-  "layer-arbitration"
-]
-```
-
----
-
-## Entry 26 - Park: Layer Arbitration And Rebinding Scoring
-
-- `created_at`: `2026-04-23T00:08:36Z`
-- `updated_at`: `2026-04-23T00:08:36Z`
-- `kind`: `phase_park`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `journal_bc26836ef5ea`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-
-### Body
+- created_at: `2026-04-23T00:08:36Z`
+- kind: `phase_park`
+- status: `parked_complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- tags_json: `["phase-park", "context-projection", "layer-arbitration", "project-query-score", "mcp-inspection"]`
 
 Parked the Layer Arbitration And Rebinding Scoring tranche.
 
@@ -3117,33 +2593,13 @@ The context projection layer is now measurable. The first English/Python/project
 Next tranche:
 Builder Task Seed Selection Tuning.
 
-### Tags
+## 27. Park: Builder Task Seed Selection Tuning
 
-```json
-[
-  "phase-park",
-  "context-projection",
-  "layer-arbitration",
-  "project-query-score",
-  "mcp-inspection"
-]
-```
-
----
-
-## Entry 27 - Park: Builder Task Seed Selection Tuning
-
-- `created_at`: `2026-04-23T02:45:16Z`
-- `updated_at`: `2026-04-23T02:45:16Z`
-- `kind`: `phase_park`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `journal_d85a25daa47e`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-
-### Body
+- created_at: `2026-04-23T02:45:16Z`
+- kind: `phase_park`
+- status: `parked_complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- tags_json: `["phase-park", "seed-fitness", "builder-task-scoring", "mcp-inspection", "coordination"]`
 
 Parked the Builder Task Seed Selection Tuning tranche.
 
@@ -3172,183 +2628,71 @@ No embeddings, no vector similarity, no merged priors, no persistent cross-cartr
 Next tranche:
 Seed Fitness Inspector Visibility, so the useful score breakdowns are easier to inspect without digging through raw JSON.
 
-### Tags
+## 28. Park: Seed Fitness Inspector Visibility
 
-```json
-[
-  "phase-park",
-  "seed-fitness",
-  "builder-task-scoring",
-  "mcp-inspection",
-  "coordination"
-]
-```
-
----
-
-## Entry 28 - Park: Seed Fitness Inspector Visibility
-
-- `created_at`: `2026-04-23T03:23:22Z`
-- `updated_at`: `2026-04-23T03:23:22Z`
-- `kind`: `phase_park`
-- `status`: `parked`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `journal_8c22821e9055`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-
-### Body
+- created_at: `2026-04-23T03:23:22Z`
+- kind: `phase_park`
+- status: `parked`
+- related_path: `_docs/PROJECT_STATUS.md`
+- tags_json: `["phase-park", "seed-flow", "inspector", "seed-fitness", "mcp-inspection"]`
 
 Completed the Seed Fitness Inspector Visibility tranche. mcp-search-seeds now includes a selected_flow window around the selected traversal seed, preserving previous / selected / next source objects from the same document in source order. The existing MCP inspector now recognizes seed-search payloads and renders Summary plus Raw JSON tabs; the summary shows selected seed metadata, matched terms, score breakdown, breadcrumb, source flow, and traversal counts. A user-facing seed-flow inspector was launched for Current Park Point. Verification passed: focused scaffold/seed/history tests, full unit discovery, compileall, forbidden-reference scan, domain-boundary audits, refreshed project-document ingestion, builder-task score 0.93 accepted, and project-query arbitration score 0.96 accepted. Next tranche is Projection Candidate Flow Visibility: apply the same flow-aware inspection pattern to project-query layers and candidates while preserving InteractionCapture raw JSON as the complete evidence.
 
-### Tags
+## 29. Pilot: Interaction Stream View
 
-```json
-[
-  "phase-park",
-  "seed-flow",
-  "inspector",
-  "seed-fitness",
-  "mcp-inspection"
-]
-```
-
----
-
-## Entry 29 - Pilot: Interaction Stream View
-
-- `created_at`: `2026-04-23T03:33:16Z`
-- `updated_at`: `2026-04-23T03:33:16Z`
-- `kind`: `implementation_note`
-- `status`: `complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `journal_42e261788843`
-- `related_path`: `src/ui/mcp_inspector.py`
-
-### Body
+- created_at: `2026-04-23T03:33:16Z`
+- kind: `implementation_note`
+- status: `complete`
+- related_path: `src/ui/mcp_inspector.py`
+- tags_json: `["interaction-stream", "mcp-inspection", "ui", "history-first"]`
 
 Added a basic interaction stream over existing MCP inspection history. The new mcp-stream command emits or opens a polling Tk view with chronological query/response objects projected from persisted calls. Project-query captures show Q/R text, selected layer, candidate kind, score, preview, source, and call id; traversal calls degrade to seed traversal summaries. This remains history-first visibility only: no new event store, no message broker, no semantic cartridge persistence for interactions, and no network MCP server. Verification passed with 96 tests, compileall, forbidden-reference scan, and zero domain-boundary violations for src and tests.
 
-### Tags
+## 30. Park: Seed Flow And Interaction Stream Visibility
 
-```json
-[
-  "interaction-stream",
-  "mcp-inspection",
-  "ui",
-  "history-first"
-]
-```
-
----
-
-## Entry 30 - Park: Seed Flow And Interaction Stream Visibility
-
-- `created_at`: `2026-04-23T03:46:26Z`
-- `updated_at`: `2026-04-23T03:46:26Z`
-- `kind`: `phase_park`
-- `status`: `parked`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `journal_763ffeab92b0`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-
-### Body
+- created_at: `2026-04-23T03:46:26Z`
+- kind: `phase_park`
+- status: `parked`
+- related_path: `_docs/PROJECT_STATUS.md`
+- tags_json: `["phase-park", "documentation", "interaction-stream", "seed-flow", "mcp-inspection", "projection-next"]`
 
 Parked the current development state after Seed Fitness Inspector Visibility plus interaction-stream polish. Documentation was updated across README and _docs to reflect selected_flow seed inspection, score breakdown visibility, formatted mcp-stream object blocks, incremental append behavior, scrollbar-hold autoscroll pause, and the next tranche Projection Candidate Flow Visibility. The project-document cartridge was refreshed from the updated bounded docs and now reports 445 semantic objects and 1639 relations. Verification passed: python -m unittest discover -s tests ran 96 tests OK; python -m compileall src tests passed; mcp-score-tasks remained accepted at aggregate 0.93; project-query-score remained accepted at aggregate 0.96; mcp-stream --dump-json --history-limit 5 emitted 5 stream items with 136 total records; status reports active_tranche=Seed Fitness Inspector Visibility and next_tranche=Projection Candidate Flow Visibility; forbidden-reference scan over src/tests was clean; domain_boundary_audit passed on src with 44 files and 0 violations and tests with 22 files and 0 violations. Next work should start by reviewing PROJECT_STATUS, TODO, MCP_SEAM, ARCHITECTURE, and THOUGHTS_FOR_NEXT_SESSION, then implement Projection Candidate Flow Visibility without changing cartridge boundaries or turning the UI into the source of truth.
 
-### Tags
+## 31. Park: Prototype Completion Visibility Gate
 
-```json
-[
-  "phase-park",
-  "documentation",
-  "interaction-stream",
-  "seed-flow",
-  "mcp-inspection",
-  "projection-next"
-]
-```
-
----
-
-## Entry 31 - Park: Prototype Completion Visibility Gate
-
-- `created_at`: `2026-04-23T13:44:56Z`
-- `updated_at`: `2026-04-23T13:44:56Z`
-- `kind`: `phase_park`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `journal_cc6d1a7429e5`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-- `related_ref`: `prototype_completion_visibility_gate`
-
-### Body
+- created_at: `2026-04-23T13:44:56Z`
+- kind: `phase_park`
+- status: `parked_complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- related_ref: `prototype_completion_visibility_gate`
+- tags_json: `["prototype", "visibility", "cockpit", "tuning", "park"]`
 
 Files changed: src/core/coordination/context_projection.py; src/core/coordination/history_inspector.py; src/core/coordination/seed_search.py; src/core/engine.py; src/ui/mcp_inspector.py; src/app.py; tests/test_context_projection.py; tests/test_history_inspector.py; tests/test_interaction_spine.py; tests/test_scaffold.py; README.md; _docs/PROJECT_STATUS.md; _docs/TODO.md; _docs/STRANGLER_PLAN.md; _docs/ARCHITECTURE.md; _docs/MCP_SEAM.md; _docs/PROTOTYPE_TUNING.md; _docs/TOOLS.md; _docs/SOURCE_PROVENANCE.md; _docs/THOUGHTS_FOR_NEXT_SESSION.md. Summary: completed projection candidate flow visibility, added the unified read-only mcp-cockpit surface, refreshed prototype tuning gate verification, and aligned runtime/documentation status to prototype completion. Verification: mcp-ingest-docs refreshed project docs cartridge to 478 objects and 1761 relations; mcp-score-tasks remained accepted at 0.93; project-query-score remained accepted at 0.96; project-query now returns selected_flow for nearby projection alternatives; mcp-cockpit emits latest scores/projection/seed/stream payload; unittest discovery passed with 99 tests; compileall passed; forbidden-reference scan found 0 violations; domain_boundary_audit passed on src and tests with 0 violations.
 
-### Tags
-
-```json
-[
-  "prototype",
-  "visibility",
-  "cockpit",
-  "tuning",
-  "park"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
   "builder_score": 0.93,
-  "projection_score": 0.96,
   "project_doc_objects": 478,
   "project_doc_relations": 1761,
+  "projection_score": 0.96,
   "tests_passed": 99
 }
 ```
 
----
+## 32. Park: Local Host Bridge And Cross-Process Session Control
 
-## Entry 32 - Park: Local Host Bridge And Cross-Process Session Control
-
-- `created_at`: `2026-04-23T23:54:32Z`
-- `updated_at`: `2026-04-23T23:54:32Z`
-- `kind`: `phase_park`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `Codex`
-- `importance`: `0`
-- `entry_uid`: `journal:e01a4d46-ffd5-47f1-af03-fa0aee1ae039`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-- `related_ref`: `local_host_bridge_and_cross_process_session_control`
-
-### Body
+- created_at: `2026-04-23T23:54:32Z`
+- kind: `phase_park`
+- status: `parked_complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- related_ref: `local_host_bridge_and_cross_process_session_control`
+- tags_json: `["phase-park", "host-bridge", "cross-process", "ui", "coordination"]`
 
 Implemented the Local Host Bridge And Cross-Process Session Control tranche. Added a coordination-owned local bridge in src/core/coordination/host_bridge.py, wired the Tk host workspace to publish and heartbeat a session under data/host_bridge/, and added opt-in --use-host-bridge routing for project-query and mcp-search-seeds so approved external commands can target an already-open host window through the same canonical CommandEnvelope and dispatcher. Updated status, seam, tuning, workflow, and tooling docs to reflect the new bounded bridge model. Verification: 107 tests passing, compileall passing, forbidden reference scan clean, and bridged CLI smoke succeeded.
 
-### Tags
-
-```json
-[
-  "phase-park",
-  "host-bridge",
-  "cross-process",
-  "ui",
-  "coordination"
-]
-```
-
-### Metadata
+### Raw Metadata
 
 ```json
 {
@@ -3359,220 +2703,163 @@ Implemented the Local Host Bridge And Cross-Process Session Control tranche. Add
 }
 ```
 
----
+## 33. Phase Sync: Stable Prototype To Post-Prototype Hardening
 
-## Entry 33 - Phase Sync: Stable Prototype To Post-Prototype Hardening
-
-- `created_at`: `2026-04-24T01:09:03Z`
-- `updated_at`: `2026-04-24T01:09:03Z`
-- `kind`: `phase_sync`
-- `status`: `recorded`
-- `source`: `codex`
-- `author`: `codex`
-- `importance`: `2`
-- `entry_uid`: `journal-94ef62cc-d3a4-4c4c-b9c3-45807b44cc74`
-- `related_path`: `_docs`
-- `related_ref`: `post_prototype_hardening`
-
-### Body
+- created_at: `2026-04-24T01:09:03Z`
+- kind: `phase_sync`
+- status: `recorded`
+- related_path: `_docs`
+- related_ref: `post_prototype_hardening`
+- tags_json: `["phase_sync", "documentation", "hardening", "continuation"]`
 
 Recorded the documentation shift from prototype proving into post-prototype hardening. Updated the current canonical docs inline rather than creating a new history trail. The shift is now described across README, PROJECT_STATUS, TODO, EXPERIENTIAL_WORKFLOW, MCP_SEAM, PROTOTYPE_TUNING, and THOUGHTS_FOR_NEXT_SESSION. The main new framing is that the prototype is stable enough that the next risk is the clutter of success: unmanaged inspection history, bridge-state drift, and overlapping visibility surfaces. The next concrete tranche focus remains retention/pruning policy, bridge discipline, and surface ownership clarity.
 
-### Tags
+### Files Changed
 
-```json
-[
-  "phase_sync",
-  "documentation",
-  "hardening",
-  "continuation"
-]
-```
+- README.md
+- _docs/PROJECT_STATUS.md
+- _docs/TODO.md
+- _docs/EXPERIENTIAL_WORKFLOW.md
+- _docs/MCP_SEAM.md
+- _docs/PROTOTYPE_TUNING.md
+- _docs/THOUGHTS_FOR_NEXT_SESSION.md
 
-### Metadata
+### Next Focus
+
+- history retention/pruning policy
+- bridge discipline
+- surface ownership clarity
+
+### Raw Metadata
 
 ```json
 {
+  "doc_only": true,
   "phase": "post_prototype_hardening_sync",
   "reason": "document_shift_inline",
-  "files_changed": [
-    "README.md",
-    "_docs/PROJECT_STATUS.md",
-    "_docs/TODO.md",
-    "_docs/EXPERIENTIAL_WORKFLOW.md",
-    "_docs/MCP_SEAM.md",
-    "_docs/PROTOTYPE_TUNING.md",
-    "_docs/THOUGHTS_FOR_NEXT_SESSION.md"
-  ],
-  "next_focus": [
-    "history retention/pruning policy",
-    "bridge discipline",
-    "surface ownership clarity"
-  ],
-  "tests_run": [],
-  "doc_only": true
+  "tests_run": []
 }
 ```
 
----
+## 34. Park: Rolling Trace Retention And Bridge Cleanup
 
-## Entry 34 - Park: Rolling Trace Retention And Bridge Cleanup
-
-- `created_at`: `2026-04-24T01:41:28Z`
-- `updated_at`: `2026-04-24T01:41:28Z`
-- `kind`: `phase_park`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `codex`
-- `importance`: `2`
-- `entry_uid`: `journal-167505c0-032a-49e1-a5de-4d1c678ea0b2`
-- `related_path`: `src/core/coordination`
-- `related_ref`: `rolling_trace_retention`
-
-### Body
+- created_at: `2026-04-24T01:41:28Z`
+- kind: `phase_park`
+- status: `parked_complete`
+- related_path: `src/core/coordination`
+- related_ref: `rolling_trace_retention`
+- tags_json: `["phase_park", "hardening", "retention", "bridge_cleanup"]`
 
 Implemented the first post-prototype hardening slice. Added a rolling-trace policy for MCP inspection history with automatic pruning of old unpinned rows, automatic pinning of score-referenced call ids as durable evidence, and retention summaries exposed through history, stream, cockpit, and host workspace payloads. Added conservative bridge transport cleanup for stale request, response, and session files while keeping the bridge file-backed and subordinate to the shared command/state spine. Updated tranche markers and current docs so the project now presents post-prototype hardening as the active tranche and Controlled Expansion And Visibility Filtering as the next tranche.
 
-### Tags
+### Files Changed
 
-```json
-[
-  "phase_park",
-  "hardening",
-  "retention",
-  "bridge_cleanup"
-]
-```
+- src/core/coordination/mcp_inspection_history.py
+- src/core/coordination/history_inspector.py
+- src/core/coordination/host_workspace.py
+- src/core/coordination/host_bridge.py
+- src/core/coordination/__init__.py
+- src/core/engine.py
+- src/app.py
+- src/ui/gui_main.py
+- tests/test_history_inspector.py
+- tests/test_host_bridge.py
+- tests/test_host_workspace.py
+- tests/test_scaffold.py
+- README.md
+- _docs/PROJECT_STATUS.md
+- _docs/TODO.md
+- _docs/EXPERIENTIAL_WORKFLOW.md
+- _docs/MCP_SEAM.md
+- _docs/PROTOTYPE_TUNING.md
+- _docs/THOUGHTS_FOR_NEXT_SESSION.md
 
-### Metadata
+### Verification
+
+- `focused_tests`: python -m unittest tests.test_history_inspector tests.test_host_bridge tests.test_host_workspace
+- `full_tests`: python -m unittest discover -s tests
+- `compile`: python -m compileall src tests
+- `status`: python -m src.app status
+- `history_dump`: python -m src.app mcp-history --dump-json
+- `cockpit_dump`: python -m src.app mcp-cockpit --dump-json
+- `forbidden_scan_clean`: True
+- `full_test_count`: 109
+
+### Next Focus
+
+- stream/cockpit filtering decisions
+- shared command-spine expansion decisions
+- operator-facing pin/promotion controls decision
+
+### Raw Metadata
 
 ```json
 {
   "phase": "post_prototype_hardening",
-  "slice": "rolling_trace_retention_and_bridge_cleanup",
-  "files_changed": [
-    "src/core/coordination/mcp_inspection_history.py",
-    "src/core/coordination/history_inspector.py",
-    "src/core/coordination/host_workspace.py",
-    "src/core/coordination/host_bridge.py",
-    "src/core/coordination/__init__.py",
-    "src/core/engine.py",
-    "src/app.py",
-    "src/ui/gui_main.py",
-    "tests/test_history_inspector.py",
-    "tests/test_host_bridge.py",
-    "tests/test_host_workspace.py",
-    "tests/test_scaffold.py",
-    "README.md",
-    "_docs/PROJECT_STATUS.md",
-    "_docs/TODO.md",
-    "_docs/EXPERIENTIAL_WORKFLOW.md",
-    "_docs/MCP_SEAM.md",
-    "_docs/PROTOTYPE_TUNING.md",
-    "_docs/THOUGHTS_FOR_NEXT_SESSION.md"
-  ],
-  "verification": {
-    "focused_tests": "python -m unittest tests.test_history_inspector tests.test_host_bridge tests.test_host_workspace",
-    "full_tests": "python -m unittest discover -s tests",
-    "compile": "python -m compileall src tests",
-    "status": "python -m src.app status",
-    "history_dump": "python -m src.app mcp-history --dump-json",
-    "cockpit_dump": "python -m src.app mcp-cockpit --dump-json",
-    "forbidden_scan_clean": true,
-    "full_test_count": 109
-  },
-  "next_focus": [
-    "stream/cockpit filtering decisions",
-    "shared command-spine expansion decisions",
-    "operator-facing pin/promotion controls decision"
-  ]
+  "slice": "rolling_trace_retention_and_bridge_cleanup"
 }
 ```
 
----
+## 35. Park: Visibility Filtering For Stream And Cockpit
 
-## Entry 35 - Park: Visibility Filtering For Stream And Cockpit
-
-- `created_at`: `2026-04-24T01:59:12Z`
-- `updated_at`: `2026-04-24T01:59:12Z`
-- `kind`: `phase_park`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `codex`
-- `importance`: `2`
-- `entry_uid`: `journal-8ffe974c-2a99-4949-85da-5539b776b310`
-- `related_path`: `src/core/coordination`
-- `related_ref`: `visibility_filtering`
-
-### Body
+- created_at: `2026-04-24T01:59:12Z`
+- kind: `phase_park`
+- status: `parked_complete`
+- related_path: `src/core/coordination`
+- related_ref: `visibility_filtering`
+- tags_json: `["phase_park", "hardening", "visibility", "filtering"]`
 
 Implemented bounded exact-match filtering for the stream and cockpit visibility surfaces. Added optional tool and selected-layer filters to the shared payload builders and CLI commands so the operator can narrow the current read surface without mutating persisted history. The stream UI and raw payloads now report active filters, and the cockpit applies the same filter inputs to its assembled visibility payload. Updated status/TODO/docs so the project now treats operator promotion controls and shared-command expansion as the next bounded step after the current hardening work.
 
-### Tags
+### Files Changed
 
-```json
-[
-  "phase_park",
-  "hardening",
-  "visibility",
-  "filtering"
-]
-```
+- src/core/coordination/history_inspector.py
+- src/core/coordination/host_workspace.py
+- src/core/engine.py
+- src/app.py
+- src/ui/mcp_inspector.py
+- tests/test_history_inspector.py
+- tests/test_host_workspace.py
+- tests/test_scaffold.py
+- README.md
+- _docs/PROJECT_STATUS.md
+- _docs/TODO.md
+- _docs/MCP_SEAM.md
+- _docs/PROTOTYPE_TUNING.md
+- _docs/THOUGHTS_FOR_NEXT_SESSION.md
 
-### Metadata
+### Verification
+
+- `full_tests`: python -m unittest discover -s tests
+- `compile`: python -m compileall src tests
+- `status`: python -m src.app status
+- `stream_filter_smoke`: python -m src.app mcp-stream --dump-json --tool-filter ngraph.project.query --layer-filter python_docs_projection
+- `cockpit_filter_smoke`: python -m src.app mcp-cockpit --dump-json --tool-filter ngraph.project.query --layer-filter python_docs_projection
+- `full_test_count`: 112
+
+### Next Focus
+
+- operator-facing pin/promotion controls
+- shared command expansion
+- inspection-only versus persisted truth decision
+
+### Raw Metadata
 
 ```json
 {
   "phase": "post_prototype_hardening",
-  "slice": "visibility_filtering",
-  "files_changed": [
-    "src/core/coordination/history_inspector.py",
-    "src/core/coordination/host_workspace.py",
-    "src/core/engine.py",
-    "src/app.py",
-    "src/ui/mcp_inspector.py",
-    "tests/test_history_inspector.py",
-    "tests/test_host_workspace.py",
-    "tests/test_scaffold.py",
-    "README.md",
-    "_docs/PROJECT_STATUS.md",
-    "_docs/TODO.md",
-    "_docs/MCP_SEAM.md",
-    "_docs/PROTOTYPE_TUNING.md",
-    "_docs/THOUGHTS_FOR_NEXT_SESSION.md"
-  ],
-  "verification": {
-    "full_tests": "python -m unittest discover -s tests",
-    "compile": "python -m compileall src tests",
-    "status": "python -m src.app status",
-    "stream_filter_smoke": "python -m src.app mcp-stream --dump-json --tool-filter ngraph.project.query --layer-filter python_docs_projection",
-    "cockpit_filter_smoke": "python -m src.app mcp-cockpit --dump-json --tool-filter ngraph.project.query --layer-filter python_docs_projection",
-    "full_test_count": 112
-  },
-  "next_focus": [
-    "operator-facing pin/promotion controls",
-    "shared command expansion",
-    "inspection-only versus persisted truth decision"
-  ]
+  "slice": "visibility_filtering"
 }
 ```
 
----
+## 36. Park: Panel Readback And Shared Command Expansion
 
-## Entry 36 - Park: Panel Readback And Shared Command Expansion
-
-- `created_at`: `2026-04-24T03:49:32Z`
-- `updated_at`: `2026-04-24T03:49:32Z`
-- `kind`: `phase_park`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `codex`
-- `importance`: `2`
-- `entry_uid`: `journal-94dfd994-b491-4c67-9539-20db7d60824e`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-- `related_ref`: `post_prototype_hardening`
-
-### Body
+- created_at: `2026-04-24T03:49:32Z`
+- kind: `phase_park`
+- status: `parked_complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- related_ref: `post_prototype_hardening`
+- tags_json: `["phase_park", "hardening", "panel_readback", "shared_command_expansion", "bounded_tuning"]`
 
 This slice parked the host panel-read seam and the next bounded shared-command expansion.
 
@@ -3594,76 +2881,59 @@ Why it matters:
 - more of the operator-facing workflow now shares one canonical command/state path
 - the next real decision is no longer command routing; it is whether interaction-derived semantic objects remain inspection-only or ever become persisted truth
 
-### Tags
+### Files Changed
 
-```json
-[
-  "phase_park",
-  "hardening",
-  "panel_readback",
-  "shared_command_expansion",
-  "bounded_tuning"
-]
-```
+- src/core/coordination/host_workspace.py
+- src/ui/gui_main.py
+- src/core/coordination/host_bridge.py
+- src/core/coordination/__init__.py
+- src/app.py
+- src/core/engine.py
+- tests/test_host_workspace.py
+- tests/test_host_bridge.py
+- README.md
+- _docs/PROJECT_STATUS.md
+- _docs/TODO.md
+- _docs/MCP_SEAM.md
+- _docs/THOUGHTS_FOR_NEXT_SESSION.md
+- _docs/EXPERIENTIAL_WORKFLOW.md
+- _docs/PROTOTYPE_TUNING.md
 
-### Metadata
+### Verification
+
+- `full_tests`: python -m unittest discover -s tests
+- `compile`: python -m compileall src tests
+- `status_dump`: python -m src.app status --dump-json
+- `tool_registry_dump`: python -m src.app mcp-tools --dump-json
+- `builder_score_dump`: python -m src.app mcp-score-tasks --dump-json
+- `projection_score_dump`: python -m src.app project-query-score --dump-json
+- `full_test_count`: 120
+- `builder_score`: 0.93
+- `projection_score`: 0.96
+
+### Next Focus
+
+- truth-surface decision for interaction-derived semantic objects
+- bounded project-document expansion decision
+- bridge timeout ownership for longer-running scoring commands
+
+### Raw Metadata
 
 ```json
 {
   "phase": "post_prototype_hardening",
-  "slice": "panel_readback_and_shared_command_expansion",
-  "files_changed": [
-    "src/core/coordination/host_workspace.py",
-    "src/ui/gui_main.py",
-    "src/core/coordination/host_bridge.py",
-    "src/core/coordination/__init__.py",
-    "src/app.py",
-    "src/core/engine.py",
-    "tests/test_host_workspace.py",
-    "tests/test_host_bridge.py",
-    "README.md",
-    "_docs/PROJECT_STATUS.md",
-    "_docs/TODO.md",
-    "_docs/MCP_SEAM.md",
-    "_docs/THOUGHTS_FOR_NEXT_SESSION.md",
-    "_docs/EXPERIENTIAL_WORKFLOW.md",
-    "_docs/PROTOTYPE_TUNING.md"
-  ],
-  "verification": {
-    "full_tests": "python -m unittest discover -s tests",
-    "compile": "python -m compileall src tests",
-    "status_dump": "python -m src.app status --dump-json",
-    "tool_registry_dump": "python -m src.app mcp-tools --dump-json",
-    "builder_score_dump": "python -m src.app mcp-score-tasks --dump-json",
-    "projection_score_dump": "python -m src.app project-query-score --dump-json",
-    "full_test_count": 120,
-    "builder_score": 0.93,
-    "projection_score": 0.96
-  },
-  "next_focus": [
-    "truth-surface decision for interaction-derived semantic objects",
-    "bounded project-document expansion decision",
-    "bridge timeout ownership for longer-running scoring commands"
-  ]
+  "slice": "panel_readback_and_shared_command_expansion"
 }
 ```
 
----
+## 37. Park: Truth Policy And Controlled Corpus Expansion
 
-## Entry 37 - Park: Truth Policy And Controlled Corpus Expansion
-
-- `created_at`: `2026-04-24T04:08:09Z`
-- `updated_at`: `2026-04-24T04:08:09Z`
-- `kind`: `phase_park`
-- `status`: `parked_complete`
-- `source`: `codex`
-- `author`: `codex`
-- `importance`: `2`
-- `entry_uid`: `journal-0cb37969-6335-426d-89f2-76dfda00609d`
-- `related_path`: `_docs/PROJECT_STATUS.md`
-- `related_ref`: `post_prototype_hardening`
-
-### Body
+- created_at: `2026-04-24T04:08:09Z`
+- kind: `phase_park`
+- status: `parked_complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- related_ref: `post_prototype_hardening`
+- tags_json: `["phase_park", "truth_policy", "controlled_expansion", "project_docs", "post_prototype_hardening"]`
 
 This paired slice parked two bounded follow-on tranches.
 
@@ -3687,65 +2957,309 @@ What we learned:
 - the expanded project-doc profile improves local doctrine coverage without degrading current builder-task usefulness
 - the expanded profile is materially heavier, which makes bridge-timeout ownership the next practical policy question
 
-### Tags
+### Files Changed
 
-```json
-[
-  "phase_park",
-  "truth_policy",
-  "controlled_expansion",
-  "project_docs",
-  "post_prototype_hardening"
-]
-```
+- src/core/coordination/interaction_spine.py
+- src/core/coordination/project_documents.py
+- src/core/coordination/builder_task_scoring.py
+- src/core/coordination/seed_search.py
+- src/core/coordination/host_workspace.py
+- src/core/coordination/__init__.py
+- src/core/engine.py
+- src/app.py
+- tests/test_interaction_spine.py
+- tests/test_project_documents.py
+- tests/test_builder_task_scoring.py
+- tests/test_host_workspace.py
+- tests/test_scaffold.py
+- README.md
+- _docs/PROJECT_STATUS.md
+- _docs/TODO.md
+- _docs/MCP_SEAM.md
+- _docs/THOUGHTS_FOR_NEXT_SESSION.md
+- _docs/EXPERIENTIAL_WORKFLOW.md
+- _docs/PROTOTYPE_TUNING.md
 
-### Metadata
+### Verification
+
+- `full_tests`: python -m unittest discover -s tests
+- `compile`: python -m compileall src tests
+- `status_dump`: python -m src.app status --dump-json
+- `expanded_ingest`: python -m src.app mcp-ingest-docs --project-doc-profile expanded --dump-json
+- `expanded_builder_score`: python -m src.app mcp-score-tasks --project-doc-profile expanded --dump-json
+- `expanded_seed_search`: python -m src.app mcp-search-seeds --project-doc-profile expanded --query "Current Park Point" --dump-json
+- `projection_score`: 0.96
+- `full_test_count`: 122
+- `expanded_project_doc_objects`: 877
+- `expanded_project_doc_relations`: 3280
+- `builder_score`: 0.93
+
+### Next Focus
+
+- bridge timeout ownership for heavier scoring commands
+- operator promotion metadata decisions
+- bridge transport policy beyond file-backed local IPC
+
+### Raw Metadata
 
 ```json
 {
   "phase": "post_prototype_hardening",
-  "slice": "truth_policy_and_controlled_corpus_expansion",
-  "files_changed": [
-    "src/core/coordination/interaction_spine.py",
-    "src/core/coordination/project_documents.py",
-    "src/core/coordination/builder_task_scoring.py",
-    "src/core/coordination/seed_search.py",
-    "src/core/coordination/host_workspace.py",
-    "src/core/coordination/__init__.py",
-    "src/core/engine.py",
-    "src/app.py",
-    "tests/test_interaction_spine.py",
-    "tests/test_project_documents.py",
-    "tests/test_builder_task_scoring.py",
-    "tests/test_host_workspace.py",
-    "tests/test_scaffold.py",
-    "README.md",
-    "_docs/PROJECT_STATUS.md",
-    "_docs/TODO.md",
-    "_docs/MCP_SEAM.md",
-    "_docs/THOUGHTS_FOR_NEXT_SESSION.md",
-    "_docs/EXPERIENTIAL_WORKFLOW.md",
-    "_docs/PROTOTYPE_TUNING.md"
-  ],
-  "verification": {
-    "full_tests": "python -m unittest discover -s tests",
-    "compile": "python -m compileall src tests",
-    "status_dump": "python -m src.app status --dump-json",
-    "expanded_ingest": "python -m src.app mcp-ingest-docs --project-doc-profile expanded --dump-json",
-    "expanded_builder_score": "python -m src.app mcp-score-tasks --project-doc-profile expanded --dump-json",
-    "expanded_seed_search": "python -m src.app mcp-search-seeds --project-doc-profile expanded --query \"Current Park Point\" --dump-json",
-    "projection_score": 0.96,
-    "full_test_count": 122,
-    "expanded_project_doc_objects": 877,
-    "expanded_project_doc_relations": 3280,
-    "builder_score": 0.93
-  },
-  "next_focus": [
-    "bridge timeout ownership for heavier scoring commands",
-    "operator promotion metadata decisions",
-    "bridge transport policy beyond file-backed local IPC"
-  ]
+  "slice": "truth_policy_and_controlled_corpus_expansion"
 }
 ```
 
----
+## 38. Park: Bridge Timeout Policy And Explicit Reporting
+
+- created_at: `2026-04-24T14:05:50Z`
+- kind: `phase_park`
+- status: `parked_complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- related_ref: `bridge_policy`
+- tags_json: `["phase_park", "bridge_policy", "timeout_policy", "operator_trust", "post_prototype_hardening"]`
+
+This hardening slice parked the bridge-timeout policy question with an explicit runtime answer.
+
+What changed:
+- bridged commands now use command-aware timeout defaults instead of one flat five-second wait
+- builder-task scoring now defaults to a heavy bridge timeout policy and projection scoring now defaults to a medium policy
+- `--bridge-timeout-ms` remains a caller-owned override rather than being removed from the CLI surface
+- bridged JSON payloads now expose additive `_bridge` metadata so timeout behavior is inspectable
+- status surfaces now expose a machine-readable `bridge_timeout_policy` manifest
+
+Verification:
+- `python -m unittest tests.test_host_bridge tests.test_host_workspace` passed with 16 tests
+- `python -m unittest discover -s tests` passed with 123 tests
+- `python -m compileall src tests` passed
+- `python -m src.app status --dump-json` now reports `bridge_timeout_policy`
+
+What we learned:
+- we had enough evidence to keep caller-owned overrides while still raising sane defaults for heavier bridged scoring work
+- flat timeout policy was the wrong abstraction for the current bridge workload
+- explicit timeout reporting is important for operator trust once the bridge becomes part of everyday workflow
+
+### Files Changed
+
+- src/core/coordination/host_bridge.py
+- src/core/coordination/host_workspace.py
+- src/core/coordination/__init__.py
+- src/core/engine.py
+- src/app.py
+- tests/test_host_bridge.py
+- tests/test_host_workspace.py
+- tests/test_scaffold.py
+- README.md
+- _docs/PROJECT_STATUS.md
+- _docs/TODO.md
+- _docs/MCP_SEAM.md
+- _docs/PROTOTYPE_TUNING.md
+- _docs/THOUGHTS_FOR_NEXT_SESSION.md
+
+### Verification
+
+- `builder_bridge_default_ms`: 180000
+- `compile`: python -m compileall src tests
+- `focused_test_count`: 16
+- `focused_tests`: python -m unittest tests.test_host_bridge tests.test_host_workspace
+- `full_test_count`: 123
+- `full_tests`: python -m unittest discover -s tests
+- `global_bridge_default_ms`: 5000
+- `projection_bridge_default_ms`: 30000
+- `status_dump`: python -m src.app status --dump-json
+
+### Next Focus
+
+- operator promotion labels and notes
+- truth-surface decision remains inspection-only for interactions
+- bridge transport policy beyond file-backed local IPC
+
+### Raw Metadata
+
+```json
+{
+  "phase": "post_prototype_hardening",
+  "slice": "bridge_timeout_policy_and_explicit_reporting"
+}
+```
+
+## 39. Park: Operator Metadata Decisions
+
+- created_at: `2026-04-24T16:31:00Z`
+- kind: `phase_park`
+- status: `parked_complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- related_ref: `operator_metadata`
+- tags_json: `["phase_park", "operator_metadata", "durable_evidence", "inspection_history", "post_prototype_hardening"]`
+
+Implemented bounded operator metadata for durable evidence promotion. Promotion now supports label, reason, and note fields in the inspection-history ledger, renders that metadata in history/stream/cockpit/host surfaces, and keeps the truth boundary intact by leaving these annotations on the inspection side rather than persisting them into semantic cartridges. Verified with focused history/host tests, full test suite, compile pass, and a CLI smoke for mcp-promote-call with metadata.
+
+### Files Changed
+
+- src/core/coordination/mcp_inspection_history.py
+- src/core/coordination/history_inspector.py
+- src/core/coordination/host_workspace.py
+- src/ui/gui_main.py
+- src/ui/mcp_inspector.py
+- src/app.py
+- src/core/engine.py
+- tests/test_history_inspector.py
+- tests/test_host_workspace.py
+- README.md
+- _docs/PROJECT_STATUS.md
+- _docs/TODO.md
+- _docs/MCP_SEAM.md
+- _docs/EXPERIENTIAL_WORKFLOW.md
+- _docs/THOUGHTS_FOR_NEXT_SESSION.md
+- _docs/PROTOTYPE_TUNING.md
+
+### Verification
+
+- `focused_tests`: python -m unittest tests.test_history_inspector tests.test_host_workspace
+- `focused_test_count`: 25
+- `full_tests`: python -m unittest discover -s tests
+- `full_test_count`: 125
+- `compile`: python -m compileall src tests
+- `promotion_smoke`: python -m src.app mcp-promote-call --dump-json --label keeper --reason checkpoint --note "Preserve this query result."
+- `next_tranche`: Bridge Transport And Profile Discipline
+
+### Next Focus
+
+- bridge transport policy beyond file-backed local IPC
+- project-doc profile discipline for core vs expanded
+- keep interaction truth boundary inspection-only unless explicitly reopened
+
+### Raw Metadata
+
+```json
+{
+  "phase": "post_prototype_hardening",
+  "slice": "operator_metadata_decisions"
+}
+```
+
+## 40. Park: Bridge Transport And Profile Discipline
+
+- created_at: `2026-04-24T17:10:00Z`
+- kind: `phase_park`
+- status: `parked_complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- related_ref: `bridge_profile_discipline`
+- tags_json: `["phase_park", "bridge_transport", "profile_discipline", "post_prototype_hardening", "controlled_expansion"]`
+
+Implemented bridge transport and profile discipline as an evidence-backed hardening slice. Status now exposes bridge transport kind, live bridge runtime state, and bounded project-doc profile manifests. Builder-task scoring now emits corpus object/relation counts and elapsed runtime, projection scoring now emits elapsed runtime, and project-doc ingestion now purges out-of-profile docs when switching between core and expanded so the profile split is real at runtime. Measured current hold answer: keep the bridge file-backed, keep core and expanded, and defer thinner IPC or additional profiles until a new measured need appears.
+
+### Files Changed
+
+- src/core/persistence/cartridge.py
+- src/core/coordination/project_documents.py
+- src/core/coordination/builder_task_scoring.py
+- src/core/coordination/context_projection_scoring.py
+- src/core/coordination/host_bridge.py
+- src/core/coordination/host_workspace.py
+- src/core/coordination/__init__.py
+- src/core/engine.py
+- tests/test_project_documents.py
+- tests/test_builder_task_scoring.py
+- tests/test_context_projection_scoring.py
+- tests/test_host_bridge.py
+- tests/test_host_workspace.py
+- tests/test_scaffold.py
+- README.md
+- _docs/PROJECT_STATUS.md
+- _docs/TODO.md
+- _docs/MCP_SEAM.md
+- _docs/EXPERIENTIAL_WORKFLOW.md
+- _docs/THOUGHTS_FOR_NEXT_SESSION.md
+- _docs/PROTOTYPE_TUNING.md
+
+### Verification
+
+- `focused_tests`: python -m unittest tests.test_project_documents tests.test_host_workspace tests.test_builder_task_scoring tests.test_context_projection_scoring tests.test_host_bridge
+- `focused_test_count`: 29
+- `full_tests`: python -m unittest discover -s tests
+- `full_test_count`: 126
+- `compile`: python -m compileall src tests
+- `status_dump`: python -m src.app status --dump-json
+- `core_builder_score`: {"command": "python -m src.app mcp-score-tasks --dump-json", "elapsed_ms": 60093, "object_count": 605, "relation_count": 2251, "score": 0.93}
+- `expanded_builder_score`: {"command": "python -m src.app mcp-score-tasks --project-doc-profile expanded --dump-json", "elapsed_ms": 84682, "object_count": 879, "relation_count": 3288, "score": 0.93}
+- `projection_score`: {"command": "python -m src.app project-query-score --dump-json", "elapsed_ms": 9030, "score": 0.96}
+
+### Next Focus
+
+- review loop safeguards and failure modes before broader expansion
+- keep interaction truth boundary inspection-only unless explicitly reopened
+- hold file-backed bridge and core/expanded profiles until new measured need appears
+
+### Raw Metadata
+
+```json
+{
+  "phase": "post_prototype_hardening",
+  "slice": "bridge_transport_and_profile_discipline"
+}
+```
+
+## 41. Park: Journal Lessons Learned Structure
+
+- created_at: `2026-04-24T17:05:56Z`
+- kind: `phase_park`
+- status: `parked_complete`
+- related_path: `_docs/PROJECT_STATUS.md`
+- related_ref: `journal_signal`
+- tags_json: `["phase_park", "journal", "continuity", "lessons_learned", "post_prototype_hardening"]`
+
+Added a bounded journal-signal improvement so future tranche parks can preserve compact lessons learned, key decisions, evidence used, and rejected alternatives without turning the app journal into a transcript. Also added a project-owned DEV-LOG export renderer that formats those fields readably for external review while keeping the journal DB authoritative.
+
+### Files Changed
+
+- src/core/logging/dev_log_export.py
+- tests/test_dev_log_export.py
+- README.md
+- _docs/EXPERIENTIAL_WORKFLOW.md
+- _docs/THOUGHTS_FOR_NEXT_SESSION.md
+- _docs/PROJECT_STATUS.md
+- _docs/TODO.md
+- _docs/DEV-LOG.md
+
+### Key Decisions
+
+- Keep lessons learned in the app journal as compact tranche metadata instead of creating a second doctrine surface.
+- Improve the DEV-LOG mirror renderer so external review sees structured phase memory instead of mostly raw metadata JSON.
+- Do not rewrite prior journal entries just to make history uniform; improve the convention forward from this point.
+
+### Lessons Learned
+
+- The journal already preserved strong continuity, but phase memory was easier to lose externally when key lessons stayed implicit or buried in raw metadata.
+- A small amount of structured tranche memory is enough to preserve hard-won clarity without turning the ledger into a transcript.
+
+### Evidence Used
+
+- The builder constraint contract requires the journal to record what changed, why it changed, and notable implementation or design decisions after each meaningful phase.
+- Recent tranche exports showed good verification and next-focus signal, but inconsistent readability for lessons learned and rejected alternatives.
+
+### Rejected Alternatives
+
+- Do not turn the app journal into minute-by-minute debug telemetry.
+- Do not create a second canonical continuity document for lessons learned.
+- Do not overwrite prior journal rows simply to retrofit the new convention.
+
+### Verification
+
+- `focused_tests`: python -m unittest tests.test_dev_log_export
+- `full_tests`: python -m unittest discover -s tests
+- `compile`: python -m compileall src tests
+- `dev_log_export`: python -m src.core.logging.dev_log_export
+
+### Next Focus
+
+- loop safeguards and controlled expansion review
+- preserve structured tranche lessons in future parks when meaningful
+
+### Raw Metadata
+
+```json
+{
+  "phase": "post_prototype_hardening",
+  "slice": "journal_signal_improvement"
+}
+```

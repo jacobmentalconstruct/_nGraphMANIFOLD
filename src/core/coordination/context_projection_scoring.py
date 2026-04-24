@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -71,6 +72,7 @@ class ContextProjectionArbitrationRun:
     version: str
     project_root: str
     history_path: str
+    elapsed_ms: int
     scores: tuple[ContextProjectionArbitrationScore, ...]
     usefulness_report: McpUsefulnessReport
 
@@ -83,6 +85,7 @@ class ContextProjectionArbitrationRun:
             "version": self.version,
             "project_root": self.project_root,
             "history_path": self.history_path,
+            "elapsed_ms": self.elapsed_ms,
             "scores": [score.to_dict() for score in self.scores],
             "usefulness_report": self.usefulness_report.to_dict(),
             "meets_acceptance": self.meets_acceptance,
@@ -134,6 +137,7 @@ def run_context_projection_arbitration_scoring(
     root = Path(project_root).resolve()
     history = McpInspectionHistoryStore(history_path)
     scores: list[ContextProjectionArbitrationScore] = []
+    started = time.perf_counter()
 
     for fixture in fixtures:
         capture = run_project_query_interaction(
@@ -185,6 +189,7 @@ def run_context_projection_arbitration_scoring(
         version=CONTEXT_PROJECTION_SCORING_VERSION,
         project_root=str(root),
         history_path=str(history_path),
+        elapsed_ms=max(1, int((time.perf_counter() - started) * 1000)),
         scores=tuple(scores),
         usefulness_report=report,
     )

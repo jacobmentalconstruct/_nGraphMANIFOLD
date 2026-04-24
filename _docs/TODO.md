@@ -7,15 +7,16 @@ authoritative ledger, and `PROJECT_STATUS.md` remains the quick park marker.
 
 ## Just Completed
 
-- [x] Operator Metadata Decisions
+- [x] Bridge Transport And Profile Discipline
 
 What that means:
 
-- [x] promoted durable evidence now supports label / reason / note metadata
-- [x] `mcp-promote-call` accepts `--label`, `--reason`, and `--note`
-- [x] host workspace promotion controls now capture compact operator metadata
-- [x] history, stream, cockpit, and host panels now expose operator metadata visibly
-- [x] operator metadata remains inspection-history evidence, not semantic cartridge truth
+- [x] `status --dump-json` now exposes bridge transport kind, runtime state, and profile manifest
+- [x] builder-task scoring now reports corpus object/relation counts and elapsed runtime
+- [x] projection scoring now reports elapsed runtime
+- [x] project-doc profile switching now purges out-of-profile docs instead of carrying them forward
+- [x] measured comparison now supports the current hold decision:
+      keep file-backed bridge, keep `core` and `expanded`
 
 ## Current Active Tranche
 
@@ -38,23 +39,25 @@ Current interpretation:
 
 ## Immediate Next Step
 
-- [ ] Decide whether the file-backed bridge should remain the local transport for the next band or later move to thinner IPC
+- [ ] Reassess the larger collaboration loop and its failure modes now that bridge/profile policy is explicit
 
 Why this next:
 
-- operator metadata now exists, so the next ambiguity is transport discipline rather than evidence shape
-- the expanded doc profile is useful but heavier, which makes bridge/runtime discipline the next practical pressure
-- the project now needs one clean answer about whether file-backed local transport remains the right bounded choice for the next band
+- bridge/profile discipline now has a measured first answer
+- the next uncertainty is not transport mechanics but loop integrity and where controlled expansion should happen next
+- this is the right moment to pressure-test the collaboration loop before we widen scope again
+- journal parks now also have a clearer high-signal shape for lessons learned,
+  which should help future loop reviews stay grounded instead of impressionistic
 
 Current recommended framing:
 
 ```text
-Bridge Discipline:
-  local, inspectable, file-backed, bounded, subordinate
+Loop Safeguards:
+  keep current-anchor resolution, traversal authority, scoring clarity,
+  and doc/runtime sync visible enough that the build loop does not self-drift
 
-Profile Discipline:
-  keep `core` / `expanded` explicit, only widen scope if usefulness
-  or continuity clearly justify the added weight
+Controlled Expansion:
+  widen only where the loop still remains legible, testable, and contract-safe
 ```
 
 ## Next Work Queue
@@ -64,6 +67,7 @@ Profile Discipline:
 - [ ] Decide whether the bridge should remain file-backed or later move to a
       thinner local IPC transport
 - [ ] Decide whether operator metadata should later support taxonomy or richer structure beyond label / reason / note
+- [ ] Review the loop-frailty side conversation and distill only the grounded safeguards worth keeping
 - [ ] Keep docs, score artifacts, and journal continuity current while hardening
 
 ## Visible Horizon
@@ -79,7 +83,7 @@ Profile Discipline:
 
 ## Proposed Next Tranche
 
-- [ ] Bridge Transport And Profile Discipline
+- [ ] Loop Safeguards And Controlled Expansion Review
 
 ### Later Horizon
 
@@ -126,5 +130,6 @@ rolling trace + promotion controls: stable
 operator metadata: stable
 panel readback + shared command expansion: stable
 bridge timeout policy: stable
-next step: decide bridge/profile discipline cleanly, then widen scope in a controlled way
+bridge/profile discipline: explicit first answer
+next step: reassess loop safeguards cleanly, then widen scope in a controlled way
 ```

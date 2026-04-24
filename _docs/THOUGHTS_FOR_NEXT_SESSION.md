@@ -4,7 +4,7 @@ _Status: Reflective handoff for research and next-session planning_
 
 _Created: 2026-04-22_
 
-_Updated: 2026-04-24 after operator metadata decisions_
+_Updated: 2026-04-24 after bridge transport and profile discipline_
 
 This document is not the governing contract. The governing contract remains
 `builder_constraint_contract.md`. This file is a thinking surface: a place to
@@ -72,6 +72,12 @@ The first hardening slice now exists in code:
   - allow `label`, `reason`, and `note`
   - render that metadata visibly in history/stream/host surfaces
   - do not let those annotations become cartridge truth
+- bridge/profile discipline now has a bounded third answer:
+  - keep the bridge file-backed for now
+  - keep `core` and `expanded`
+  - emit bridge runtime state and profile manifests through status
+  - emit elapsed/runtime weight through score artifacts
+  - purge out-of-profile docs when switching profiles so the split is real
 
 The project is not drifting randomly. It feels like a long spiral because we
 are turning around the same center from increasing radius: first object shape,
@@ -92,8 +98,8 @@ That is the real next step.
 The immediate next pressure is narrower and healthier than "add more stuff":
 
 ```text
-Decide whether the current file-backed bridge and bounded doc-profile split are
-the right discipline for the next band.
+Pressure-test the collaboration loop now that bridge/profile policy is explicit,
+then decide where controlled expansion is actually safe.
 ```
 
 The truth-surface side is no longer vague. We answered it in bounded form:
@@ -103,6 +109,23 @@ The truth-surface side is no longer vague. We answered it in bounded form:
 - cartridges remain the domain truth surfaces
 
 So the next pressure is operational rather than ontological.
+
+One continuity improvement is now worth preserving going forward:
+
+```text
+phase parks should remember lessons, not just state
+```
+
+The app journal already preserves what changed and verification well. The next
+better habit is to preserve, when meaningful:
+
+- key decisions
+- lessons learned
+- evidence used
+- rejected alternatives
+
+That should stay compact and tranche-level. The goal is not a replay log. The
+goal is to help the next session inherit the last session's hard-won clarity.
 
 ## Current One-Line State
 

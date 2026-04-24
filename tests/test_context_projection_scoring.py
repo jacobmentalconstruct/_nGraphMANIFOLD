@@ -119,6 +119,7 @@ class ContextProjectionScoringTests(unittest.TestCase):
             ["english_lexical_prior", "python_docs_projection", "project_local_docs"],
         )
         self.assertTrue(all(score.passed for score in run.scores))
+        self.assertGreater(run.elapsed_ms, 0)
         self.assertTrue(all(record.tool_name == PROJECT_QUERY_TOOL_NAME for record in history.records[:3]))
 
     def test_project_query_score_command_emits_scoring_run(self) -> None:
@@ -141,6 +142,7 @@ class ContextProjectionScoringTests(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertTrue(payload["meets_acceptance"])
         self.assertEqual(payload["scores"][1]["selected_layer"], "python_docs_projection")
+        self.assertGreater(payload["elapsed_ms"], 0)
 
 
 if __name__ == "__main__":

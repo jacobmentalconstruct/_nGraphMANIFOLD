@@ -170,6 +170,18 @@ Interpretation:
   - `--bridge-timeout-ms` remains available as a caller-owned override
   - bridged JSON payloads now report the effective policy through `_bridge`
 
+Recent measured comparison:
+
+| Profile | Objects | Relations | Score | Accepted | Elapsed |
+| --- | ---: | ---: | ---: | --- | ---: |
+| `core` | `605` | `2251` | `0.93` | yes | `60093 ms` |
+| `expanded` | `879` | `3288` | `0.93` | yes | `84682 ms` |
+
+The important hardening note is not just the difference in size. It is that
+the profile boundary now actually holds: switching from `expanded` back to
+`core` purges out-of-profile docs from the cartridge instead of carrying them
+forward silently.
+
 ## Current Experimentation Doctrine
 
 At this stage, an experiment is not accepted just because it "worked once."
@@ -196,6 +208,9 @@ The new hardening slice adds one more constraint to that doctrine:
 - operator metadata may improve continuity, but it must remain bounded
   (`label`, `reason`, `note`) and remain part of inspection history rather than
   becoming cartridge truth or an uncontrolled taxonomy
+- profile comparisons must remain honest about both usefulness and runtime
+  weight; a smaller profile is only meaningful if the cartridge actually
+  shrinks when selected
 
 ## Interpretation
 

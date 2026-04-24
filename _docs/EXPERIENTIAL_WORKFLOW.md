@@ -294,6 +294,10 @@ The first hardening slice now turns that into implementation discipline:
 - durable evidence can now also carry bounded operator authorship:
   label, reason, and note stored in history so later sessions can recover why
   a record mattered without turning that annotation into cartridge truth
+- bridge/profile discipline is now also explicit enough to stop hand-waving:
+  the bridge remains file-backed for now, and the `core` / `expanded` doc
+  profiles are only meaningful because switching profiles now truly changes the
+  cartridge contents instead of carrying stale docs forward
 
 ### Step 3: Build under the contract
 
@@ -440,6 +444,17 @@ At the end of a meaningful tranche, we leave a proper park:
 - risks or deferrals recorded
 - verification noted
 
+When a tranche teaches us something important, the park should now also try to
+preserve a compact lessons-learned shape in the journal metadata:
+
+- key decisions
+- lessons learned
+- evidence used
+- rejected alternatives
+
+This is still tranche memory, not micro-telemetry. The purpose is to make the
+next session wiser, not noisier.
+
 That is why the project can survive pauses without feeling abandoned.
 
 ## Why This Works Across Many Conversations And Agents
@@ -529,6 +544,29 @@ Purpose:
 - usefulness scoring
 
 The workflow stays healthy because we do not casually blur these together.
+
+## Journal Signal
+
+The app journal is strongest when each meaningful park preserves the same
+high-signal ingredients:
+
+- what changed
+- why it changed
+- notable implementation or design decisions
+- verification
+- next focus
+- compact lessons learned when a tranche revealed something worth carrying
+
+The new rule is not "log everything." The new rule is:
+
+```text
+preserve the smallest durable explanation that would help a later builder avoid
+having to relearn the same lesson from scratch
+```
+
+For external review, `_docs/DEV-LOG.md` is now generated as a readable mirror
+of that append-only ledger. It remains a mirror only; the journal DB stays
+authoritative.
 
 ## What A New Developer Or Agent Should Actually Do
 

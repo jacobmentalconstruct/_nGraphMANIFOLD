@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -68,6 +69,9 @@ class RealBuilderTaskScoringRun:
     history_path: str
     document_profile: str
     document_paths: tuple[str, ...]
+    corpus_object_count: int
+    corpus_relation_count: int
+    elapsed_ms: int
     scores: tuple[RealBuilderTaskScore, ...]
     usefulness_report: McpUsefulnessReport
 
@@ -82,6 +86,9 @@ class RealBuilderTaskScoringRun:
             "history_path": self.history_path,
             "document_profile": self.document_profile,
             "document_paths": list(self.document_paths),
+            "corpus_object_count": self.corpus_object_count,
+            "corpus_relation_count": self.corpus_relation_count,
+            "elapsed_ms": self.elapsed_ms,
             "scores": [score.to_dict() for score in self.scores],
             "usefulness_report": self.usefulness_report.to_dict(),
             "meets_acceptance": self.meets_acceptance,
@@ -140,6 +147,9 @@ def run_real_builder_task_scoring(
     history = McpInspectionHistoryStore(history_path)
     scores: list[RealBuilderTaskScore] = []
     resolved_document_paths: tuple[str, ...] = ()
+    corpus_object_count = 0
+    corpus_relation_count = 0
+    started = time.perf_counter()
 
     for fixture in fixtures:
         ingestion = ingest_project_documents_for_traversal(
@@ -153,6 +163,8 @@ def run_real_builder_task_scoring(
         )
         if not resolved_document_paths:
             resolved_document_paths = tuple(ingestion.document_paths)
+            corpus_object_count = ingestion.object_count
+            corpus_relation_count = ingestion.relation_count
         call = ingestion.tool_call.to_dict()
         history.record_call(call)
         traversal = call["capture"]["response"]["traversal_report"]
@@ -184,6 +196,9 @@ def run_real_builder_task_scoring(
         history_path=str(history_path),
         document_profile=document_profile if document_relpaths is None else "custom",
         document_paths=resolved_document_paths,
+        corpus_object_count=corpus_object_count,
+        corpus_relation_count=corpus_relation_count,
+        elapsed_ms=max(1, int((time.perf_counter() - started) * 1000)),
         scores=tuple(scores),
         usefulness_report=report,
     )

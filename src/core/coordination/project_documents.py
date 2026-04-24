@@ -32,6 +32,18 @@ PROJECT_DOCUMENT_PROFILES = {
 }
 
 
+def summarize_project_document_profiles() -> dict[str, dict[str, Any]]:
+    """Return a compact manifest of the bounded project-doc profiles."""
+    return {
+        name: {
+            "name": name,
+            "document_count": len(paths),
+            "document_paths": list(paths),
+        }
+        for name, paths in PROJECT_DOCUMENT_PROFILES.items()
+    }
+
+
 @dataclass(frozen=True)
 class ProjectDocumentCorpus:
     """Project-owned semantic corpus built from the bounded doc set."""
@@ -156,8 +168,19 @@ def ingest_project_documents(
         document_relpaths=document_relpaths,
     )
     cartridge = SemanticCartridge(db_path, cartridge_id=DEFAULT_CARTRIDGE_ID)
+    selected_source_refs: set[str] = set()
+    known_profile_source_refs = _known_profile_source_refs(root)
     objects = []
     ingested_paths: list[str] = []
+
+    for relpath in resolved_relpaths:
+        doc_path = (root / relpath).resolve()
+        _ensure_project_owned(root, doc_path)
+        selected_source_refs.add(doc_path.as_posix())
+
+    for source_ref in cartridge.source_refs():
+        if source_ref in known_profile_source_refs and source_ref not in selected_source_refs:
+            cartridge.delete_objects_for_source(source_ref)
 
     for relpath in resolved_relpaths:
         doc_path = (root / relpath).resolve()
@@ -202,6 +225,13 @@ def _ensure_project_owned(root: Path, path: Path) -> None:
         path.relative_to(root)
     except ValueError as exc:
         raise ValueError(f"Document path is outside project root: {path}") from exc
+
+
+def _known_profile_source_refs(root: Path) -> set[str]:
+    known_relpaths: set[str] = set()
+    for paths in PROJECT_DOCUMENT_PROFILES.values():
+        known_relpaths.update(paths)
+    return {(root / relpath).resolve().as_posix() for relpath in known_relpaths}
 
 
 def _select_seed(
