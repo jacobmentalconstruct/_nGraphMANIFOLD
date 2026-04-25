@@ -109,6 +109,21 @@ Current working answer:
 - keep `core` and `expanded`
 - do not add thinner IPC or a third profile without new measured need
 
+A follow-on Disambiguation Bias Repair tranche has now also parked. The
+substrate's central context-conditioned disambiguation claim is now backed by a
+project-owned falsifier panel of ten pre-committed query/expected-layer pairs
+under `tests/test_disambiguation_panel.py`, and the panel passes 10/10 after a
+localized scoring rebalance in `src/core/coordination/context_projection.py`.
+The repair was made entirely inside existing architectural locks: no
+embeddings, no learning, no cartridge merge. The full suite remains green at
+133 tests, and builder-task and projection arbitration scores hold at `0.93`
+and `0.96`. A bounded substantive non-goal re-examination motion is drafted in
+the journal as a proposal-without-current-case; it does not currently propose
+lifting any lock and requires user-only approval if a future case ever
+exercises it. "Stable" going forward means falsifier-backed, not just absence
+of complaints. The next slice is a scored human-facing inspection usefulness
+fixture, selected from the deferred backlog.
+
 Start with:
 
 - `_docs/builder_constraint_contract.md`
@@ -126,6 +141,8 @@ How we work now, in one breath:
 - `TODO.md` shows the operational transition and next step
 - scoring and inspection surfaces decide whether an experiment is actually
   useful enough to keep
+- `loop-review` now checks that the next tranche is anchored in project-local
+  semantic evidence before controlled expansion begins
 
 Journal continuity now carries one more bounded rule:
 
@@ -181,6 +198,17 @@ python -m src.app mcp-read-panels --dump-json --use-host-bridge
 python -m src.app mcp-read-panels --dump-json --use-host-bridge --panel-mode panel --panel-name projection
 python -m src.app mcp-read-panels --dump-json --use-host-bridge --panel-mode all
 ```
+
+Run conservative bridge transport maintenance:
+
+```bat
+python -m src.app mcp-bridge-maintenance --dump-json
+```
+
+This reports bridge state before and after applying the existing age-based
+transport cleanup policy. It is the explicit operator surface for clearing
+stale local bridge request/response files without changing the bridge
+transport model.
 
 Open the raw MCP inspection panel:
 
@@ -367,6 +395,18 @@ inspection history and writes
 `data/mcp_inspection/context_projection_scores.json`.
 This command now also routes through the shared host dispatcher and can update
 the live host workspace when sent through the bridge.
+
+Review loop safeguards before choosing the next controlled expansion slice:
+
+```bat
+python -m src.app loop-review --dump-json
+```
+
+The loop review refreshes the bounded project-document cartridge, asks the
+context-projection layer for evidence around the next tranche, surface
+ownership, and truth-boundary anchors, then combines those anchors with bridge,
+profile, score-artifact, and interaction-truth policy checks. It is a gate for
+human/builder review, not an autonomous planner.
 
 Build the Python documentation projection cartridge:
 

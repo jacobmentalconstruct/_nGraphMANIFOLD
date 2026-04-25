@@ -1,6 +1,6 @@
 # Prototype Tuning And Scoring
 
-_Status: Prototype completion gate accepted; local host bridge parked_
+_Status: Prototype completion gate accepted; disambiguation bias repair parked_
 
 This document records the first post-prototype tuning harness. It is subordinate
 to `builder_constraint_contract.md`.
@@ -138,6 +138,8 @@ python -m src.app status --dump-json
 python -m src.app mcp-tools --dump-json
 python -m src.app mcp-score-tasks --dump-json
 python -m src.app project-query-score --dump-json
+python -m src.app loop-review --dump-json
+python -m src.app mcp-bridge-maintenance --dump-json
 ```
 
 Current results remain stable:
@@ -146,6 +148,9 @@ Current results remain stable:
 - `mcp-tools`: healthy shared-dispatch response
 - builder-task score: `0.93`, accepted
 - projection arbitration score: `0.96`, accepted
+- loop-review: `ready_for_controlled_expansion_review`
+- bridge maintenance: removed `2` stale requests and `1` stale response in the
+  current real-project run using the default retention window
 
 Controlled expanded-doc profile:
 
@@ -182,6 +187,62 @@ the profile boundary now actually holds: switching from `expanded` back to
 `core` purges out-of-profile docs from the cartridge instead of carrying them
 forward silently.
 
+## Disambiguation Falsifier Panel
+
+A project-owned falsifier panel for the substrate's central context-conditioned
+disambiguation claim is now in place at:
+
+```text
+tests/test_disambiguation_panel.py
+```
+
+The panel records ten pre-committed query/expected-layer pairs and asserts that
+the live arbitrated layer matches the pre-committed expectation for each query.
+The panel is the new acceptance gate for the disambiguation claim: "stable" now
+means "falsifier-backed" rather than "no current complaints."
+
+Initial panel run reported 5/10 failures with a consistent headword-match bias
+toward English. The Disambiguation Bias Repair tranche then made a localized
+scoring rebalance in:
+
+```text
+src/core/coordination/context_projection.py
+```
+
+The five coordinated edits are:
+
+- `bridge` added to `PROJECT_HINTS` so `host_bridge` is recognized at the term
+  level
+- `_english_score` headword bonus self-suppresses by `-7.0` when the headword is
+  in `PROJECT_HINTS` or `PYTHON_HINTS`, with evidence tag
+  `headword_suppressed_by_frame_hint`
+- `_layer_score` English single-term layer bonus drops from `+2.0` to `+0.5`
+  when the term is a frame hint; the `+2.0` still applies for pure English
+  single-term queries
+- `_layer_score` Python branch graduates: pure Python hints get the full `+6/+3`
+  boost, ambiguous-only hints (in both `PYTHON_HINTS` and `PROJECT_HINTS`) get
+  `+1`
+- `_layer_score` project branch climbs to `+6.0` (from `+3.0`) for short queries
+  (`len(terms) <= 2`) when at least one project hint is present, encoding
+  "inside this project, short queries default to project frame"
+
+After the rebalance the panel passes 10/10. The full suite remains green at
+133 tests. Builder-task and projection arbitration scores are unchanged at
+`0.93` and `0.96` respectively.
+
+The repair is intentionally constrained:
+
+- no embeddings were introduced
+- no learning was introduced
+- no cartridge merge was introduced
+- no architectural lock was lifted
+- the change is a layer-scoring rebalance, not a substrate redesign
+
+The panel itself is parameter-fitted to its ten queries. New queries will find
+new edges. The continuing discipline is to grow the panel against pre-committed
+expectations, not against observed behavior. A separate panel for a different
+substrate claim is queued behind the next tranche.
+
 ## Current Experimentation Doctrine
 
 At this stage, an experiment is not accepted just because it "worked once."
@@ -211,6 +272,12 @@ The new hardening slice adds one more constraint to that doctrine:
 - profile comparisons must remain honest about both usefulness and runtime
   weight; a smaller profile is only meaningful if the cartridge actually
   shrinks when selected
+- loop-review should run before selecting a controlled expansion slice so the
+  next action is grounded in declared project memory, semantic evidence, and
+  explicit runtime policy
+- bridge maintenance should be an explicit operator action when bridge debris
+  is visible; loop-review may warn about debris but should not silently mutate
+  transport state
 
 ## Interpretation
 
@@ -243,3 +310,9 @@ embeddings, merged cartridges, a real MCP server, and broad UI expansion.
   need a richer promotion taxonomy.
 - Decide whether future tuning should explicitly score bridged host-session
   usefulness, not only query/projection correctness.
+- Decide whether the disambiguation falsifier panel should grow beyond ten
+  pre-committed queries, or hold at ten while a second panel for a different
+  substrate claim is added.
+- Treat falsifier-backed claim discipline as the new acceptance shape for the
+  substrate's self-claims: "stable" means "covered by a pre-committed panel,"
+  not "no complaints recently."

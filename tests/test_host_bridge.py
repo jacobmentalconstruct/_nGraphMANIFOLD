@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import os
+import contextlib
+import io
+import json
 import tempfile
 import threading
 import time
@@ -40,9 +43,11 @@ from src.core.coordination import (
     load_host_bridge_session,
     process_pending_host_bridge_requests,
     resolve_host_bridge_timeout_policy,
+    run_host_bridge_maintenance,
     require_live_host_bridge_session,
     wait_for_live_host_bridge_session,
 )
+from src.app import main
 
 
 class HostBridgeTests(unittest.TestCase):
@@ -268,6 +273,66 @@ class HostBridgeTests(unittest.TestCase):
         self.assertEqual(report["removed_requests"], 1)
         self.assertEqual(report["removed_responses"], 1)
         self.assertEqual(report["removed_session"], 1)
+
+    def test_bridge_maintenance_reports_before_cleanup_and_after_state(self) -> None:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:
+            root = Path(temp)
+            bridge_root = default_host_bridge_root(root)
+            request_dir = bridge_root / "requests"
+            response_dir = bridge_root / "responses"
+            request_dir.mkdir(parents=True, exist_ok=True)
+            response_dir.mkdir(parents=True, exist_ok=True)
+            request_file = request_dir / "old_request.json"
+            response_file = response_dir / "old_response.json"
+            request_file.write_text("{}", encoding="utf-8")
+            response_file.write_text("{}", encoding="utf-8")
+            old_time = time.time() - 3600
+            os.utime(request_file, (old_time, old_time))
+            os.utime(response_file, (old_time, old_time))
+
+            report = run_host_bridge_maintenance(root, stale_after_seconds=1.0)
+
+        payload = report.to_dict()
+        self.assertEqual(payload["before"]["pending_request_count"], 1)
+        self.assertEqual(payload["before"]["pending_response_count"], 1)
+        self.assertEqual(payload["cleanup"]["removed_requests"], 1)
+        self.assertEqual(payload["cleanup"]["removed_responses"], 1)
+        self.assertEqual(payload["after"]["pending_request_count"], 0)
+        self.assertEqual(payload["after"]["pending_response_count"], 0)
+        self.assertEqual(payload["removed_total"], 2)
+
+    def test_bridge_maintenance_command_emits_json(self) -> None:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:
+            root = Path(temp)
+            bridge_root = default_host_bridge_root(root)
+            request_dir = bridge_root / "requests"
+            request_dir.mkdir(parents=True, exist_ok=True)
+            request_file = request_dir / "old_request.json"
+            request_file.write_text("{}", encoding="utf-8")
+            old_time = time.time() - 3600
+            os.utime(request_file, (old_time, old_time))
+            old_root = os.environ.get("NGRAPH_PROJECT_ROOT")
+            os.environ["NGRAPH_PROJECT_ROOT"] = temp
+            stdout = io.StringIO()
+            try:
+                with contextlib.redirect_stdout(stdout):
+                    exit_code = main([
+                        "mcp-bridge-maintenance",
+                        "--bridge-retention-seconds",
+                        "1",
+                        "--dump-json",
+                    ])
+            finally:
+                if old_root is None:
+                    os.environ.pop("NGRAPH_PROJECT_ROOT", None)
+                else:
+                    os.environ["NGRAPH_PROJECT_ROOT"] = old_root
+
+        payload = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["before"]["pending_request_count"], 1)
+        self.assertEqual(payload["after"]["pending_request_count"], 0)
+        self.assertEqual(payload["cleanup"]["removed_requests"], 1)
 
 
 if __name__ == "__main__":

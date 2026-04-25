@@ -23,6 +23,7 @@ DEFAULT_HOST_BRIDGE_WAIT_INTERVAL_MS = 100
 DEFAULT_HOST_BRIDGE_STALE_AFTER_SECONDS = 5.0
 DEFAULT_HOST_BRIDGE_FILE_RETENTION_SECONDS = 300.0
 DEFAULT_HOST_BRIDGE_ATTACH_GRACE_MS = 2500
+HOST_BRIDGE_MAINTENANCE_VERSION = "v1"
 
 
 class HostBridgeError(RuntimeError):
@@ -35,6 +36,40 @@ class HostBridgeUnavailableError(HostBridgeError):
 
 class HostBridgeTimeoutError(HostBridgeError):
     """Raised when a bridged request does not receive a response in time."""
+
+
+@dataclass(frozen=True)
+class HostBridgeMaintenanceReport:
+    """Operator-visible bridge transport maintenance report."""
+
+    version: str
+    bridge_root: str
+    stale_after_seconds: float
+    before: dict[str, Any]
+    cleanup: dict[str, int]
+    after: dict[str, Any]
+
+    @property
+    def removed_total(self) -> int:
+        return sum(int(value) for value in self.cleanup.values())
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "version": self.version,
+            "bridge_root": self.bridge_root,
+            "stale_after_seconds": self.stale_after_seconds,
+            "before": self.before,
+            "cleanup": self.cleanup,
+            "after": self.after,
+            "removed_total": self.removed_total,
+            "notes": [
+                "Bridge maintenance uses the existing age-based cleanup policy.",
+                "Young request/response files are preserved unless the caller explicitly lowers the retention window.",
+            ],
+        }
+
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict(), indent=2, sort_keys=True)
 
 
 @dataclass(frozen=True)
@@ -396,6 +431,26 @@ def cleanup_host_bridge_transport(
         "removed_responses": removed_responses,
         "removed_session": removed_session,
     }
+
+
+def run_host_bridge_maintenance(
+    project_root: Path | str,
+    *,
+    stale_after_seconds: float = DEFAULT_HOST_BRIDGE_FILE_RETENTION_SECONDS,
+) -> HostBridgeMaintenanceReport:
+    """Run conservative bridge cleanup and report before/after state."""
+    root = Path(project_root).resolve()
+    before = build_host_bridge_runtime_snapshot(root)
+    cleanup = cleanup_host_bridge_transport(root, stale_after_seconds=stale_after_seconds)
+    after = build_host_bridge_runtime_snapshot(root)
+    return HostBridgeMaintenanceReport(
+        version=HOST_BRIDGE_MAINTENANCE_VERSION,
+        bridge_root=str(default_host_bridge_root(root)),
+        stale_after_seconds=float(stale_after_seconds),
+        before=before,
+        cleanup=cleanup,
+        after=after,
+    )
 
 
 def enqueue_host_bridge_request(

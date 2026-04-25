@@ -9,19 +9,27 @@ remains the authoritative phase ledger.
 
 Just-completed tranche:
 
-- Bridge Transport And Profile Discipline
+- Disambiguation Bias Repair
 
 Status:
 
 - parked complete inside post-prototype hardening
+- substrate's central context-conditioned disambiguation claim now backed by a project-owned falsifier
+- closed a between-tranche realignment that recorded a falsifier fixture, a "foundation sound, bend
+  localized" doctrine note, a contract amendment motion (drafted, awaiting user approval, no active case),
+  and a follow-up doctrine note recording that the motion mechanic was not exercised by this case
 
 Started:
 
-- 2026-04-23
+- 2026-04-25
 
 Parked:
 
-- 2026-04-24
+- 2026-04-25
+
+Recently parked tranche:
+
+- Bridge Transport And Profile Discipline (2026-04-23 / 2026-04-24)
 
 ## What Shifted
 
@@ -99,6 +107,20 @@ Recent hardening slices now address that directly:
 - journal continuity now has a clearer forward rule:
   phase parks should preserve compact lessons learned, key decisions, evidence
   used, and rejected alternatives when a tranche teaches something important
+- disambiguation falsifier panel now exists at `tests/test_disambiguation_panel.py`
+  with ten pre-committed (query, expected_layer) assertions, passing 10/10
+- projection scoring rebalanced inside `src/core/coordination/context_projection.py`
+  to suppress headword-match dominance for project/python frame hints, weaken
+  english single-term bias when the term is a frame hint, weaken python boost
+  for ambiguous (project+python) terms, and climb project boost for short
+  queries when at least one project hint is present
+- the working assumption that the substrate's foundation is sound and the
+  observed bend is localized to projection scoring has been confirmed by repair
+- "stable" now means falsifier-backed for the disambiguation claim, not only
+  acceptable on the prior 0.93 / 0.96 score floor
+- a contract amendment motion was drafted to distinguish architectural locks
+  from substantive non-goals; the motion is awaiting user approval and has
+  no active case after the disambiguation repair landed within existing locks
 
 ## Stable Prototype State
 
@@ -165,32 +187,49 @@ It does not yet prove:
 
 ## Proposed Next Tranche
 
-Current active tranche:
+Current active tranche family:
 
 - Post-Prototype Hardening And Expansion
 
-Immediate focus inside that tranche:
+Immediate focus inside that family:
 
-- preserve the now-explicit answer:
+- open the next slice: Scored Human-Facing Inspection Usefulness Fixture
+- preserve the now-explicit answer on bridge/profile discipline:
   - keep the bridge file-backed for the next band
   - keep `core` and `expanded`
   - do not add thinner IPC or another profile without new measured need
-- review the larger collaboration loop and its failure modes now that the
-  bridge/profile policy is no longer an open question
+- preserve the now-explicit answer on the disambiguation claim:
+  - the falsifier panel is the acceptance gate for the central claim
+  - localized scoring rebalance is the first move when bias re-emerges
+  - architectural locks remain in force; the gate-lift motion has no active case
 - keep the interaction truth boundary inspection-only unless a future tranche
   explicitly reopens it
 
-Recommended next tranche after this hardening slice:
+Recommended next tranche slice:
 
-- Loop Safeguards And Controlled Expansion Review
+- Scored Human-Facing Inspection Usefulness Fixture
 
-The first concrete hardening problem is:
+What that means:
 
-```text
-how do we preserve operator trust and project boundedness now that the
-prototype produces real history, real bridge state, and multiple useful
-inspection surfaces?
-```
+- score whether the operator-facing inspection surfaces (cockpit, stream,
+  history view, host workspace, panel readback) are useful in the way the
+  human operator expects, not only whether they emit data
+- do not collapse this into more falsifier panels; falsifier panels measure
+  substrate claims, this fixture measures human-operator-facing usefulness
+- keep it bounded: a small set of pre-committed inspection scenarios with
+  pre-committed expectations about what a useful surface should expose
+
+Queued behind that slice:
+
+- grow the falsifier-backed claim discipline by adding a second panel for a
+  different substrate claim (probable candidate: traversal seed selection)
+
+Already-completed tranche slices in this family:
+
+- Loop Safeguards And Controlled Expansion Review (parked)
+- Bridge Transport Maintenance Surface (parked)
+- Bridge Transport And Profile Discipline (parked)
+- Disambiguation Bias Repair (parked, this entry)
 
 ## Visible Horizon
 
@@ -260,6 +299,17 @@ Current real-project scores:
 - builder-task score: `0.93`, accepted
 - projection arbitration score: `0.96`, accepted
 
+Current falsifier panel:
+
+- `tests/test_disambiguation_panel.py`: `10/10` pre-committed queries select the
+  expected layer; the panel skips when cartridges are absent so it never
+  blocks a clean checkout
+
+Important reading note: the 0.93 / 0.96 score floor measures tasks the
+substrate already handles. The falsifier panel measures the substrate's
+central context-conditioned disambiguation claim. Stability now means both
+floors hold; the panel is the load-bearing one for the central claim.
+
 Current bounded corpora and stores:
 
 - project docs cartridge:
@@ -310,6 +360,8 @@ Latest tranche verification:
 - `python -m unittest tests.test_project_documents tests.test_host_workspace tests.test_builder_task_scoring tests.test_context_projection_scoring tests.test_host_bridge`
   passed with `29` tests
 - `python -m unittest discover -s tests` passed with `126` tests
+- `python -m unittest discover -s tests` passed with `132` tests after
+  bridge-maintenance implementation
 - `python -m compileall src tests` passed
 - `python -m src.app mcp-promote-call --dump-json --label keeper --reason checkpoint --note "Preserve this query result."`
   now records bounded operator metadata in inspection history
@@ -340,6 +392,21 @@ Latest tranche verification:
 - `python -m src.app status` now reports:
   - `active_tranche=Post-Prototype Hardening And Expansion`
   - `next_tranche=Loop Safeguards And Controlled Expansion Review`
+- `python -m src.app loop-review --dump-json` now emits the loop-safeguard
+  review gate; current real-project status is
+  `ready_for_controlled_expansion_review`
+- `python -m src.app mcp-bridge-maintenance --dump-json` removed `2` stale
+  bridge request files and `1` stale bridge response file under the default
+  `300` second retention policy
+- `python -m unittest tests.test_disambiguation_panel` passes `10/10` after
+  the projection scoring rebalance landed in
+  `src/core/coordination/context_projection.py`
+- `python -m unittest discover -s tests` passed with `133` tests after the
+  disambiguation repair (was `132` plus the new falsifier panel)
+- `python -m src.app project-query-score --dump-json` remained at `0.96`,
+  accepted, after the rebalance
+- `python -m src.app mcp-score-tasks --dump-json` remained at `0.93`,
+  accepted, after the rebalance
 
 Useful live commands:
 
@@ -351,6 +418,7 @@ Useful live commands:
 - `python -m src.app mcp-search-seeds --query "Current Park Point" --dump-json`
 - `python -m src.app mcp-search-seeds --query "Current Park Point" --use-host-bridge`
 - `python -m src.app mcp-promote-call --dump-json`
+- `python -m src.app mcp-bridge-maintenance --dump-json`
 - `python -m src.app mcp-read-panels --dump-json --use-host-bridge`
 - `python -m src.app status --dump-json`
 - `python -m src.app mcp-tools --dump-json`
@@ -358,6 +426,7 @@ Useful live commands:
 - `python -m src.app mcp-score-tasks --use-host-bridge --dump-json`
 - `python -m src.app project-query-score --dump-json`
 - `python -m src.app project-query-score --use-host-bridge --dump-json`
+- `python -m src.app loop-review --dump-json`
 
 ## Next-Session Handoff
 

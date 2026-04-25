@@ -13,6 +13,7 @@ from pathlib import Path
 from .core.config import AppSettings
 from .core.coordination import (
     DEFAULT_HOST_BRIDGE_ATTACH_GRACE_MS,
+    DEFAULT_HOST_BRIDGE_FILE_RETENTION_SECONDS,
     DEFAULT_HOST_BRIDGE_TIMEOUT_MS,
     HOST_BUILDER_SCORE_TOOL_NAME,
     HOST_COCKPIT_TOOL_NAME,
@@ -35,6 +36,7 @@ from .core.coordination import (
     create_host_command_envelope,
     build_history_aware_inspector_payload,
     build_interaction_stream_payload,
+    build_loop_safeguards_review,
     build_visibility_cockpit_payload,
     build_python_docs_corpus,
     build_mcp_tool_registry,
@@ -51,6 +53,7 @@ from .core.coordination import (
     run_context_projection_arbitration_scoring,
     run_real_builder_task_scoring,
     resolve_host_bridge_timeout_policy,
+    run_host_bridge_maintenance,
     run_seed_search_traversal,
     wait_for_live_host_bridge_session,
 )
@@ -90,6 +93,8 @@ def build_parser() -> argparse.ArgumentParser:
             "mcp-search-seeds",
             "mcp-promote-call",
             "mcp-read-panels",
+            "mcp-bridge-maintenance",
+            "loop-review",
             "ingest-python-docs",
             "ingest-lexicon",
             "lookup-lexicon",
@@ -120,6 +125,15 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "When using --use-host-bridge, optional override for how long to wait. "
             f"If omitted, the bridge uses a command-aware default (global default {DEFAULT_HOST_BRIDGE_TIMEOUT_MS} ms)."
+        ),
+    )
+    parser.add_argument(
+        "--bridge-retention-seconds",
+        type=float,
+        default=None,
+        help=(
+            "For mcp-bridge-maintenance, optional age threshold for removing stale bridge files. "
+            "Defaults to the bridge policy retention window."
         ),
     )
     parser.add_argument(
@@ -526,6 +540,32 @@ def main(argv: Sequence[str] | None = None) -> int:
             sys.stdout.write(f"{rendered}\n")
             return 0
         return launch_mcp_inspector(settings, rendered)
+
+    if args.command == "mcp-bridge-maintenance":
+        report = run_host_bridge_maintenance(
+            settings.project_root,
+            stale_after_seconds=(
+                args.bridge_retention_seconds
+                if args.bridge_retention_seconds is not None
+                else DEFAULT_HOST_BRIDGE_FILE_RETENTION_SECONDS
+            ),
+        )
+        payload = report.to_json()
+        if args.dump_json:
+            sys.stdout.write(f"{payload}\n")
+            return 0
+        return launch_mcp_inspector(settings, payload)
+
+    if args.command == "loop-review":
+        review = build_loop_safeguards_review(
+            settings.project_root,
+            document_profile=args.project_doc_profile,
+        )
+        payload = review.to_json()
+        if args.dump_json:
+            sys.stdout.write(f"{payload}\n")
+            return 0
+        return launch_mcp_inspector(settings, payload)
 
     if args.command == "ingest-lexicon":
         result = build_english_lexicon_baseline(

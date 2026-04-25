@@ -263,6 +263,29 @@ Before substantial changes, we identify:
 This keeps us from quietly turning one good idea into three accidental
 refactors.
 
+The current hardening band now has a project-owned gate for this step:
+
+```bat
+python -m src.app loop-review --dump-json
+```
+
+That command asks the semantic project-document substrate for evidence around
+the next tranche, visibility ownership, and the interaction truth boundary,
+then checks those anchors against runtime bridge/profile policy, score
+artifacts, and explicit non-goals. It is deliberately a review surface, not an
+autonomous planner.
+
+When that review reports pending bridge transport files, the explicit operator
+surface is:
+
+```bat
+python -m src.app mcp-bridge-maintenance --dump-json
+```
+
+The maintenance command reports before/after bridge state and applies the
+existing age-based cleanup policy. This keeps cleanup visible and intentional
+rather than letting the review gate quietly mutate state.
+
 When a tranche closes, we also notice whether the project has shifted phases.
 That matters now. `nGraphMANIFOLD` has moved from prototype proving into
 post-prototype hardening:
@@ -402,6 +425,7 @@ In the hardening phase, this same loop becomes:
 
 ```text
 propose a bounded experiment
+  -> run loop-review for the current anchor and guardrails
   -> run fixtures and real-project scores
   -> inspect stream / cockpit / history / host workspace
   -> decide whether it is useful, legible, and contract-safe

@@ -207,6 +207,19 @@ python -m src.app mcp-read-panels --dump-json --use-host-bridge --panel-mode all
 This is still a read seam over host state, not a new truth store or panel-owned
 protocol.
 
+The loop-safeguard review now gives this collaboration seam a pre-expansion
+gate:
+
+```bat
+python -m src.app loop-review --dump-json
+```
+
+The command uses the project-local context-projection layer to collect evidence
+for next-tranche, surface-ownership, and truth-boundary anchors, then checks
+those anchors against bridge/profile policy, score artifacts, and interaction
+truth policy. It is intentionally not a new MCP protocol endpoint, not a
+network service, and not an autonomous agent loop.
+
 ## Local Host Bridge
 
 The seam now includes a bounded local host bridge for separate-process session
@@ -275,6 +288,18 @@ The current practical answer is now earned rather than guessed:
 The next seam pressure is not "more transport." It is how the current bridge
 stays bounded, inspectable, and legible as the project enters post-prototype
 hardening.
+
+Bridge transport maintenance now has an explicit operator surface:
+
+```bat
+python -m src.app mcp-bridge-maintenance --dump-json
+```
+
+This command reports bridge runtime state before and after applying the
+existing age-based cleanup policy. It is intentionally conservative: it clears
+stale request/response/session files according to the current retention window
+and does not create a new transport, protocol endpoint, or semantic truth
+surface.
 
 ## Persistent Inspection History
 

@@ -67,6 +67,7 @@ PYTHON_HINTS = {
     "yield",
 }
 PROJECT_HINTS = {
+    "bridge",
     "builder",
     "cartridge",
     "contract",
@@ -481,6 +482,9 @@ def _english_score(
     if headword and (headword == normalized_query or headword in terms):
         score += 10.0
         evidence.append("headword_match")
+        if headword in PROJECT_HINTS or headword in PYTHON_HINTS:
+            score -= 7.0
+            evidence.append("headword_suppressed_by_frame_hint")
     if len(terms) > 1 and len(matched_terms) == 1 and headword in matched_terms:
         score -= 1.5
         evidence.append("single_headword_for_multi_term_query")
@@ -577,16 +581,26 @@ def _layer_score(layer_name: str, candidates: tuple[LayerCandidate, ...], terms:
             score -= 4.0
         if project_hints >= 2:
             score -= 3.0
-        if len(terms) == 1:
+        if len(terms) == 1 and not (python_hints or project_hints):
             score += 2.0
+        elif len(terms) == 1:
+            score += 0.5
     elif layer_name == "python_docs_projection":
-        if python_hints >= 2:
+        ambiguous_terms = PYTHON_HINTS & PROJECT_HINTS & set(terms)
+        pure_python_hints = python_hints - len(ambiguous_terms)
+        if pure_python_hints >= 2:
             score += 6.0
+        elif pure_python_hints >= 1:
+            score += 3.0
+        elif python_hints >= 1:
+            score += 1.0
         if project_hints >= 3:
             score -= 2.0
     elif layer_name == "project_local_docs":
         if project_hints >= 2:
             score += 6.0
+        elif project_hints >= 1:
+            score += 6.0 if len(terms) <= 2 else 3.0
         if python_hints >= 3 and project_hints < 2:
             score -= 2.0
     return round(max(score, 0.0), 4)

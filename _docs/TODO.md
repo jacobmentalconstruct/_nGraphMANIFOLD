@@ -7,15 +7,35 @@ authoritative ledger, and `PROJECT_STATUS.md` remains the quick park marker.
 
 ## Just Completed
 
-- [x] Bridge Transport And Profile Discipline
+- [x] Disambiguation Bias Repair
 
 What that means:
 
-- [x] `status --dump-json` now exposes bridge transport kind, runtime state, and profile manifest
-- [x] builder-task scoring now reports corpus object/relation counts and elapsed runtime
-- [x] projection scoring now reports elapsed runtime
-- [x] project-doc profile switching now purges out-of-profile docs instead of carrying them forward
-- [x] measured comparison now supports the current hold decision:
+- [x] live-substrate disambiguation falsifier panel exists in `tests/test_disambiguation_panel.py`
+      with ten pre-committed query/expected-layer assertions, passing 10/10
+- [x] `src/core/coordination/context_projection.py` now suppresses headword-match dominance
+      when the headword is a project or python frame hint
+- [x] english single-term layer bonus weakened when the term is a frame hint
+- [x] python graduated layer boost weakens for ambiguous (project+python) terms
+- [x] project graduated layer boost climbs for short queries when at least one project hint is present
+- [x] `bridge` added to PROJECT_HINTS so `host_bridge` is recognized at the term level
+- [x] full suite green at 133 tests; builder-task score holds at 0.93; projection arbitration holds at 0.96
+- [x] between-tranche realignment artifacts recorded in journal: falsifier fixture, doctrine note
+      ("foundation sound, bend localized"), contract amendment motion ("bounded substantive non-goal
+      re-examination mechanic", awaiting approval), and a follow-up doctrine note
+      ("motion mechanic has no active case")
+
+## Recent Tranches
+
+- [x] Bridge Transport And Profile Discipline
+
+What that meant:
+
+- [x] `status --dump-json` exposes bridge transport kind, runtime state, and profile manifest
+- [x] builder-task scoring reports corpus object/relation counts and elapsed runtime
+- [x] projection scoring reports elapsed runtime
+- [x] project-doc profile switching purges out-of-profile docs instead of carrying them forward
+- [x] measured comparison supports the current hold decision:
       keep file-backed bridge, keep `core` and `expanded`
 
 ## Current Active Tranche
@@ -39,29 +59,47 @@ Current interpretation:
 
 ## Immediate Next Step
 
-- [ ] Reassess the larger collaboration loop and its failure modes now that bridge/profile policy is explicit
+- [x] Add a bounded loop-safeguard review surface now that bridge/profile policy is explicit
+- [x] Use the loop-safeguard review result to choose exactly one controlled expansion slice
+- [x] Add explicit bridge transport maintenance for the first loop-review warning
+- [x] Record a project-owned disambiguation falsifier panel against the live cartridges
+- [x] Repair the projection scoring bias surfaced by the falsifier (panel now passes 10/10)
+- [ ] Open the Scored Human-Facing Inspection Usefulness Fixture tranche
 
 Why this next:
 
-- bridge/profile discipline now has a measured first answer
-- the next uncertainty is not transport mechanics but loop integrity and where controlled expansion should happen next
-- this is the right moment to pressure-test the collaboration loop before we widen scope again
-- journal parks now also have a clearer high-signal shape for lessons learned,
-  which should help future loop reviews stay grounded instead of impressionistic
+- the substrate's central disambiguation claim is now backed by a falsifier rather than a docs aspiration;
+  "stable" going forward means falsifier-backed, not just absence of complaints
+- the deferred backlog item "scored human-facing inspection usefulness fixture" has been waiting on
+  exactly this kind of clearer scoring discipline; it is the cleanest next controlled-expansion slice
+- queued behind it: extend falsifier-backed claim discipline to additional substrate properties
+  (a second pre-committed panel for a different claim the docs make)
+- the gate-lift motion remains drafted in the journal as a proposal-without-current-case;
+  no contract action is pending unless a future tranche surfaces a real lock-vs-progress conflict
 
 Current recommended framing:
 
 ```text
-Loop Safeguards:
-  keep current-anchor resolution, traversal authority, scoring clarity,
-  and doc/runtime sync visible enough that the build loop does not self-drift
+Falsifier-Backed Claim Discipline:
+  every claim the substrate makes about itself should be testable against
+  pre-committed expectations recorded as a project artifact
 
-Controlled Expansion:
-  widen only where the loop still remains legible, testable, and contract-safe
+Scored Human-Facing Inspection Usefulness:
+  measure whether the operator-facing inspection surfaces are useful in
+  the way the human operator expects, not only whether they emit data
 ```
 
 ## Next Work Queue
 
+- [x] Decide whether the next controlled expansion should be a scored
+      human-facing inspection usefulness fixture or a narrow shared-command
+      action expansion — chose the inspection usefulness fixture
+- [ ] Decide whether to grow the disambiguation falsifier panel beyond ten
+      pre-committed queries, or hold at ten and add a second panel for a
+      different substrate claim
+- [ ] Revisit journal importance scale calibration (user-deferred background
+      thread; recorded as journal entry 49). Builder should not initiate; user
+      will surface when ready.
 - [ ] Decide whether command/result SemanticObjects remain inspection-only or become persisted truth later
 - [ ] Decide whether the current `core` / `expanded` project-doc profile split is enough for now
 - [ ] Decide whether the bridge should remain file-backed or later move to a
@@ -131,5 +169,12 @@ operator metadata: stable
 panel readback + shared command expansion: stable
 bridge timeout policy: stable
 bridge/profile discipline: explicit first answer
-next step: reassess loop safeguards cleanly, then widen scope in a controlled way
+loop-review gate: implemented
+bridge maintenance: implemented
+loop-review status: ready_for_controlled_expansion_review
+disambiguation falsifier panel: 10/10 passing (project-owned)
+projection scoring rebalance: landed (no architectural lock lifted)
+contract amendment motion: drafted, no active case, awaiting approval
+journal importance scale: calibration question recorded (entry 49), user-deferred
+next tranche: Scored Human-Facing Inspection Usefulness Fixture
 ```

@@ -4,7 +4,7 @@ _Status: Reflective handoff for research and next-session planning_
 
 _Created: 2026-04-22_
 
-_Updated: 2026-04-24 after bridge transport and profile discipline_
+_Updated: 2026-04-25 after disambiguation bias repair_
 
 This document is not the governing contract. The governing contract remains
 `builder_constraint_contract.md`. This file is a thinking surface: a place to
@@ -101,6 +101,28 @@ The immediate next pressure is narrower and healthier than "add more stuff":
 Pressure-test the collaboration loop now that bridge/profile policy is explicit,
 then decide where controlled expansion is actually safe.
 ```
+
+The first implementation answer for that pressure is now concrete:
+
+```bat
+python -m src.app loop-review --dump-json
+```
+
+This is the small gate that checks whether the next tranche is grounded in the
+project-local semantic substrate, whether visibility and truth boundaries still
+hold, and whether score/bridge/profile policy is explicit enough to support a
+controlled expansion decision.
+
+The first controlled expansion slice from that gate is also concrete now:
+
+```bat
+python -m src.app mcp-bridge-maintenance --dump-json
+```
+
+That command makes stale bridge transport cleanup explicit and inspectable. In
+the current real-project run it removed two stale request files and one stale
+response file, after which `loop-review` returned
+`ready_for_controlled_expansion_review`.
 
 The truth-surface side is no longer vague. We answered it in bounded form:
 
@@ -225,6 +247,62 @@ The honest boundary is now:
 - separate process: may target the live host only through the local file-backed
   bridge for approved commands
 - everything else still shares durable history/score state only
+
+## 2026-04-25 Disambiguation Bias Repair Update
+
+The "Do Not Let The English Lexicon Dominate" warning that appears later in this
+document was the right warning at the time it was written. Read it as written.
+This section is a follow-up note about what happened when we tested the warning
+empirically and is intentionally appended rather than rewritten in place.
+
+What we did:
+
+- recorded ten pre-committed query/expected-layer pairs as a project-owned
+  falsifier panel under `tests/test_disambiguation_panel.py`
+- ran the panel and saw five of ten queries fail with a consistent headword-match
+  bias toward English
+- repaired the bias inside `src/core/coordination/context_projection.py` with a
+  localized scoring rebalance
+- re-ran the panel and saw 10/10 pass
+- confirmed the full suite is green at 133 tests
+- confirmed builder-task score holds at 0.93 and projection arbitration holds at 0.96
+
+What changed in the projection layer:
+
+- `bridge` is now in `PROJECT_HINTS`
+- the English headword-match bonus self-suppresses by `-7.0` when the headword is
+  in `PROJECT_HINTS` or `PYTHON_HINTS`
+- the English single-term layer bonus drops from `+2.0` to `+0.5` when the term
+  is a frame hint
+- the Python graduated boost weakens for terms ambiguous between Python and
+  project frames
+- the project graduated boost climbs to `+6.0` for short queries when at least
+  one project hint is present, encoding "inside this project, short queries
+  default to project frame"
+
+What this changed about how we read the rest of this document:
+
+- the warning still applies as a guiding instinct
+- "stable" no longer means "no complaints", it means falsifier-backed
+- the falsifier panel is the new acceptance gate for the substrate's central
+  context-conditioned disambiguation claim
+- the panel is parameter-fitted to its ten queries; new queries will find new
+  edges, and the discipline is to grow the panel against pre-committed
+  expectations rather than against observed behavior
+- no architectural lock was lifted to repair this; embeddings, learning, and
+  cartridge merge remain off the table
+
+What is parked for next session:
+
+- the deferred backlog item "scored human-facing inspection usefulness fixture"
+  was selected as the next controlled-expansion slice and sits at the top of the
+  next-work queue in `_docs/TODO.md`
+- a "bounded substantive non-goal re-examination mechanic" motion is drafted in
+  the journal as a proposal-without-current-case; it does not require action
+  unless a future tranche surfaces a real lock-vs-progress conflict
+- the existing English-domination warning in this document still stands; the
+  empirical test of that warning is now recorded but the warning text is left
+  unchanged
 
 ## 2026-04-23 Update
 

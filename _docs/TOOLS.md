@@ -110,10 +110,12 @@ python -m src.app mcp-stream
 python -m src.app mcp-stream --dump-json
 python -m src.app mcp-search-seeds --query "Current Park Point"
 python -m src.app mcp-search-seeds --query "Current Park Point" --dump-json
+python -m src.app mcp-bridge-maintenance --dump-json
 python -m src.app ingest-lexicon --reset --dump-json
 python -m src.app lookup-lexicon --query tortuous --dump-json
 python -m src.app project-query --query "object" --dump-json
 python -m src.app project-query-score --dump-json
+python -m src.app loop-review --dump-json
 python -m src.app ingest-python-docs --reset --dump-json
 python -m src.app ingest-python-docs --all-python-docs --reset --dump-json
 python -m src.app ingest-python-docs --include-prose --reset --dump-json
@@ -154,6 +156,11 @@ inspector Summary tab shows the selected seed, score breakdown, breadcrumb, and
 previous / selected / next source-flow objects while the Raw JSON tab preserves
 the full payload. The raw selected-seed payload includes a score breakdown and
 `selected_flow` for inspection.
+The `mcp-bridge-maintenance` command reports local bridge state before and
+after applying the existing age-based transport cleanup policy. It is the
+explicit operator surface for clearing stale bridge request/response files; it
+does not introduce a new transport, mutate semantic cartridges, or silently
+lower the retention window.
 The `ingest-lexicon` command builds a dedicated English lexical baseline
 cartridge from the project-owned alpha-array dictionary source. The
 `lookup-lexicon` command tests that cartridge by headword and returns a
@@ -172,6 +179,12 @@ The `project-query-score` command runs the bounded English, Python, and
 project-local arbitration fixtures through the shared command spine, records
 each `ngraph.project.query` call in inspection history, and writes the latest
 context projection score artifact.
+The `loop-review` command runs the current loop-safeguard gate before
+controlled expansion. It refreshes the bounded project-document cartridge,
+collects project-local semantic evidence for next-tranche, surface-ownership,
+and truth-boundary anchors, and checks those anchors against bridge/profile,
+truth-policy, score-artifact, and visibility ownership discipline. It is a
+review surface, not an autonomous agent loop.
 The `ingest-python-docs` command builds a dedicated Python documentation
 projection cartridge from the project-owned official Python docs text corpus,
 using standard-library AST summaries only for isolated parseable snippets.
