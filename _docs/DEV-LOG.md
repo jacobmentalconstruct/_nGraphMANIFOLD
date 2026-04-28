@@ -4,9 +4,9 @@ _Generated mirror export created at user request for external assistant review._
 
 _Source of truth: `_docs/_journalDB/app_journal.sqlite3`_
 
-_Exported at: `2026-04-25T13:41:37+00:00`_
+_Exported at: `2026-04-28T14:10:36+00:00`_
 
-_Exported entries: 49_
+_Exported entries: 53_
 
 This file is a generated append-only mirror of the authoritative app journal.
 Do not treat it as a second canonical continuity surface.
@@ -3847,5 +3847,237 @@ The user has chosen to think on this in the background rather than treat it as a
 {
   "phase": "between_tranche_realignment",
   "slice": "importance_scale_calibration_question"
+}
+```
+
+## 50. Side Note: Casual Dogfood Test (Three Queries, Not A Tranche)
+
+- created_at: `2026-04-25T18:48:41Z`
+- kind: `note`
+- status: `recorded`
+- related_path: `src/core/coordination/context_projection.py`
+- related_ref: `casual_dogfood_test_2026_04_25`
+- tags_json: `["side_note", "casual_dogfood", "panel_growth_signal", "not_a_tranche"]`
+
+Quick informal poke at the substrate after parking the Disambiguation Bias Repair tranche. Not a tranche. No park ceremony. Three queries, run as a curious agent rather than as a builder hardening the tool.
+
+Findings:
+
+- `for else loop` selected `python_docs_projection`, kind `python_doctest_example`, score 19.65, evidence including `python_example` and `ast_feature_match`. The substrate genuinely beat Read+Grep here because the AST structure lives in the cartridge and ripgrep cannot expose it. This is the shape of query the substrate is currently useful for.
+- `what is provenance` selected `project_local_docs`, score 9.35, twelve candidates. Right layer, but Read+Grep would have been about as fast on a corpus this small. The projection round-trip does not yet pay for itself on the project side.
+- `identity` selected `english_lexical_prior`, score 28.05, 35 of 36 candidates English. The substrate flattened a three-way ambiguity (English meaning / Python `is` and `id()` / SemanticObject identity) to English alone because `identity` is not in `PYTHON_HINTS` or `PROJECT_HINTS` and the headword-suppression rule from the repair never fired. Real falsifier-panel-growth signal: single-token frame-ambiguous terms outside the hint sets are the next thing the panel should cover.
+
+Casual conclusion: Python-shape lookups are useful today; project-doctrine lookups are not yet faster than Read+Grep; the disambiguation hint-set has visible runway.
+
+Logged here so the dev-log mirror carries it forward through future regenerations rather than losing it as hand-content. Importance 1, not 2 or 3, because this is a side note, not a tranche close or doctrine shift.
+
+### Raw Metadata
+
+```json
+{
+  "phase": "post_prototype_hardening",
+  "slice": "casual_dogfood_side_note"
+}
+```
+
+## 51. Park: Visibility Introspection Boundary Realignment
+
+- created_at: `2026-04-28T14:00:41Z`
+- kind: `phase_park`
+- status: `parked_complete`
+- related_path: `_docs/TODO.md`
+- related_ref: `visibility_introspection_boundary_realign`
+- tags_json: `["phase_park", "visibility", "introspection", "truth_boundary", "post_prototype_hardening"]`
+
+Parked the visibility/introspection side discussion as a documentation and planning realignment, not a runtime implementation tranche.
+
+The realignment answers where the proposed split-and-emit logging/app-monitoring spine belongs: it is a future gated inspection capability adjacent to human visibility work, not substrate truth and not current implementation. The next scheduled tranche remains Scored Human-Facing Inspection Usefulness Fixture. That fixture may score whether Jacob and Codex can compare the same existing inspection evidence, but it should not smuggle in a global runtime event bus.
+
+The boundary now recorded across the docs is: runtime monitoring/logging/app-state introspection may later be normalized as explicit app-monitoring evidence; it must remain gated, inspection-only, queryable only through intentional surfaces, and outside semantic cartridge truth unless a future truth-surface tranche explicitly reopens that boundary.
+
+### Files Changed
+
+- _docs/TODO.md
+- _docs/PROJECT_STATUS.md
+- _docs/THOUGHTS_FOR_NEXT_SESSION.md
+- _docs/MCP_SEAM.md
+- _docs/EXPERIENTIAL_WORKFLOW.md
+
+### Key Decisions
+
+- Distribute the runtime logging/introspection spine across the existing TODO horizon instead of replacing the next scheduled tranche.
+- Keep the Scored Human-Facing Inspection Usefulness Fixture as the next tranche, refined to include human/builder visibility alignment over existing inspection surfaces.
+- Classify runtime logging/app-monitoring events as future gated inspection evidence, not semantic cartridge truth, hidden substrate memory, or current implementation.
+
+### Lessons Learned
+
+- Visibility alignment and app introspection are related but not identical: the former can be scored now with existing surfaces, while the latter needs a later gated event-spine decision.
+- The project can absorb a good side insight non-destructively by appending boundary language and backlog placement rather than opening a new tranche.
+
+### Evidence Used
+
+- TODO.md already selected Scored Human-Facing Inspection Usefulness Fixture as the clean next controlled-expansion slice.
+- PROJECT_STATUS.md already records Loop Safeguards And Controlled Expansion Review as parked and the fixture as the recommended next slice.
+- MCP_SEAM.md already defines command/result envelope projections as inspection-only operational evidence rather than cartridge truth.
+
+### Rejected Alternatives
+
+- Do not implement a global runtime logging/event spine during this parking update.
+- Do not promote app monitoring or logging records into semantic cartridges.
+- Do not replace the human-facing inspection fixture with a broader introspection tranche.
+- Do not rewrite prior tranche history; append the boundary as a new realignment note.
+
+### Verification
+
+- `documentation_only`: True
+- `next_tranche`: Scored Human-Facing Inspection Usefulness Fixture
+- `truth_boundary`: runtime monitoring remains gated inspection evidence, not semantic cartridge truth
+
+### Next Focus
+
+- Review the timeline and open the Scored Human-Facing Inspection Usefulness Fixture tranche.
+- Define pre-committed human/operator inspection scenarios using existing cockpit, stream, history, host workspace, and panel readback surfaces.
+
+### Raw Metadata
+
+```json
+{
+  "phase": "post_prototype_hardening",
+  "slice": "visibility_introspection_boundary_realign"
+}
+```
+
+## 52. Follow-Up: Runtime Next-Tranche Marker Alignment
+
+- created_at: `2026-04-28T14:02:53Z`
+- kind: `implementation_note`
+- status: `recorded`
+- related_path: `src/core/engine.py`
+- related_ref: `runtime_next_tranche_marker_alignment`
+- tags_json: `["implementation_note", "status_surface", "loop_review", "visibility", "post_prototype_hardening"]`
+
+Aligned the runtime status marker with the parked documentation realignment.
+
+After the visibility/introspection boundary was parked in the docs, `status --dump-json` still reported the older Loop Safeguards next-tranche label. That contradicted the continuation docs and would have created a visibility gap between the human-facing project memory and the app's own status surface.
+
+The fix updates the engine's declared next tranche to Scored Human-Facing Inspection Usefulness Fixture and generalizes loop-review so it validates the currently declared next-tranche anchor through project-local docs instead of hard-coding the old Loop Safeguards label. The loop-review gate remains the same kind of safety review; it now follows the current continuation marker.
+
+### Files Changed
+
+- src/core/engine.py
+- src/core/coordination/loop_safeguards.py
+- tests/test_loop_safeguards.py
+- _docs/PROJECT_STATUS.md
+
+### Key Decisions
+
+- Treat status output as a visibility surface that must not contradict the parked docs.
+- Generalize loop-review to check the declared next tranche rather than requiring the historical Loop Safeguards label.
+- Keep the review gate status and boundary checks intact while updating the anchor target.
+
+### Lessons Learned
+
+- A doc-only park can expose runtime status drift when status itself is part of the shared visibility contract.
+
+### Evidence Used
+
+- `python -m src.app status --dump-json` reported the old next_tranche before the alignment fix.
+- After the fix, status and loop-review both report Scored Human-Facing Inspection Usefulness Fixture as the next tranche.
+
+### Rejected Alternatives
+
+- Do not leave the runtime status marker stale after the docs move forward.
+- Do not remove loop-review; keep it as the pre-expansion safety gate.
+
+### Verification
+
+- `focused_test_count`: 3
+- `focused_tests`: python -m unittest tests.test_loop_safeguards
+- `loop_review_status`: ready_for_controlled_expansion_review
+- `status_next_tranche`: Scored Human-Facing Inspection Usefulness Fixture
+
+### Next Focus
+
+- Review timeline and open the Scored Human-Facing Inspection Usefulness Fixture tranche.
+
+### Raw Metadata
+
+```json
+{
+  "phase": "post_prototype_hardening",
+  "slice": "runtime_next_tranche_marker_alignment"
+}
+```
+
+## 53. Doctrine: Contract Guardrails Used In Visibility Boundary Realignment
+
+- created_at: `2026-04-28T14:10:36Z`
+- kind: `doctrine_note`
+- status: `recorded`
+- related_path: `_docs/builder_constraint_contract.md`
+- related_ref: `contract_guardrails_visibility_boundary_followup`
+- tags_json: `["doctrine_note", "contract_guardrails", "visibility", "truth_boundary", "between_tranche_realignment"]`
+
+Preface: this entry is appended as a between-tranche park note after the Visibility / Introspection Boundary Realignment. It records why the realignment was handled as a bounded documentation and status-alignment tranche rather than as a runtime logging/introspection implementation. The purpose is to make the contract's influence inspectable later, not to create new contract law.
+
+The last tranche was constrained by several Builder Constraint Contract guardrails:
+
+- Constraint Field: existing docs, journal records, tranche queue, and non-goals remained active law rather than being discarded when the logging/introspection idea became interesting.
+- Tranche and Tranche-Boundary rules: the work stayed bounded as a parking/realignment slice, with a clean stop before the next scheduled tranche.
+- Explicit Non-Goal rule: the runtime event/logging spine, hidden app-state ingestion, and semantic-cartridge promotion were left deferred instead of being partially implemented under the visibility label.
+- Truth-Layer Separation rule: runtime monitoring/logging was classified as possible future inspection evidence, not builder memory, runtime truth, or semantic cartridge truth.
+- Builder Memory and App Journal rules: the decision was recorded in the app journal and mirrored into DEV-LOG rather than left only in conversation memory.
+- Required Documentation and Documentation Boundary rules: the update landed in project docs under `_docs/` and in the journal, not in scattered scratch notes.
+- Pushback rule: the builder accepted the user's direction to preserve the insight, but pushed back against absorbing the full implementation into the current scheduled tranche.
+- Runtime Control Graph and Event Ledger rules: the contract allowed a future structured logging/event idea, but prevented overstating it as event sourcing or silently adding a new runtime spine.
+- Logging Instead of Print rule: the future logging tap was framed around the existing logging setup rather than ad hoc print-style visibility.
+- Hidden Globals and Magic Constants rule: the stale `next_tranche` runtime marker was corrected once it contradicted the parked docs.
+
+Practical consequence: the tranche parked the insight, preserved the truth boundary, distributed future needs across the TODO horizon, and made only the smallest runtime correction needed to keep shared visibility surfaces coherent.
+
+### Files Changed
+
+- _docs/_journalDB/app_journal.sqlite3
+- _docs/DEV-LOG.md
+
+### Key Decisions
+
+- Record the contract-guardrail mapping as an append-only doctrine note rather than editing the prior park entry.
+- Preface the note as explanatory context for the visibility/introspection boundary realignment, not new contract law.
+
+### Lessons Learned
+
+- The contract was not passive background; it directly shaped scope, truth-boundary handling, and the decision not to implement the logging spine yet.
+- Recording which guardrails constrained a tranche makes future continuation easier and reduces the chance of reopening the same scope question from memory alone.
+
+### Evidence Used
+
+- Visibility / Introspection Boundary Realignment was parked as documentation and planning, not runtime implementation.
+- Runtime next-tranche marker alignment followed because status is itself a shared visibility surface.
+- The Builder Constraint Contract contains explicit rules for tranche boundaries, non-goals, truth-layer separation, journal memory, documentation, logging discipline, and pushback.
+
+### Rejected Alternatives
+
+- Do not rewrite journal entry 51; append this as a separate follow-up note.
+- Do not amend the Builder Constraint Contract from this note.
+- Do not use this entry to authorize the deferred runtime logging/event spine.
+
+### Verification
+
+- `contract_change`: False
+- `entry_type`: doctrine_note
+- `preface_present`: True
+- `runtime_change`: False
+
+### Next Focus
+
+- Review timeline and open the Scored Human-Facing Inspection Usefulness Fixture tranche.
+
+### Raw Metadata
+
+```json
+{
+  "phase": "between_tranche_realignment",
+  "slice": "contract_guardrails_visibility_boundary_followup"
 }
 ```

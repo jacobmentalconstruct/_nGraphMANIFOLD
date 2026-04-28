@@ -321,6 +321,9 @@ The first hardening slice now turns that into implementation discipline:
   the bridge remains file-backed for now, and the `core` / `expanded` doc
   profiles are only meaningful because switching profiles now truly changes the
   cartridge contents instead of carrying stale docs forward
+- visibility/introspection discipline is now explicit before implementation:
+  a future runtime event/logging spine may be useful for app monitoring, but it
+  must be gated, inspection-only, and outside semantic cartridge truth
 
 ### Step 3: Build under the contract
 
@@ -369,6 +372,12 @@ does not make them cartridge truth. The current policy is explicit:
 - cartridges remain runtime semantic truth
 - interaction projections remain inspection adapters
 - history and score artifacts remain operational evidence surfaces
+
+Runtime logging and app-state introspection follow the same discipline if they
+are added later: normalize only through an intentional monitoring surface,
+present them as queryable inspection evidence, and do not let them become
+hidden substrate memory. The next tranche should first score whether the
+existing surfaces already align what Jacob and Codex can see.
 
 ### Step 5: Test and score the experiment
 

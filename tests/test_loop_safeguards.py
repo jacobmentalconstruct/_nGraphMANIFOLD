@@ -29,9 +29,10 @@ class LoopSafeguardsTests(unittest.TestCase):
         (root / "_docs" / "PROJECT_STATUS.md").write_text(
             "# Project Status\n\n"
             "## Proposed Next Tranche\n\n"
-            "Loop Safeguards And Controlled Expansion Review.\n\n"
-            "Keep the bridge file-backed for the next band, keep core and expanded "
-            "project-doc profiles, and review the collaboration loop before widening scope.\n\n"
+            "Scored Human-Facing Inspection Usefulness Fixture.\n\n"
+            "Score whether the host workspace, stream, cockpit, history view, and "
+            "panel readback expose useful shared inspection evidence for the human "
+            "operator and builder before widening scope.\n\n"
             "## Latest Verification\n\n"
             "Builder score and projection score remain accepted while the next tranche "
             "anchor resolves through project-local docs.\n",
@@ -47,12 +48,12 @@ class LoopSafeguardsTests(unittest.TestCase):
             encoding="utf-8",
         )
         (root / "_docs" / "STRANGLER_PLAN.md").write_text(
-            "# Strangler Plan\n\nControlled expansion follows loop safeguards.\n",
+            "# Strangler Plan\n\nControlled expansion follows visibility scoring.\n",
             encoding="utf-8",
         )
         (root / "_docs" / "TODO.md").write_text(
             "# TODO\n\n"
-            "Immediate next step: reassess the larger collaboration loop and its failure modes.\n",
+            "Immediate next step: open the scored human-facing inspection usefulness fixture.\n",
             encoding="utf-8",
         )
         (root / "_docs" / "EXPERIENTIAL_WORKFLOW.md").write_text(
@@ -104,7 +105,7 @@ class LoopSafeguardsTests(unittest.TestCase):
 
         self.assertEqual(review.status, LOOP_REVIEW_STATUS_READY)
         self.assertTrue(review.meets_review_gate)
-        self.assertEqual(review.next_tranche, "Loop Safeguards And Controlled Expansion Review")
+        self.assertEqual(review.next_tranche, "Scored Human-Facing Inspection Usefulness Fixture")
         self.assertEqual({check.status for check in review.checks}, {"pass"})
         self.assertEqual(review.document_profile, "core")
         self.assertEqual(review.runtime_state["bridge_timeout_policy"]["transport_kind"], "file_backed_local")

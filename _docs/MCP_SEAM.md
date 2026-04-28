@@ -175,6 +175,12 @@ The durable ledger is still:
 The host snapshot is an in-process working set for the UI, not a new truth
 store.
 
+Runtime logging and app-monitoring introspection now have the same boundary in
+planning: they may later be normalized into gated inspection events, but they
+are not part of this seam today and must not become semantic cartridge truth by
+accident. The natural future tap point is the root logging setup, but that is a
+deferred sibling capability after human-facing inspection usefulness is scored.
+
 Shared dispatcher ownership:
 
 - `project-query`
@@ -367,6 +373,12 @@ plainly:
 
 The next hardening work should preserve these roles rather than letting
 multiple surfaces drift into saying the same thing differently.
+
+The next scored fixture should measure whether these surfaces let the human
+operator and builder compare the same evidence. It should use existing
+inspection surfaces first. It should not implement a global logging bus, hide
+app-state ingestion behind the visibility layer, or treat monitoring records as
+substrate truth.
 
 The first bounded filtering refinement now exists:
 

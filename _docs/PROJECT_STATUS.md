@@ -9,26 +9,29 @@ remains the authoritative phase ledger.
 
 Just-completed tranche:
 
-- Disambiguation Bias Repair
+- Visibility / Introspection Boundary Realignment
 
 Status:
 
-- parked complete inside post-prototype hardening
-- substrate's central context-conditioned disambiguation claim now backed by a project-owned falsifier
-- closed a between-tranche realignment that recorded a falsifier fixture, a "foundation sound, bend
-  localized" doctrine note, a contract amendment motion (drafted, awaiting user approval, no active case),
-  and a follow-up doctrine note recording that the motion mechanic was not exercised by this case
+- parked as a documentation and planning realignment, not a runtime implementation
+- clarified that app monitoring/logging/introspection may later become gated
+  inspection evidence, but must not become semantic cartridge truth
+- refined the next human-facing visibility tranche so it measures shared
+  operator/builder inspection usefulness without smuggling in a global event bus
+- distributed future runtime event-spine needs across the TODO horizon instead
+  of replacing the scheduled tranche
 
 Started:
 
-- 2026-04-25
+- 2026-04-28
 
 Parked:
 
-- 2026-04-25
+- 2026-04-28
 
 Recently parked tranche:
 
+- Disambiguation Bias Repair (2026-04-25)
 - Bridge Transport And Profile Discipline (2026-04-23 / 2026-04-24)
 
 ## What Shifted
@@ -121,6 +124,10 @@ Recent hardening slices now address that directly:
 - a contract amendment motion was drafted to distinguish architectural locks
   from substantive non-goals; the motion is awaiting user approval and has
   no active case after the disambiguation repair landed within existing locks
+- the visibility/introspection boundary is now explicit: runtime monitoring
+  and logging records may be normalized later for app introspection, but only as
+  gated inspection evidence, never as hidden substrate memory or semantic
+  cartridge truth
 
 ## Stable Prototype State
 
@@ -204,6 +211,11 @@ Immediate focus inside that family:
   - architectural locks remain in force; the gate-lift motion has no active case
 - keep the interaction truth boundary inspection-only unless a future tranche
   explicitly reopens it
+- carry the visibility/introspection boundary into the next slice:
+  - compare what Jacob and Codex can both inspect
+  - use existing shared surfaces first
+  - do not implement a global runtime event/logging spine inside this tranche
+  - keep monitoring/app-state evidence gated, explicit, and outside cartridges
 
 Recommended next tranche slice:
 
@@ -218,18 +230,26 @@ What that means:
   substrate claims, this fixture measures human-operator-facing usefulness
 - keep it bounded: a small set of pre-committed inspection scenarios with
   pre-committed expectations about what a useful surface should expose
+- include a visibility-alignment check: the fixture should say whether the
+  human operator and builder can reason from the same shared evidence without
+  private app state, hidden logs, or inference-only assumptions
+- explicitly exclude a new global logging/introspection bus; that remains a
+  deferred sibling capability after this fixture defines what evidence matters
 
 Queued behind that slice:
 
 - grow the falsifier-backed claim discipline by adding a second panel for a
   different substrate claim (probable candidate: traversal seed selection)
+- consider a gated runtime event/logging spine as future app-monitoring work,
+  rooted in structured inspection evidence and not in semantic cartridge truth
 
 Already-completed tranche slices in this family:
 
+- Visibility / Introspection Boundary Realignment (parked)
 - Loop Safeguards And Controlled Expansion Review (parked)
 - Bridge Transport Maintenance Surface (parked)
 - Bridge Transport And Profile Discipline (parked)
-- Disambiguation Bias Repair (parked, this entry)
+- Disambiguation Bias Repair (parked)
 
 ## Visible Horizon
 
@@ -242,18 +262,22 @@ ahead without pretending to know every detail yet.
 - bridge hardening and transport discipline
 - filtering decisions for stream/cockpit
 - clearer continuation docs and lifecycle discipline
+- scored human-facing inspection usefulness
 
 ### Band 2: Controlled Expansion
 
 - selective addition of more UI actions to the shared command spine
 - carefully chosen expansion of bounded project-document scope
 - targeted seed/projection tuning based on observed failure modes
+- possible gated runtime event/logging spine after human visibility evidence is scored
 
 ### Band 3: Truth-Surface Decisions
 
 - decide whether interaction envelopes remain inspection-only
 - decide if and when command/result projections become persisted semantic truth
 - decide what belongs in runtime truth vs builder memory vs logs
+- decide whether app-monitoring events remain transient, durably inspectable,
+  or queryable, while keeping them out of semantic cartridge truth by default
 
 ### Band 4: Post-Prototype Platform Decisions
 
@@ -345,6 +369,8 @@ Still explicitly out of scope unless a future tranche says otherwise:
 - no full-text search engine
 - no conversation corpus ingestion
 - no cartridge merge
+- no hidden app-state ingestion
+- no runtime monitoring/logging events promoted to semantic cartridge truth
 - no `.dev-tools` runtime dependency
 - no Docling runtime dependency
 - no custom Python parser beyond docs-text segmentation
@@ -391,10 +417,11 @@ Latest tranche verification:
   `NodeWALKER`, `docling`, and `Docling`
 - `python -m src.app status` now reports:
   - `active_tranche=Post-Prototype Hardening And Expansion`
-  - `next_tranche=Loop Safeguards And Controlled Expansion Review`
+  - `next_tranche=Scored Human-Facing Inspection Usefulness Fixture`
 - `python -m src.app loop-review --dump-json` now emits the loop-safeguard
-  review gate; current real-project status is
-  `ready_for_controlled_expansion_review`
+  review gate against the declared next tranche; current real-project status is
+  `ready_for_controlled_expansion_review`, with the next-tranche anchor
+  resolving through `_docs/PROJECT_STATUS.md`
 - `python -m src.app mcp-bridge-maintenance --dump-json` removed `2` stale
   bridge request files and `1` stale bridge response file under the default
   `300` second retention policy

@@ -143,7 +143,7 @@ def build_loop_safeguards_review(
         data_root=root / "data",
     )
     engine_status = ApplicationEngine(settings).status()
-    evidence = tuple(_collect_evidence(root))
+    evidence = tuple(_collect_evidence(root, engine_status.next_tranche))
     evidence_by_id = {item.evidence_id: item for item in evidence}
     runtime_state = _runtime_state(root)
     checks = (
@@ -172,11 +172,11 @@ def build_loop_safeguards_review(
     )
 
 
-def _collect_evidence(root: Path) -> tuple[LoopEvidence, ...]:
+def _collect_evidence(root: Path, next_tranche: str) -> tuple[LoopEvidence, ...]:
     queries = (
         (
             "next_tranche_anchor",
-            "loop safeguards controlled expansion bridge profile policy next tranche",
+            f"{next_tranche} next tranche visibility inspection usefulness operator builder",
         ),
         (
             "surface_ownership_anchor",
@@ -255,8 +255,8 @@ def _anchor_check(
         blockers.append("Next-tranche query did not resolve through project-local docs.")
     elif "PROJECT_STATUS.md" not in anchor.selected_source_ref and "TODO.md" not in anchor.selected_source_ref:
         warnings.append("Next-tranche evidence did not come from PROJECT_STATUS.md or TODO.md.")
-    if "Loop Safeguards" not in next_tranche:
-        blockers.append("Runtime next_tranche does not name Loop Safeguards.")
+    if not next_tranche.strip():
+        blockers.append("Runtime next_tranche is empty.")
     return LoopSafeguardCheck(
         check_id="current_anchor_resolution",
         title="Current Anchor Resolution",
@@ -402,7 +402,7 @@ def _expansion_gate(status: str) -> dict[str, Any]:
     return {
         "status": status,
         "required_before_expansion": [
-            "next tranche anchor resolves through project-local evidence",
+            "current next-tranche anchor resolves through project-local evidence",
             "bridge transport remains file-backed unless new measured need appears",
             "project-doc profiles remain core/expanded only",
             "interaction projections remain inspection-only",
@@ -410,7 +410,7 @@ def _expansion_gate(status: str) -> dict[str, Any]:
             "visibility surfaces keep distinct ownership",
         ],
         "allowed_next_action": (
-            "choose one controlled expansion candidate with tests and score visibility"
+            "open the declared controlled expansion candidate with tests and score visibility"
             if status != LOOP_REVIEW_STATUS_BLOCKED
             else "resolve blocking loop-discipline failures before expansion"
         ),
@@ -426,6 +426,8 @@ def _non_goals() -> tuple[str, ...]:
         "no cartridge merge",
         "no broad dashboard rewrite",
         "no hidden interaction persistence",
+        "no hidden app-state ingestion",
+        "no runtime monitoring events promoted to semantic cartridge truth",
     )
 
 
@@ -436,7 +438,7 @@ def _recommendations(status: str) -> tuple[str, ...]:
             "Re-run loop-review after status, truth, bridge, or score artifacts are corrected.",
         )
     return (
-        "Use loop-review as the first gate before selecting any controlled expansion slice.",
+        "Use loop-review as the first gate before opening the declared controlled expansion slice.",
         "Use mcp-bridge-maintenance when loop-review reports pending bridge transport files.",
         "Prefer one expansion candidate that can be observed through existing stream/cockpit/history surfaces.",
         "Keep the semantic substrate as evidence for tranche mapping, not as silent autonomous planning.",

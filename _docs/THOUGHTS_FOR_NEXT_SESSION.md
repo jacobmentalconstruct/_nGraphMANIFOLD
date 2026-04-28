@@ -4,7 +4,7 @@ _Status: Reflective handoff for research and next-session planning_
 
 _Created: 2026-04-22_
 
-_Updated: 2026-04-25 after disambiguation bias repair_
+_Updated: 2026-04-28 after visibility/introspection boundary realignment_
 
 This document is not the governing contract. The governing contract remains
 `builder_constraint_contract.md`. This file is a thinking surface: a place to
@@ -132,6 +132,25 @@ The truth-surface side is no longer vague. We answered it in bounded form:
 
 So the next pressure is operational rather than ontological.
 
+The visibility/introspection side is now bounded too. The project has a
+plausible future opportunity to normalize runtime logging/app-monitoring events
+through the same split-and-emit discipline used by command/result envelopes,
+with `src/core/logging/setup.py` as the natural root-logging tap. That is not
+the current tranche. The current rule is:
+
+```text
+runtime monitoring may become gated inspection evidence later;
+it does not become hidden app-state ingestion,
+builder memory,
+or semantic cartridge truth.
+```
+
+This belongs beside the human-facing visibility work as a boundary and future
+sibling capability, not as an implementation requirement inside the next
+fixture. The next fixture should first measure whether Jacob and Codex can see
+and compare the same existing inspection evidence across cockpit, stream,
+history, host workspace, and panel readback.
+
 One continuity improvement is now worth preserving going forward:
 
 ```text
@@ -160,7 +179,9 @@ objects. `project-query` now exposes projection-candidate flow, and
 latest projection, latest seed, and recent stream records. The UI, cockpit,
 stream, and seed/projection views now all project through one coordination-
 owned in-process host snapshot instead of each rebuilding their own little
-world from disk.
+world from disk. The next tranche is to score whether those existing surfaces
+are actually useful to the human operator and builder together, while keeping
+runtime logging/introspection as deferred gated monitoring work.
 
 ## 2026-04-23 Host-State Update
 
@@ -1340,4 +1361,3 @@ Given this context stack, here is the meaning I will carry forward.
 then the prototype will have crossed an important threshold.
 
 That would be the first real version of "dipping."
-

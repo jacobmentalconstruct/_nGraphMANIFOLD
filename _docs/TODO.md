@@ -64,6 +64,7 @@ Current interpretation:
 - [x] Add explicit bridge transport maintenance for the first loop-review warning
 - [x] Record a project-owned disambiguation falsifier panel against the live cartridges
 - [x] Repair the projection scoring bias surfaced by the falsifier (panel now passes 10/10)
+- [x] Park the visibility/introspection boundary before opening the human-facing fixture
 - [ ] Open the Scored Human-Facing Inspection Usefulness Fixture tranche
 
 Why this next:
@@ -76,6 +77,9 @@ Why this next:
   (a second pre-committed panel for a different claim the docs make)
 - the gate-lift motion remains drafted in the journal as a proposal-without-current-case;
   no contract action is pending unless a future tranche surfaces a real lock-vs-progress conflict
+- the visibility/introspection discussion clarified a sibling opportunity without changing
+  the current tranche: runtime monitoring events may later become gated inspection evidence,
+  but they do not become semantic cartridge truth and they do not enter hidden substrate memory
 
 Current recommended framing:
 
@@ -87,6 +91,11 @@ Falsifier-Backed Claim Discipline:
 Scored Human-Facing Inspection Usefulness:
   measure whether the operator-facing inspection surfaces are useful in
   the way the human operator expects, not only whether they emit data
+
+Visibility / Introspection Boundary:
+  align the human operator and builder around shared inspection evidence
+  while keeping runtime monitoring, logging, and app-state introspection
+  gated, explicit, and outside semantic cartridge truth
 ```
 
 ## Next Work Queue
@@ -94,6 +103,12 @@ Scored Human-Facing Inspection Usefulness:
 - [x] Decide whether the next controlled expansion should be a scored
       human-facing inspection usefulness fixture or a narrow shared-command
       action expansion — chose the inspection usefulness fixture
+- [x] Classify the proposed runtime logging/introspection spine as future
+      gated monitoring work, not current substrate truth or current fixture
+      implementation
+- [ ] During the human-facing fixture, score whether Jacob and Codex can
+      compare the same inspection evidence from existing surfaces without
+      relying on private or inferred app state
 - [ ] Decide whether to grow the disambiguation falsifier panel beyond ten
       pre-committed queries, or hold at ten and add a second panel for a
       different substrate claim
@@ -113,19 +128,29 @@ Scored Human-Facing Inspection Usefulness:
 ### Near Horizon
 
 - [ ] Hardening: retention, bridge discipline, visibility filtering, lifecycle cleanup
+- [ ] Human visibility: score shared inspection usefulness across cockpit,
+      stream, history, host workspace, and panel readback
+- [ ] Visibility boundary: keep runtime monitoring/introspection gated and
+      inspection-only if it is later added
 
 ### Medium Horizon
 
 - [ ] Controlled expansion of shared-command actions
 - [ ] Controlled expansion of bounded corpora and tuning
+- [ ] Consider a structured runtime event/logging spine only after the
+      human-facing inspection fixture defines which evidence actually helps
 
 ## Proposed Next Tranche
 
-- [ ] Loop Safeguards And Controlled Expansion Review
+- [x] Loop Safeguards And Controlled Expansion Review
+- [ ] Scored Human-Facing Inspection Usefulness Fixture
 
 ### Later Horizon
 
 - [ ] Truth-surface decision for interaction-envelope persistence
+- [ ] Decide whether a gated runtime event/logging spine should become a
+      queryable app-monitoring surface, while remaining outside semantic
+      cartridge truth
 - [ ] Real MCP wrapper / broader platform decisions only if justified
 
 ## Active Non-Goals
@@ -136,6 +161,8 @@ Scored Human-Facing Inspection Usefulness:
 - [ ] No FastAPI / websocket transport by default
 - [ ] No cartridge merge
 - [ ] No hidden interaction persistence
+- [ ] No hidden app-state ingestion
+- [ ] No runtime monitoring/logging events promoted to semantic cartridge truth
 - [ ] No broad dashboard rewrite
 - [ ] No new graph visualization
 
@@ -151,6 +178,8 @@ These stay unchecked on purpose. They are guardrails, not pending promises.
       alpha-array JSON for richer example extraction
 - [ ] Decide when command/result SemanticObject projections should become
       persisted cartridge truth instead of inspection-only adapters
+- [ ] Decide if and when runtime logging records should be normalized into a
+      gated event spine for app monitoring and cross-surface inspection
 - [ ] Decide which UI actions beyond `project-query` should join the shared
       command spine after the first button/control pilot
 - [ ] Decide whether the bridge should stay file-backed or later move to a
