@@ -389,10 +389,6 @@ def load_host_bridge_session(
     if include_stale:
         return manifest
     if manifest.is_stale(stale_after_seconds=stale_after_seconds):
-        try:
-            session_path.unlink()
-        except OSError:
-            pass
         return None
     return manifest
 
@@ -612,12 +608,14 @@ def _process_one_bridge_request(
             code="unsupported_tool",
         )
     try:
+        _refresh_bridge_heartbeat_if_available(project_root, manifest.session_id)
         result = dispatch_host_command(
             project_root,
             request.command,
             state=state,
             history_limit=history_limit,
         )
+        _refresh_bridge_heartbeat_if_available(project_root, manifest.session_id)
     except Exception as exc:
         return _bridge_error_response(
             request,
@@ -664,6 +662,13 @@ def _bridge_error_response(
         error={"code": code, "message": message},
         bridge_policy=dict(request.bridge_policy or {}),
     )
+
+
+def _refresh_bridge_heartbeat_if_available(project_root: Path, session_id: str) -> None:
+    try:
+        heartbeat_host_bridge_session(project_root, session_id)
+    except HostBridgeError:
+        return
 
 
 def _ensure_bridge_dirs(bridge_root: Path) -> None:
@@ -755,6 +760,6 @@ def _parse_timestamp(value: str) -> datetime | None:
 def _command_default_timeout_ms(tool_name: str) -> int:
     if tool_name == "ngraph.host.builder_score_view":
         return DEFAULT_HOST_BRIDGE_HEAVY_TIMEOUT_MS
-    if tool_name == "ngraph.host.projection_score_view":
+    if tool_name in {"ngraph.host.projection_score_view", "ngraph.host.search_seeds"}:
         return DEFAULT_HOST_BRIDGE_MEDIUM_TIMEOUT_MS
     return DEFAULT_HOST_BRIDGE_TIMEOUT_MS

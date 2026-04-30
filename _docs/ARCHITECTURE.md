@@ -11,10 +11,11 @@ inherits `semantic_os_conceptual_build_plan.md` as the conceptual northstar.
 1. `builder_constraint_contract.md` - project constitution and build discipline.
 2. `semantic_os_conceptual_build_plan.md` - conceptual architecture contract.
 3. `ARCHITECTURE.md` - active normalized architecture doctrine.
-4. `STRANGLER_PLAN.md` - phased migration and prototype route.
-5. `SOURCE_PROVENANCE.md` - reference-source and borrowing ledger.
-6. `TOOLS.md` - development tool surface and usage policy.
-7. App journal - append-only continuity, decisions, backlog, and phase history.
+4. `CANONICAL_DETERMINISTIC_BASELINE.md` - protected local evidence doctrine.
+5. `STRANGLER_PLAN.md` - phased migration and prototype route.
+6. `SOURCE_PROVENANCE.md` - reference-source and borrowing ledger.
+7. `TOOLS.md` - development tool surface and usage policy.
+8. App journal - append-only continuity, decisions, backlog, and phase history.
 
 When documents conflict, the contract wins. When the concept plan and this file
 appear to conflict, preserve the concept plan and revise this file.
@@ -116,6 +117,31 @@ Derived views must remain honest about derivation:
 - persistence rows store and index semantic objects.
 - traversal artifacts gather and rank evidence over persisted objects.
 - execution plans are traceable transformations from semantic intent.
+
+### Canonical Deterministic Baseline
+
+The deterministic English lexical, Python documentation, and project-document
+cartridges are a protected local evidence corpus:
+
+- `data/cartridges/base_english_lexicon.sqlite3`
+- `data/cartridges/python_docs.sqlite3`
+- `data/cartridges/project_documents.sqlite3`
+
+These cartridges are canonical local evidence, not temporary scaffolding and
+not final universal truth. They preserve deterministic semantic objects,
+relations, provenance, scoring behavior, and profile boundaries that later
+semantic-space projections must respect.
+
+Future ML embeddings may dock these objects into a larger semantic space only
+as derived vector views. Embedding output must not mutate, merge, rewrite, or
+replace the protected baseline cartridges in place. Vector neighborhoods are
+evidence candidates until promoted into explicit typed relations with
+provenance and confidence.
+
+The future local embedding default is `mxbai-embed-large:latest` through
+Ollama, with `all-minilm:latest` reserved as a fallback for speed or resource
+pressure. No embedding model is permitted to redefine `semantic_id`,
+`occurrence_id`, deterministic relation truth, or provenance truth.
 
 ## Canonical Layers
 

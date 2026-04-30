@@ -89,8 +89,9 @@ truth policy: they are inspection-only operational evidence adapters, not
 semantic cartridge truth. Controlled project-doc expansion is available through
 named `core` and `expanded` profiles. The bridge now also exposes an explicit
 timeout policy: caller overrides are still supported, but longer-running
-bridged scoring commands use larger command-aware defaults and report that
-policy back in bridged JSON payloads through an additive `_bridge` section.
+bridged scoring and seed-search commands use larger command-aware defaults and
+report that policy back in bridged JSON payloads through an additive `_bridge`
+section.
 `status --dump-json` now also reports bridge transport kind, live bridge
 runtime state, and the bounded project-doc profile manifest. Builder-task and
 projection scoring now emit elapsed time, and builder-task scoring now records
@@ -121,8 +122,15 @@ and `0.96`. A bounded substantive non-goal re-examination motion is drafted in
 the journal as a proposal-without-current-case; it does not currently propose
 lifting any lock and requires user-only approval if a future case ever
 exercises it. "Stable" going forward means falsifier-backed, not just absence
-of complaints. The next slice is a scored human-facing inspection usefulness
-fixture, selected from the deferred backlog.
+of complaints. The next selected slice was a scored human-facing inspection
+usefulness fixture from the deferred backlog.
+
+That fixture has now landed as `mcp-score-visibility`. It scores whether the
+operator and builder agent can compare the same projection, seed, promotion,
+status/tool, and score evidence through existing host/readback surfaces. The
+current real-project score is `0.96`, accepted, with the full suite green at
+136 tests. It does not add embeddings, vector views, cartridge truth, hidden
+app-state ingestion, or a global event bus.
 
 Start with:
 
@@ -254,11 +262,21 @@ python -m src.app mcp-score-tasks --project-doc-profile expanded --dump-json
 This command now also routes through the shared host dispatcher. When targeting
 the live host for a longer scoring run, the bridge now applies command-aware
 defaults: builder-task scoring uses a heavy default and projection scoring uses
-a medium default. `--bridge-timeout-ms` remains available as an explicit caller
-override. The expanded profile is intentionally opt-in because it is more
+a medium default. Seed search also uses a medium bridge default. `--bridge-timeout-ms`
+remains available as an explicit caller override. The expanded profile is intentionally opt-in because it is more
 informative but materially heavier than the core four-doc profile.
 The scoring payload now also reports `document_profile`,
 `corpus_object_count`, `corpus_relation_count`, and `elapsed_ms`.
+
+Score shared human-facing inspection usefulness:
+
+```bat
+python -m src.app mcp-score-visibility --dump-json
+```
+
+This command checks existing visibility surfaces and writes
+`data/mcp_inspection/human_visibility_scores.json`. It is an inspection
+fixture, not an embedding/vector or cartridge-ingestion tranche.
 
 Show the history-aware inspector summary:
 
@@ -431,4 +449,3 @@ python -m unittest discover -s tests
 
 `.parts` and `.dev-tools` are reference/tool surfaces. Application runtime code
 must not import from them or require them.
-

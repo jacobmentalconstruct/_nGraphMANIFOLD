@@ -2877,7 +2877,7 @@ Verification:
 - `python -m src.app project-query-score --dump-json` remained at 0.96 accepted
 
 Why it matters:
-- Codex can now ask the host what panel the operator is actually looking at instead of relying only on inference
+- The builder agent can now ask the host what panel the operator is actually looking at instead of relying only on inference
 - more of the operator-facing workflow now shares one canonical command/state path
 - the next real decision is no longer command routing; it is whether interaction-derived semantic objects remain inspection-only or ever become persisted truth
 
@@ -3891,7 +3891,7 @@ Logged here so the dev-log mirror carries it forward through future regeneration
 
 Parked the visibility/introspection side discussion as a documentation and planning realignment, not a runtime implementation tranche.
 
-The realignment answers where the proposed split-and-emit logging/app-monitoring spine belongs: it is a future gated inspection capability adjacent to human visibility work, not substrate truth and not current implementation. The next scheduled tranche remains Scored Human-Facing Inspection Usefulness Fixture. That fixture may score whether Jacob and Codex can compare the same existing inspection evidence, but it should not smuggle in a global runtime event bus.
+The realignment answers where the proposed split-and-emit logging/app-monitoring spine belongs: it is a future gated inspection capability adjacent to human visibility work, not substrate truth and not current implementation. The next scheduled tranche remains Scored Human-Facing Inspection Usefulness Fixture. That fixture may score whether the operator and builder agent can compare the same existing inspection evidence, but it should not smuggle in a global runtime event bus.
 
 The boundary now recorded across the docs is: runtime monitoring/logging/app-state introspection may later be normalized as explicit app-monitoring evidence; it must remain gated, inspection-only, queryable only through intentional surfaces, and outside semantic cartridge truth unless a future truth-surface tranche explicitly reopens that boundary.
 

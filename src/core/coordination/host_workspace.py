@@ -871,6 +871,7 @@ def _status_text(status_payload: dict[str, Any]) -> str:
     project_doc_profiles = status_payload.get("project_doc_profiles", {})
     builder_timeout = (bridge_policy.get("tool_policies", {}) or {}).get(HOST_BUILDER_SCORE_TOOL_NAME, {})
     projection_timeout = (bridge_policy.get("tool_policies", {}) or {}).get(HOST_PROJECTION_SCORE_TOOL_NAME, {})
+    seed_timeout = (bridge_policy.get("tool_policies", {}) or {}).get(HOST_SEED_SEARCH_TOOL_NAME, {})
     lines = [
         "nGraphMANIFOLD Status",
         f"status: {status_payload.get('status', 'n/a')}",
@@ -886,6 +887,7 @@ def _status_text(status_payload: dict[str, Any]) -> str:
         f"bridge_file_retention_seconds: {bridge_policy.get('file_retention_seconds', 'n/a')}",
         f"builder_score_bridge_timeout_ms: {builder_timeout.get('timeout_ms', 'n/a')}",
         f"projection_score_bridge_timeout_ms: {projection_timeout.get('timeout_ms', 'n/a')}",
+        f"seed_search_bridge_timeout_ms: {seed_timeout.get('timeout_ms', 'n/a')}",
         f"bridge_session_present: {bridge_runtime.get('session_present', 'n/a')}",
         f"bridge_pending_requests: {bridge_runtime.get('pending_request_count', 'n/a')}",
         f"bridge_pending_responses: {bridge_runtime.get('pending_response_count', 'n/a')}",
@@ -899,7 +901,11 @@ def _status_text(status_payload: dict[str, Any]) -> str:
 
 
 def _tools_text(tool_registry_payload: dict[str, Any]) -> str:
-    registrations = tool_registry_payload.get("registrations", [])
+    registrations = tool_registry_payload.get("registrations")
+    if not isinstance(registrations, list):
+        registrations = tool_registry_payload.get("tools", [])
+    if not isinstance(registrations, list):
+        registrations = []
     lines = [
         "nGraphMANIFOLD Tool Registry",
         f"version: {tool_registry_payload.get('version', 'n/a')}",

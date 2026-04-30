@@ -42,6 +42,7 @@ from .core.coordination import (
     build_mcp_tool_registry,
     default_builder_task_score_path,
     default_context_projection_score_path,
+    default_human_visibility_score_path,
     default_mcp_inspection_history_path,
     resolve_project_document_profile,
     prune_default_history_trace,
@@ -51,6 +52,7 @@ from .core.coordination import (
     load_host_bridge_session,
     lookup_english_lexicon_entry,
     run_context_projection_arbitration_scoring,
+    run_human_visibility_scoring,
     run_real_builder_task_scoring,
     resolve_host_bridge_timeout_policy,
     run_host_bridge_maintenance,
@@ -87,6 +89,7 @@ def build_parser() -> argparse.ArgumentParser:
             "mcp-history",
             "mcp-ingest-docs",
             "mcp-score-tasks",
+            "mcp-score-visibility",
             "mcp-history-view",
             "mcp-cockpit",
             "mcp-stream",
@@ -404,6 +407,20 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
         if delivered_to_host:
             LOGGER.info("Builder score view delivered to the live host workspace.")
+            return 0
+        return launch_mcp_inspector(settings, payload)
+
+    if args.command == "mcp-score-visibility":
+        run = run_human_visibility_scoring(
+            settings.project_root,
+            history_path=default_mcp_inspection_history_path(settings.project_root),
+            score_path=default_human_visibility_score_path(settings.project_root),
+            history_limit=args.history_limit,
+            project_doc_profile=args.project_doc_profile,
+        )
+        payload = run.to_json()
+        if args.dump_json:
+            sys.stdout.write(f"{payload}\n")
             return 0
         return launch_mcp_inspector(settings, payload)
 

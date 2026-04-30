@@ -28,6 +28,20 @@ Any meaningful borrowed, extracted, or transplanted logic must be:
 
 No application runtime code has been borrowed into nGraphMANIFOLD.
 
+## Protected Baseline Status
+
+The generated cartridges `base_english_lexicon.sqlite3`, `python_docs.sqlite3`,
+and `project_documents.sqlite3` are now protected as the canonical deterministic
+local evidence baseline. They remain generated local artifacts under ignored
+`/data/`, but their doctrine is tracked in
+`CANONICAL_DETERMINISTIC_BASELINE.md`.
+
+Future embedding work may add derived vector views over these cartridges, but
+embedding output must not mutate, merge, rewrite, or replace the baseline
+cartridges in place. Any regenerated baseline version must be explicit,
+manifest-recorded, and rechecked against the relevant scoring and falsifier
+gates.
+
 Phase 2 implemented the canonical semantic object as original project-owned
 code under `src/core/representation/`. The model is architecturally informed by
 the documented HyperHunk/surface idea, but no parts-bin code was copied,

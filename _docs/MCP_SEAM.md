@@ -28,6 +28,7 @@ Runtime owner:
 - `src/core/coordination/interaction_spine.py`
 - `src/core/coordination/project_documents.py`
 - `src/core/coordination/builder_task_scoring.py`
+- `src/core/coordination/human_visibility_scoring.py`
 - `src/core/coordination/history_inspector.py`
 - `src/core/coordination/seed_search.py`
 - `src/core/coordination/host_workspace.py`
@@ -171,6 +172,7 @@ The durable ledger is still:
 - `data/mcp_inspection/history.sqlite3`
 - `data/mcp_inspection/builder_task_scores.json`
 - `data/mcp_inspection/context_projection_scores.json`
+- `data/mcp_inspection/human_visibility_scores.json`
 
 The host snapshot is an in-process working set for the UI, not a new truth
 store.
@@ -191,6 +193,7 @@ Shared dispatcher ownership:
 - `status`
 - `mcp-tools`
 - `mcp-score-tasks`
+- `mcp-score-visibility`
 - `project-query-score`
 
 All of these now normalize through one coordination-owned dispatcher before
@@ -277,6 +280,8 @@ The bridge policy is now more explicit:
 - global default remains `5000 ms`
 - builder-task scoring now uses a heavy command-aware default
 - projection scoring now uses a medium command-aware default
+- seed search now uses a medium command-aware default because it may refresh
+  project-document evidence before selecting a traversal seed
 - `--bridge-timeout-ms` remains the caller-owned override
 - bridged JSON payloads now include additive `_bridge` metadata describing the
   effective timeout policy and delivery context

@@ -24,6 +24,7 @@ constraint_field:
   includes:
     - builder_constraint_contract
     - active_architecture_doctrine
+    - canonical_deterministic_baseline_doctrine
     - app_journal_builder_memory
     - tranche_boundaries
     - explicit_non_goals

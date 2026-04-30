@@ -105,7 +105,10 @@ class LoopSafeguardsTests(unittest.TestCase):
 
         self.assertEqual(review.status, LOOP_REVIEW_STATUS_READY)
         self.assertTrue(review.meets_review_gate)
-        self.assertEqual(review.next_tranche, "Scored Human-Facing Inspection Usefulness Fixture")
+        self.assertEqual(
+            review.next_tranche,
+            "Traversal Seed Selection Falsifier Panel Or Baseline Manifest Helper",
+        )
         self.assertEqual({check.status for check in review.checks}, {"pass"})
         self.assertEqual(review.document_profile, "core")
         self.assertEqual(review.runtime_state["bridge_timeout_policy"]["transport_kind"], "file_backed_local")

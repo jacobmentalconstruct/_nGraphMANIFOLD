@@ -377,7 +377,7 @@ Runtime logging and app-state introspection follow the same discipline if they
 are added later: normalize only through an intentional monitoring surface,
 present them as queryable inspection evidence, and do not let them become
 hidden substrate memory. The next tranche should first score whether the
-existing surfaces already align what Jacob and Codex can see.
+existing surfaces already align what the operator and builder agent can see.
 
 ### Step 5: Test and score the experiment
 

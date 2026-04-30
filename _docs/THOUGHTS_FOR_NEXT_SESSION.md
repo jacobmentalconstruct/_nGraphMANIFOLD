@@ -18,6 +18,19 @@ enthusiasm.
 
 ## Read This First
 
+Newest doctrine note:
+
+```text
+The deterministic cartridges are now a protected local evidence baseline.
+Semantic docking is only safe because that baseline is preserved first.
+```
+
+This means the English lexical, Python docs, and project-doc cartridges should
+not be treated as temporary pre-embedding scaffolding. They are the measured
+local reference instruments. Future Ollama embedding work may project derived
+vector views over them, but it must not mutate, merge, deform, or replace their
+canonical deterministic surfaces.
+
 Most important current note:
 
 ```text
@@ -53,7 +66,7 @@ The first hardening slice now exists in code:
 - the host workspace now absorbs more of the visible operator story so useful
   views stop scattering into default popup windows
 - the host now exposes active, named, and full-workspace panel readback, which
-  means Codex can ask the host what the operator is actually looking at instead
+  means the builder agent can ask the host what the operator is actually looking at instead
   of only inferring from the last command
 - `status`, `mcp-tools`, `mcp-score-tasks`, and `project-query-score` now join
   the shared host dispatcher instead of living as separate side paths
@@ -147,7 +160,7 @@ or semantic cartridge truth.
 
 This belongs beside the human-facing visibility work as a boundary and future
 sibling capability, not as an implementation requirement inside the next
-fixture. The next fixture should first measure whether Jacob and Codex can see
+fixture. The next fixture should first measure whether the operator and builder agent can see
 and compare the same existing inspection evidence across cockpit, stream,
 history, host workspace, and panel readback.
 
@@ -1237,7 +1250,7 @@ need attestable roots.
 Useful question:
 
 ```text
-What would make this tool immediately useful to Codex during development?
+What would make this tool immediately useful to a builder agent during development?
 ```
 
 My current answer: a context projection tool that shows what it sees, why it

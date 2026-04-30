@@ -10,6 +10,7 @@ import tempfile
 import threading
 import time
 import unittest
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from src.core.coordination import (
@@ -39,6 +40,7 @@ from src.core.coordination import (
     default_host_bridge_root,
     dispatch_command_via_host_bridge,
     enqueue_host_bridge_request,
+    heartbeat_host_bridge_session,
     ingest_project_documents,
     load_host_bridge_session,
     process_pending_host_bridge_requests,
@@ -68,6 +70,7 @@ class HostBridgeTests(unittest.TestCase):
     def test_resolve_host_bridge_timeout_policy_uses_command_defaults_and_override(self) -> None:
         builder_policy = resolve_host_bridge_timeout_policy(HOST_BUILDER_SCORE_TOOL_NAME)
         projection_policy = resolve_host_bridge_timeout_policy(HOST_PROJECTION_SCORE_TOOL_NAME)
+        seed_policy = resolve_host_bridge_timeout_policy(HOST_SEED_SEARCH_TOOL_NAME)
         query_policy = resolve_host_bridge_timeout_policy(PROJECT_QUERY_TOOL_NAME)
         override_policy = resolve_host_bridge_timeout_policy(
             HOST_BUILDER_SCORE_TOOL_NAME,
@@ -78,6 +81,8 @@ class HostBridgeTests(unittest.TestCase):
         self.assertEqual(builder_policy["timeout_source"], "command_policy_default")
         self.assertEqual(builder_policy["runtime_class"], "heavy")
         self.assertEqual(projection_policy["timeout_ms"], DEFAULT_HOST_BRIDGE_MEDIUM_TIMEOUT_MS)
+        self.assertEqual(seed_policy["timeout_ms"], DEFAULT_HOST_BRIDGE_MEDIUM_TIMEOUT_MS)
+        self.assertEqual(seed_policy["runtime_class"], "medium")
         self.assertEqual(query_policy["timeout_ms"], DEFAULT_HOST_BRIDGE_TIMEOUT_MS)
         self.assertEqual(query_policy["runtime_class"], "standard")
         self.assertEqual(override_policy["timeout_ms"], 42000)
@@ -149,9 +154,46 @@ class HostBridgeTests(unittest.TestCase):
 
             manifest = load_host_bridge_session(root)
 
-            self.assertIsNone(manifest)
-            with self.assertRaises(HostBridgeUnavailableError):
-                require_live_host_bridge_session(root)
+        self.assertIsNone(manifest)
+        with self.assertRaises(HostBridgeUnavailableError):
+            require_live_host_bridge_session(root)
+
+    def test_stale_manifest_can_be_recovered_by_owner_heartbeat(self) -> None:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:
+            root = Path(temp)
+            stale_session = activate_host_bridge_session(root, created_at="2000-01-01T00:00:00Z")
+
+            self.assertIsNone(load_host_bridge_session(root))
+            recovered = heartbeat_host_bridge_session(root, stale_session.session_id)
+
+        self.assertEqual(recovered.session_id, stale_session.session_id)
+        self.assertEqual(recovered.status, "active")
+
+    def test_processing_refreshes_bridge_heartbeat_for_followup_calls(self) -> None:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:
+            root = Path(temp)
+            self._build_layers(root)
+            state = default_host_state(root)
+            stale_but_retained = (datetime.now(timezone.utc) - timedelta(seconds=10)).strftime("%Y-%m-%dT%H:%M:%SZ")
+            session = activate_host_bridge_session(root, created_at=stale_but_retained)
+            enqueue_host_bridge_request(
+                root,
+                create_host_command_envelope(
+                    tool_name=HOST_STATUS_TOOL_NAME,
+                    payload={},
+                    actor="human",
+                    source_surface="cli-bridge",
+                ),
+                session=session,
+            )
+
+            responses = process_pending_host_bridge_requests(root, state, session=session)
+            live_session = load_host_bridge_session(root)
+
+        self.assertEqual(len(responses), 1)
+        self.assertEqual(responses[0].status, "ok")
+        self.assertIsNotNone(live_session)
+        self.assertEqual(live_session.session_id, session.session_id)
 
     def test_wait_for_live_host_bridge_session_observes_startup_manifest(self) -> None:
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp:

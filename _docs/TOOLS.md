@@ -102,6 +102,7 @@ python -m src.app mcp-history
 python -m src.app mcp-history --dump-json
 python -m src.app mcp-ingest-docs --dump-json
 python -m src.app mcp-score-tasks --dump-json
+python -m src.app mcp-score-visibility --dump-json
 python -m src.app mcp-history-view
 python -m src.app mcp-history-view --dump-json
 python -m src.app mcp-cockpit
@@ -138,6 +139,11 @@ The `mcp-score-tasks` command scores real builder continuation tasks against
 the ingested project documents and writes the latest score artifact. It uses
 the same coordination-owned seed-fitness scorer as `mcp-search-seeds`, with
 task-aware policy only for builder continuation scoring.
+The `mcp-score-visibility` command scores whether existing operator-facing
+inspection surfaces expose the same projection, seed, promotion, status/tool,
+and score evidence to the operator and builder agent. It writes
+`data/mcp_inspection/human_visibility_scores.json` and does not generate
+embeddings, vector views, cartridge truth, or a new event bus.
 The `mcp-history-view` command opens or emits a summarized history-aware
 inspector payload while preserving the raw history snapshot.
 The `mcp-cockpit` command opens or emits the unified read-only visibility
@@ -155,7 +161,8 @@ call in inspection history, and opens or emits the evidence payload. The
 inspector Summary tab shows the selected seed, score breakdown, breadcrumb, and
 previous / selected / next source-flow objects while the Raw JSON tab preserves
 the full payload. The raw selected-seed payload includes a score breakdown and
-`selected_flow` for inspection.
+`selected_flow` for inspection. When bridged into a visible host workspace,
+seed search uses the medium command-aware bridge timeout policy.
 The `mcp-bridge-maintenance` command reports local bridge state before and
 after applying the existing age-based transport cleanup policy. It is the
 explicit operator surface for clearing stale bridge request/response files; it

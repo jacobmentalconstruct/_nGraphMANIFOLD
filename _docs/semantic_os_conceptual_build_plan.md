@@ -13,6 +13,8 @@ Companion implementation-facing documents:
 
 - `ARCHITECTURE.md` normalizes this concept plan into active architecture
   doctrine.
+- `CANONICAL_DETERMINISTIC_BASELINE.md` records the protected deterministic
+  local evidence corpus that future semantic-space docking must preserve.
 - `SOURCE_PROVENANCE.md` records approved reference sources and any future
   borrowed logic.
 - `STRANGLER_PLAN.md` defines the migration route from reference parts into the
@@ -218,6 +220,18 @@ When semantic structures trigger execution, the execution path must be inspectab
 ## 5.10 Layer honesty invariant
 No layer may quietly claim to solve a problem actually owned by another layer.
 For example, persistence is not analysis, analysis is not representation, and consensus is not identity.
+
+## 5.11 Protected baseline invariant
+Accepted deterministic corpus surfaces are protected local evidence once they
+become scoring, disambiguation, or provenance anchors.
+
+Embeddings, learned models, and other semantic-space projections may annotate,
+index, compare, or reveal neighborhoods around that baseline, but they shall not
+silently mutate, merge, deform, or replace it.
+
+When a deterministic baseline and an interpretive projection disagree, the
+system must preserve the baseline, record the disagreement as evidence, and
+promote only explicit provenance-bearing relations into graph truth.
 
 ---
 

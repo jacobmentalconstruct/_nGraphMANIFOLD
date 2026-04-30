@@ -1,11 +1,60 @@
 # TODO
 
-_Status: Active continuation checklist, hardening slice parked_
+_Status: Active continuation checklist, visible host lifecycle hardening parked_
 
 This file is the human-readable next-work checklist. The app journal remains the
 authoritative ledger, and `PROJECT_STATUS.md` remains the quick park marker.
 
 ## Just Completed
+
+- [x] Visible Host Lifecycle Hardening
+
+What that means:
+
+- [x] bridged `mcp-search-seeds` now uses the medium bridge timeout policy
+      instead of the flat five-second default
+- [x] the Status panel exposes the seed-search bridge timeout alongside
+      builder/projection bridge timeouts
+- [x] the Tool Registry panel readback now renders the current `tools` payload
+      shape as well as the older `registrations` shape
+- [x] stale session manifests are no longer deleted by passive live-session
+      reads, so the visible host owner can recover them
+- [x] bridge request processing refreshes the owner heartbeat before and after
+      dispatch, so long-running visible commands do not break follow-up calls
+- [x] focused host bridge/workspace regression tests are green
+- [x] full test suite is green at 138 tests
+
+- [x] Scored Human-Facing Inspection Usefulness Fixture
+
+What that means:
+
+- [x] `src/core/coordination/human_visibility_scoring.py` defines four
+      pre-committed visibility fixtures
+- [x] `python -m src.app mcp-score-visibility --dump-json` writes
+      `data/mcp_inspection/human_visibility_scores.json`
+- [x] projection, seed, promotion, status/tool, and score visibility are
+      scored across existing host/readback surfaces
+- [x] current real-project human visibility score is `0.96`, accepted
+- [x] full test suite is green at 136 tests
+- [x] no embeddings, vector views, cartridge rewrite, global event bus, or
+      hidden app-state ingestion was introduced
+
+## Recent Tranches
+
+- [x] Protected Baseline And Semantic Docking Doctrine
+
+What that means:
+
+- [x] deterministic English lexical, Python docs, and project-doc cartridges
+      are recorded as protected local evidence in
+      `CANONICAL_DETERMINISTIC_BASELINE.md`
+- [x] semantic docking is now subordinate to baseline preservation
+- [x] future embedding output is limited to derived vector views and evidence
+      candidates until explicit relations are promoted
+- [x] future baseline manifest contract is recorded for
+      `data/cartridges/baseline_manifest.json`
+- [x] no schema migration, vector generation, Ollama embedding call, or
+      cartridge rewrite was performed in this doctrine tranche
 
 - [x] Disambiguation Bias Repair
 
@@ -24,8 +73,6 @@ What that means:
       ("foundation sound, bend localized"), contract amendment motion ("bounded substantive non-goal
       re-examination mechanic", awaiting approval), and a follow-up doctrine note
       ("motion mechanic has no active case")
-
-## Recent Tranches
 
 - [x] Bridge Transport And Profile Discipline
 
@@ -65,7 +112,11 @@ Current interpretation:
 - [x] Record a project-owned disambiguation falsifier panel against the live cartridges
 - [x] Repair the projection scoring bias surfaced by the falsifier (panel now passes 10/10)
 - [x] Park the visibility/introspection boundary before opening the human-facing fixture
-- [ ] Open the Scored Human-Facing Inspection Usefulness Fixture tranche
+- [x] Record the protected deterministic baseline doctrine before opening any
+      embedder/vector docking work
+- [x] Open and complete the Scored Human-Facing Inspection Usefulness Fixture tranche
+- [x] Open visible host lifecycle hardening after live monitor smoke surfaced
+      seed-search bridge timeout and tool-panel text projection gaps
 
 Why this next:
 
@@ -106,7 +157,7 @@ Visibility / Introspection Boundary:
 - [x] Classify the proposed runtime logging/introspection spine as future
       gated monitoring work, not current substrate truth or current fixture
       implementation
-- [ ] During the human-facing fixture, score whether Jacob and Codex can
+- [x] During the human-facing fixture, score whether the operator and builder agent can
       compare the same inspection evidence from existing surfaces without
       relying on private or inferred app state
 - [ ] Decide whether to grow the disambiguation falsifier panel beyond ten
@@ -122,13 +173,19 @@ Visibility / Introspection Boundary:
 - [ ] Decide whether operator metadata should later support taxonomy or richer structure beyond label / reason / note
 - [ ] Review the loop-frailty side conversation and distill only the grounded safeguards worth keeping
 - [ ] Keep docs, score artifacts, and journal continuity current while hardening
+- [ ] Add the future generated baseline manifest helper before any persisted
+      vector-view pilot
+- [x] Rerun visible monitor lifecycle smoke after the host lifecycle hardening patch
 
 ## Visible Horizon
 
 ### Near Horizon
 
 - [ ] Hardening: retention, bridge discipline, visibility filtering, lifecycle cleanup
-- [ ] Human visibility: score shared inspection usefulness across cockpit,
+- [x] Visible lifecycle hardening: medium seed-search bridge policy and
+      tool-registry panel text readback
+- [ ] Protected baseline: manifest counts and hashes before persisted vector views
+- [x] Human visibility: score shared inspection usefulness across cockpit,
       stream, history, host workspace, and panel readback
 - [ ] Visibility boundary: keep runtime monitoring/introspection gated and
       inspection-only if it is later added
@@ -143,7 +200,10 @@ Visibility / Introspection Boundary:
 ## Proposed Next Tranche
 
 - [x] Loop Safeguards And Controlled Expansion Review
-- [ ] Scored Human-Facing Inspection Usefulness Fixture
+- [x] Scored Human-Facing Inspection Usefulness Fixture
+- [x] Visible Host Lifecycle Hardening
+- [ ] Choose next bounded slice: traversal seed-selection falsifier panel or
+      baseline manifest helper before vector-view work
 
 ### Later Horizon
 
@@ -155,7 +215,8 @@ Visibility / Introspection Boundary:
 
 ## Active Non-Goals
 
-- [ ] No embeddings unless a separate tranche authorizes them
+- [ ] No embeddings unless a separate tranche authorizes them after baseline
+      protection is preserved
 - [ ] No repo-wide scan as a default ingestion path
 - [ ] No real network MCP server
 - [ ] No FastAPI / websocket transport by default
@@ -205,5 +266,8 @@ disambiguation falsifier panel: 10/10 passing (project-owned)
 projection scoring rebalance: landed (no architectural lock lifted)
 contract amendment motion: drafted, no active case, awaiting approval
 journal importance scale: calibration question recorded (entry 49), user-deferred
-next tranche: Scored Human-Facing Inspection Usefulness Fixture
+human visibility score: 0.96 accepted
+visible lifecycle hardening: seed-search bridge timeout + tool panel readback patched
+visible monitor smoke: seed search, immediate tool registry follow-up, seed panel, tools panel, and status panel all passed
+next tranche: choose traversal seed-selection falsifier panel or baseline manifest helper
 ```

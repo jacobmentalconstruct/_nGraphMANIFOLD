@@ -352,10 +352,17 @@ class HostWorkspaceTests(unittest.TestCase):
             status_result.payload["bridge_timeout_policy"]["tool_policies"][HOST_BUILDER_SCORE_TOOL_NAME]["runtime_class"],
             "heavy",
         )
+        self.assertEqual(
+            status_result.payload["bridge_timeout_policy"]["tool_policies"][HOST_SEED_SEARCH_TOOL_NAME]["runtime_class"],
+            "medium",
+        )
         self.assertFalse(status_result.payload["bridge_runtime"]["session_present"])
         self.assertEqual(status_result.payload["project_doc_profiles"]["core"]["document_count"], 4)
         self.assertEqual(status_result.payload["project_doc_profiles"]["expanded"]["document_count"], 7)
         self.assertIn("tools", tools_result.payload)
+        self.assertIn("ngraph.project.query", tools_result.snapshot.panels["tools"]["text"])
+        self.assertIn("ngraph.analysis.traverse_cartridge", tools_result.snapshot.panels["tools"]["text"])
+        self.assertIn("seed_search_bridge_timeout_ms: 30000", status_result.snapshot.panels["status"]["text"])
         self.assertTrue(builder_result.payload["meets_acceptance"])
         self.assertEqual(builder_result.payload["document_profile"], "expanded")
         self.assertGreater(builder_result.payload["elapsed_ms"], 0)

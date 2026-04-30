@@ -1,6 +1,6 @@
 # Project Status
 
-_Status: Active parking surface, post-prototype hardening slice parked_
+_Status: Active parking surface, visible host lifecycle hardening parked_
 
 This file is the quick continuation marker between tranches. The app journal
 remains the authoritative phase ledger.
@@ -9,28 +9,42 @@ remains the authoritative phase ledger.
 
 Just-completed tranche:
 
-- Visibility / Introspection Boundary Realignment
+- Visible Host Lifecycle Hardening
 
 Status:
 
-- parked as a documentation and planning realignment, not a runtime implementation
-- clarified that app monitoring/logging/introspection may later become gated
-  inspection evidence, but must not become semantic cartridge truth
-- refined the next human-facing visibility tranche so it measures shared
-  operator/builder inspection usefulness without smuggling in a global event bus
-- distributed future runtime event-spine needs across the TODO horizon instead
-  of replacing the scheduled tranche
+- opened after live monitor lifecycle checks showed two host-visible gaps:
+  bridged seed search could outgrow the flat bridge timeout, and the Tool
+  Registry panel text was not rendering the current registry payload shape
+- bridged `mcp-search-seeds` now uses a medium command-aware timeout policy
+- Status panel text now exposes `seed_search_bridge_timeout_ms`
+- Tool Registry panel text now reads both `tools` and legacy `registrations`
+  payloads
+- bridge session reads no longer delete stale manifests passively; cleanup is
+  still handled by explicit maintenance/retention policy
+- bridge request processing refreshes the owner heartbeat before and after
+  dispatch so long-running visible commands can be followed immediately by
+  another bridged command
+- visible monitor smoke passed for seed search, immediate tool registry
+  follow-up, seed panel readback, tools panel readback, and status panel
+  readback
+- full test suite is green at `138` tests
+- no embeddings, vector views, cartridge rewrite, global event bus, or hidden
+  app-state ingestion were introduced
 
 Started:
 
-- 2026-04-28
+- 2026-04-30
 
 Parked:
 
-- 2026-04-28
+- 2026-04-30
 
 Recently parked tranche:
 
+- Scored Human-Facing Inspection Usefulness Fixture (2026-04-30)
+- Protected Baseline And Semantic Docking Doctrine (2026-04-30)
+- Visibility / Introspection Boundary Realignment (2026-04-28)
 - Disambiguation Bias Repair (2026-04-25)
 - Bridge Transport And Profile Discipline (2026-04-23 / 2026-04-24)
 
@@ -57,10 +71,21 @@ bridge state, and overlapping visibility surfaces.
 
 Recent hardening slices now address that directly:
 
+- human-facing inspection usefulness now has a scored fixture with accepted
+  projection, seed, promotion, status/tool, and score-surface visibility
+- visible host lifecycle hardening now makes bridged seed search a medium
+  timeout command and makes Tool Registry panel text match the current payload
+  shape
+- protected deterministic baseline doctrine now makes the three current
+  cartridges canonical local evidence before any embedding work begins
+- semantic docking is now explicitly subordinate to baseline preservation and
+  must use `derived_vector_views` rather than redefining identity or graph truth
 - MCP inspection history uses a rolling-trace policy
 - old unpinned interaction rows are pruned automatically
 - score-referenced call ids are pinned as durable evidence
 - stale bridge request/response/session files are cleaned conservatively
+- stale-looking bridge sessions are no longer deleted by passive readers, so
+  the visible host owner can recover its own manifest after a long command
 - the host, stream, cockpit, and history surfaces now expose retention state
 - stream and cockpit surfaces now support bounded tool/layer filtering
 - operator-facing promotion controls can now pin or unpin the active or named
@@ -82,7 +107,8 @@ Recent hardening slices now address that directly:
 - bridged commands now use command-aware timeout defaults instead of one flat
   five-second wait for every tool
 - builder-task scoring now defaults to a heavy bridge timeout policy and
-  projection scoring now defaults to a medium bridge timeout policy
+  projection and seed-search commands now default to a medium bridge timeout
+  policy
 - `--bridge-timeout-ms` remains a caller-owned override rather than being
   removed from the CLI surface
 - bridged JSON payloads now expose additive `_bridge` metadata so timeout
@@ -145,6 +171,7 @@ with:
   - shared command/result envelopes
   - persistent inspection history
   - readable stream / cockpit / host workspace visibility
+  - scored human-facing inspection usefulness
   - local same-instance host targeting through a bounded file-backed bridge
 ```
 
@@ -200,7 +227,7 @@ Current active tranche family:
 
 Immediate focus inside that family:
 
-- open the next slice: Scored Human-Facing Inspection Usefulness Fixture
+- choose the next bounded slice after the accepted visibility fixture
 - preserve the now-explicit answer on bridge/profile discipline:
   - keep the bridge file-backed for the next band
   - keep `core` and `expanded`
@@ -212,34 +239,26 @@ Immediate focus inside that family:
 - keep the interaction truth boundary inspection-only unless a future tranche
   explicitly reopens it
 - carry the visibility/introspection boundary into the next slice:
-  - compare what Jacob and Codex can both inspect
+  - compare what the operator and builder agent can both inspect
   - use existing shared surfaces first
   - do not implement a global runtime event/logging spine inside this tranche
   - keep monitoring/app-state evidence gated, explicit, and outside cartridges
 
-Recommended next tranche slice:
+Recommended next tranche candidates:
 
-- Scored Human-Facing Inspection Usefulness Fixture
+- Traversal Seed Selection Falsifier Panel
+- Baseline Manifest Helper before any persisted vector-view pilot
 
 What that means:
 
-- score whether the operator-facing inspection surfaces (cockpit, stream,
-  history view, host workspace, panel readback) are useful in the way the
-  human operator expects, not only whether they emit data
-- do not collapse this into more falsifier panels; falsifier panels measure
-  substrate claims, this fixture measures human-operator-facing usefulness
-- keep it bounded: a small set of pre-committed inspection scenarios with
-  pre-committed expectations about what a useful surface should expose
-- include a visibility-alignment check: the fixture should say whether the
-  human operator and builder can reason from the same shared evidence without
-  private app state, hidden logs, or inference-only assumptions
-- explicitly exclude a new global logging/introspection bus; that remains a
-  deferred sibling capability after this fixture defines what evidence matters
+- if continuing claim discipline, add a second pre-committed falsifier panel
+  for a different substrate claim, with traversal seed selection still the
+  probable candidate
+- if opening the semantic-docking/vector path, implement the baseline manifest
+  first so cartridge counts and hashes are protected before vector views
 
 Queued behind that slice:
 
-- grow the falsifier-backed claim discipline by adding a second panel for a
-  different substrate claim (probable candidate: traversal seed selection)
 - consider a gated runtime event/logging spine as future app-monitoring work,
   rooted in structured inspection evidence and not in semantic cartridge truth
 
@@ -247,6 +266,8 @@ Already-completed tranche slices in this family:
 
 - Visibility / Introspection Boundary Realignment (parked)
 - Loop Safeguards And Controlled Expansion Review (parked)
+- Scored Human-Facing Inspection Usefulness Fixture (parked)
+- Visible Host Lifecycle Hardening (parked)
 - Bridge Transport Maintenance Surface (parked)
 - Bridge Transport And Profile Discipline (parked)
 - Disambiguation Bias Repair (parked)
@@ -381,6 +402,21 @@ Still explicitly out of scope unless a future tranche says otherwise:
 
 Latest tranche verification:
 
+- `python -m unittest tests.test_host_bridge tests.test_host_workspace -v`
+  passed with `20` tests after the seed-search bridge policy, Tool Registry
+  panel readback, and heartbeat recovery hardening
+- `python -m unittest discover -s tests -v` passed with `138` tests after the
+  visible host lifecycle hardening
+- visible monitor lifecycle smoke passed:
+  - `mcp-search-seeds --use-host-bridge --dump-json` returned `status=ok`
+    with `ngraph.host.search_seeds` using the medium `30000 ms` policy
+  - immediate follow-up `mcp-tools --use-host-bridge --dump-json` returned
+    `status=ok`
+  - Tool Registry panel readback included `ngraph.analysis.traverse_cartridge`
+    and `ngraph.project.query`
+  - Seed panel readback showed `Current Park Point`, selected source
+    `_docs/PROJECT_STATUS.md`, `steps: 17`, and `blockers: 0`
+  - Status panel readback showed `seed_search_bridge_timeout_ms: 30000`
 - `python -m unittest tests.test_history_inspector tests.test_host_workspace` passed with `25` tests
 - `python -m unittest tests.test_host_bridge tests.test_host_workspace` passed with `16` tests
 - `python -m unittest tests.test_project_documents tests.test_host_workspace tests.test_builder_task_scoring tests.test_context_projection_scoring tests.test_host_bridge`
@@ -417,7 +453,7 @@ Latest tranche verification:
   `NodeWALKER`, `docling`, and `Docling`
 - `python -m src.app status` now reports:
   - `active_tranche=Post-Prototype Hardening And Expansion`
-  - `next_tranche=Scored Human-Facing Inspection Usefulness Fixture`
+  - `next_tranche=Traversal Seed Selection Falsifier Panel Or Baseline Manifest Helper`
 - `python -m src.app loop-review --dump-json` now emits the loop-safeguard
   review gate against the declared next tranche; current real-project status is
   `ready_for_controlled_expansion_review`, with the next-tranche anchor
