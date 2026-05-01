@@ -132,6 +132,15 @@ current real-project score is `0.96`, accepted, with the full suite green at
 136 tests. It does not add embeddings, vector views, cartridge truth, hidden
 app-state ingestion, or a global event bus.
 
+A bounded retrieval/evidence side tranche is now also preserved as a
+project-owned inspection surface inside `src/core/coordination/`. These
+harnesses are app-owned CLI commands, not `.parts` runtime imports, not
+`.dev-tools` runtime dependencies, and not active replacements for the main
+scorer. The current conclusion from that tranche is precise: the deterministic
+baseline remains the primary chooser, while an auto-lens evidence bag is most
+useful as a companion context packet around the baseline seed rather than as a
+replacement retriever.
+
 Start with:
 
 - `_docs/builder_constraint_contract.md`
@@ -413,6 +422,19 @@ inspection history and writes
 `data/mcp_inspection/context_projection_scores.json`.
 This command now also routes through the shared host dispatcher and can update
 the live host workspace when sent through the bridge.
+
+Run the preserved side retrieval/evidence harnesses:
+
+```bat
+python -m src.app project-query-bag --query "where are we parked now and what should we build next?" --lens-profile auto --dump-json
+python -m src.app project-query-bag-compare --project-doc-profile expanded --dump-json
+python -m src.app project-query-adaptive-compare --project-doc-profile expanded --dump-json
+python -m src.app project-query-companion-compare --project-doc-profile expanded --dump-json
+```
+
+These commands write JSON artifacts under `data/mcp_inspection/`. They are
+inspection/evaluation surfaces owned by the app, not cartridge-truth mutation
+paths and not `.parts` or `.dev-tools` dependencies.
 
 Review loop safeguards before choosing the next controlled expansion slice:
 

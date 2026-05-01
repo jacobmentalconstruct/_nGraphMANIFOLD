@@ -275,6 +275,28 @@ Prototype tuning and scoring:
 This is a scoring harness for builder usefulness, not a protocol transport,
 server runtime, broad benchmark suite, or agent autonomy layer.
 
+Experimental retrieval and companion evidence harnesses:
+
+- Live under `src/core/coordination/` as project-owned side evaluation
+  surfaces.
+- Use the bounded project-doc cartridge and write artifacts under
+  `data/mcp_inspection/`.
+- Preserve several retrieval/evidence comparison commands:
+  - `project-query-bag`
+  - `project-query-bag-compare`
+  - `project-query-adaptive-compare`
+  - `project-query-companion-compare`
+- Do not mutate semantic cartridge truth, replace the canonical deterministic
+  baseline, or introduce runtime dependency on `.parts` or `.dev-tools`.
+- Current doctrine from this tranche is narrow:
+  - baseline deterministic seed selection remains the primary chooser
+  - adaptive reweighting of the current deterministic scorer was not enough
+  - the lens bag is most promising as companion context around the baseline
+    seed, not as a replacement retriever
+
+These harnesses are preserved as app-owned analysis/coordination instrumentation
+so later tranches can reuse them without reopening reference-bin coupling.
+
 Local MCP adapter and raw inspector:
 
 - Wraps `analysis.traverse_cartridge` in a local MCP-shaped adapter.

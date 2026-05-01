@@ -12,9 +12,16 @@ from pathlib import Path
 
 from .core.config import AppSettings
 from .core.coordination import (
+    ADAPTIVE_SEED_FITNESS_EVAL_VERSION,
+    AUTO_LENS_PROFILE,
+    DEFAULT_CHAR_BUDGET,
     DEFAULT_HOST_BRIDGE_ATTACH_GRACE_MS,
     DEFAULT_HOST_BRIDGE_FILE_RETENTION_SECONDS,
     DEFAULT_HOST_BRIDGE_TIMEOUT_MS,
+    DEFAULT_LENS_PROFILE,
+    DEFAULT_MAX_ITEMS,
+    DEFAULT_MAX_NODES,
+    DEFAULT_RADIUS,
     HOST_BUILDER_SCORE_TOOL_NAME,
     HOST_COCKPIT_TOOL_NAME,
     HOST_HISTORY_VIEW_TOOL_NAME,
@@ -27,6 +34,7 @@ from .core.coordination import (
     HOST_TOOLS_TOOL_NAME,
     HostBridgeError,
     HostBridgeUnavailableError,
+    LENS_PROFILE_NAMES,
     PROJECT_QUERY_TOOL_NAME,
     TRAVERSAL_TOOL_NAME,
     DEFAULT_PYTHON_DOCS_DOCUMENTS,
@@ -40,10 +48,14 @@ from .core.coordination import (
     build_visibility_cockpit_payload,
     build_python_docs_corpus,
     build_mcp_tool_registry,
+    default_adaptive_seed_fitness_eval_path,
     default_builder_task_score_path,
     default_context_projection_score_path,
     default_human_visibility_score_path,
     default_mcp_inspection_history_path,
+    default_project_query_bag_compare_path,
+    default_project_query_companion_eval_path,
+    default_project_query_lens_bag_path,
     resolve_project_document_profile,
     prune_default_history_trace,
     dispatch_command_via_host_bridge,
@@ -51,12 +63,20 @@ from .core.coordination import (
     ingest_project_documents_for_traversal,
     load_host_bridge_session,
     lookup_english_lexicon_entry,
+    run_adaptive_seed_fitness_eval,
     run_context_projection_arbitration_scoring,
     run_human_visibility_scoring,
+    run_project_query_companion_eval,
+    run_project_query_bag_comparison,
+    run_project_query_lens_bag,
     run_real_builder_task_scoring,
     resolve_host_bridge_timeout_policy,
     run_host_bridge_maintenance,
     run_seed_search_traversal,
+    save_adaptive_seed_fitness_eval_run,
+    save_project_query_bag_comparison_run,
+    save_project_query_companion_eval_run,
+    save_project_query_lens_bag_run,
     wait_for_live_host_bridge_session,
 )
 from .core.engine import ApplicationEngine
@@ -103,6 +123,10 @@ def build_parser() -> argparse.ArgumentParser:
             "lookup-lexicon",
             "project-query",
             "project-query-score",
+            "project-query-bag",
+            "project-query-bag-compare",
+            "project-query-adaptive-compare",
+            "project-query-companion-compare",
         ),
         help="Command to run.",
     )
@@ -193,6 +217,36 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("core", "expanded"),
         default="core",
         help="For project-doc ingestion and builder-facing scoring/search, choose a bounded document profile.",
+    )
+    parser.add_argument(
+        "--lens-profile",
+        choices=(AUTO_LENS_PROFILE, *LENS_PROFILE_NAMES),
+        default=DEFAULT_LENS_PROFILE,
+        help="For project-query-bag, choose the side-harness lens profile or auto selector.",
+    )
+    parser.add_argument(
+        "--max-items",
+        type=int,
+        default=DEFAULT_MAX_ITEMS,
+        help="For project-query-bag, maximum evidence items to pack.",
+    )
+    parser.add_argument(
+        "--max-nodes",
+        type=int,
+        default=DEFAULT_MAX_NODES,
+        help="For project-query-bag, maximum projected semantic objects.",
+    )
+    parser.add_argument(
+        "--radius",
+        type=int,
+        default=DEFAULT_RADIUS,
+        help="For project-query-bag, relation-hop radius for neighborhood shaping.",
+    )
+    parser.add_argument(
+        "--char-budget",
+        type=int,
+        default=None,
+        help="For project-query-bag, optional evidence bag character budget override.",
     )
     parser.add_argument(
         "--demote",
@@ -636,6 +690,83 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
         if delivered_to_host:
             LOGGER.info("Project query delivered to the live host workspace.")
+            return 0
+        return launch_mcp_inspector(settings, payload)
+
+    if args.command == "project-query-bag":
+        run = run_project_query_lens_bag(
+            settings.project_root,
+            args.query,
+            document_profile=args.project_doc_profile,
+            lens_profile=args.lens_profile,
+            max_seeds=max(1, args.seed_limit),
+            radius=max(0, args.radius),
+            max_nodes=max(1, args.max_nodes),
+            max_items=max(1, args.max_items),
+            char_budget=args.char_budget if args.char_budget is not None else DEFAULT_CHAR_BUDGET,
+        )
+        save_project_query_lens_bag_run(
+            run,
+            default_project_query_lens_bag_path(settings.project_root),
+        )
+        payload = run.to_json()
+        if args.dump_json:
+            sys.stdout.write(f"{payload}\n")
+            return 0
+        return launch_mcp_inspector(settings, payload)
+
+    if args.command == "project-query-bag-compare":
+        run = run_project_query_bag_comparison(
+            settings.project_root,
+            document_profile=args.project_doc_profile,
+            max_seeds=max(1, args.seed_limit),
+            radius=max(0, args.radius),
+            max_nodes=max(1, args.max_nodes),
+            max_items=max(1, args.max_items),
+            char_budget=args.char_budget if args.char_budget is not None else DEFAULT_CHAR_BUDGET,
+        )
+        save_project_query_bag_comparison_run(
+            run,
+            default_project_query_bag_compare_path(settings.project_root),
+        )
+        payload = run.to_json()
+        if args.dump_json:
+            sys.stdout.write(f"{payload}\n")
+            return 0
+        return launch_mcp_inspector(settings, payload)
+
+    if args.command == "project-query-adaptive-compare":
+        run = run_adaptive_seed_fitness_eval(
+            settings.project_root,
+            document_profile=args.project_doc_profile,
+        )
+        save_adaptive_seed_fitness_eval_run(
+            run,
+            default_adaptive_seed_fitness_eval_path(settings.project_root),
+        )
+        payload = run.to_json()
+        if args.dump_json:
+            sys.stdout.write(f"{payload}\n")
+            return 0
+        return launch_mcp_inspector(settings, payload)
+
+    if args.command == "project-query-companion-compare":
+        run = run_project_query_companion_eval(
+            settings.project_root,
+            document_profile=args.project_doc_profile,
+            max_seeds=max(1, args.seed_limit),
+            radius=max(0, args.radius),
+            max_nodes=max(1, args.max_nodes),
+            max_items=max(1, args.max_items),
+            char_budget=args.char_budget if args.char_budget is not None else DEFAULT_CHAR_BUDGET,
+        )
+        save_project_query_companion_eval_run(
+            run,
+            default_project_query_companion_eval_path(settings.project_root),
+        )
+        payload = run.to_json()
+        if args.dump_json:
+            sys.stdout.write(f"{payload}\n")
             return 0
         return launch_mcp_inspector(settings, payload)
 

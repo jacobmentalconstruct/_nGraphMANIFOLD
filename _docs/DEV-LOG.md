@@ -4,9 +4,9 @@ _Generated mirror export created at user request for external assistant review._
 
 _Source of truth: `_docs/_journalDB/app_journal.sqlite3`_
 
-_Exported at: `2026-04-28T14:10:36+00:00`_
+_Exported at: `2026-05-01T03:01:16+00:00`_
 
-_Exported entries: 53_
+_Exported entries: 54_
 
 This file is a generated append-only mirror of the authoritative app journal.
 Do not treat it as a second canonical continuity surface.
@@ -2877,7 +2877,7 @@ Verification:
 - `python -m src.app project-query-score --dump-json` remained at 0.96 accepted
 
 Why it matters:
-- The builder agent can now ask the host what panel the operator is actually looking at instead of relying only on inference
+- Codex can now ask the host what panel the operator is actually looking at instead of relying only on inference
 - more of the operator-facing workflow now shares one canonical command/state path
 - the next real decision is no longer command routing; it is whether interaction-derived semantic objects remain inspection-only or ever become persisted truth
 
@@ -3891,7 +3891,7 @@ Logged here so the dev-log mirror carries it forward through future regeneration
 
 Parked the visibility/introspection side discussion as a documentation and planning realignment, not a runtime implementation tranche.
 
-The realignment answers where the proposed split-and-emit logging/app-monitoring spine belongs: it is a future gated inspection capability adjacent to human visibility work, not substrate truth and not current implementation. The next scheduled tranche remains Scored Human-Facing Inspection Usefulness Fixture. That fixture may score whether the operator and builder agent can compare the same existing inspection evidence, but it should not smuggle in a global runtime event bus.
+The realignment answers where the proposed split-and-emit logging/app-monitoring spine belongs: it is a future gated inspection capability adjacent to human visibility work, not substrate truth and not current implementation. The next scheduled tranche remains Scored Human-Facing Inspection Usefulness Fixture. That fixture may score whether Jacob and Codex can compare the same existing inspection evidence, but it should not smuggle in a global runtime event bus.
 
 The boundary now recorded across the docs is: runtime monitoring/logging/app-state introspection may later be normalized as explicit app-monitoring evidence; it must remain gated, inspection-only, queryable only through intentional surfaces, and outside semantic cartridge truth unless a future truth-surface tranche explicitly reopens that boundary.
 
@@ -4081,3 +4081,67 @@ Practical consequence: the tranche parked the insight, preserved the truth bound
   "slice": "contract_guardrails_visibility_boundary_followup"
 }
 ```
+
+## 54. Lens-Guided Companion Evidence Evaluation
+
+- created_at: `2026-05-01T03:01:09Z`
+- kind: `phase`
+- status: `parked`
+- related_path: `_docs/PROJECT_STATUS.md`
+- related_ref: `Lens-Guided Companion Evidence Evaluation`
+- tags_json: `["retrieval", "evidence-bag", "companion", "hardening"]`
+
+Closed the side retrieval/evidence tranche by preserving the harness family as app-owned coordination surfaces, documenting that adaptive reweighting of the current deterministic scorer did not beat baseline, and recording that the strongest carry-forward posture is baseline seed selection plus an auto-lens companion evidence bag. This keeps the retrieval experiments reusable without turning them into a hidden runtime dependency, a cartridge-truth change, or a derailment of the current hardening roadmap.
+
+### Files Changed
+
+- README.md
+- _docs/ARCHITECTURE.md
+- _docs/PROJECT_STATUS.md
+- _docs/TODO.md
+- _docs/TOOLS.md
+- src/core/coordination/project_query_lens_selector.py
+- src/core/coordination/project_query_lens_bag.py
+- src/core/coordination/project_query_bag_compare.py
+- src/core/coordination/adaptive_seed_fitness_eval.py
+- src/core/coordination/project_query_companion_eval.py
+- src/core/coordination/__init__.py
+- src/app.py
+
+### Key Decisions
+
+- Preserve the side retrieval/evidence harnesses as app-owned CLI surfaces under src/core/coordination and src.app rather than leaving them as reference-bin knowledge.
+- Keep the deterministic baseline scorer as the primary chooser.
+- Treat the lens-guided evidence bag as companion context around the baseline seed rather than as a replacement retriever.
+- Do not prioritize further weight-rotation work on the current deterministic scorer as the next retrieval path.
+
+### Lessons Learned
+
+- Changing the query-conditioned weights on the current deterministic seed-fitness signals was not enough to recreate the gains seen in the bag path.
+- The bag's value comes from an alternate retrieval/evidence worldview and context assembly, not just a clever reweighting of the existing scorer.
+- Baseline plus companion evidence improved support coverage without degrading the baseline top choice on the labeled side set.
+
+### Evidence Used
+
+- data/mcp_inspection/retrieval_outside_eval.json
+- data/mcp_inspection/project_query_bag_compare.json
+- data/mcp_inspection/adaptive_seed_fitness_eval.json
+- data/mcp_inspection/project_query_companion_eval.json
+
+### Rejected Alternatives
+
+- Do not graduate semantic-first retrieval as a replacement for the deterministic baseline.
+- Do not treat adaptive deterministic weight rotation as the likely unlock for the current plateau.
+- Do not move the harnesses into .parts or .dev-tools as if they were builder-only artifacts.
+
+### Verification
+
+- `compileall`: python -m compileall src/core/coordination/project_query_companion_eval.py src/core/coordination/adaptive_seed_fitness_eval.py src/core/coordination/project_query_lens_selector.py src/core/coordination/project_query_lens_bag.py src/core/coordination/project_query_bag_compare.py src/core/coordination/__init__.py src/app.py
+- `bag_compare`: python -m src.app project-query-bag-compare --project-doc-profile expanded --dump-json
+- `adaptive_compare`: python -m src.app project-query-adaptive-compare --project-doc-profile expanded --dump-json
+- `companion_compare`: python -m src.app project-query-companion-compare --project-doc-profile expanded --dump-json
+
+### Next Focus
+
+- Preserve the active next tranche order: traversal seed-selection falsifier panel or baseline manifest helper before any vector-view pilot.
+- If retrieval work reopens later, start from baseline plus companion bag rather than semantic-first or weight-rotation replacement paths.

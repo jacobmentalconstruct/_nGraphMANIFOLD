@@ -41,6 +41,22 @@ What that means:
 
 ## Recent Tranches
 
+- [x] Lens-Guided Companion Evidence Evaluation
+
+What that means:
+
+- [x] app-owned side retrieval/evidence harnesses now live under
+      `src/core/coordination/` and are callable through `src.app`
+- [x] fixed-lens bag, fixed-lens comparison, adaptive deterministic weighting,
+      and baseline-plus-companion comparison all write project-owned artifacts
+      under `data/mcp_inspection/`
+- [x] adaptive weight rotation of the current deterministic scorer did not beat
+      the baseline
+- [x] baseline seed plus auto-lens companion bag improved supporting evidence
+      coverage without degrading the baseline top choice
+- [x] the current carry-forward conclusion is bounded:
+      keep baseline as primary chooser and treat the bag as companion context
+
 - [x] Protected Baseline And Semantic Docking Doctrine
 
 What that means:
@@ -172,6 +188,9 @@ Visibility / Introspection Boundary:
       thinner local IPC transport
 - [ ] Decide whether operator metadata should later support taxonomy or richer structure beyond label / reason / note
 - [ ] Review the loop-frailty side conversation and distill only the grounded safeguards worth keeping
+- [ ] If retrieval work reopens later, decide whether baseline seed plus
+      companion bag should graduate from side harness to a first-class
+      inspection surface after the current next tranche is complete
 - [ ] Keep docs, score artifacts, and journal continuity current while hardening
 - [ ] Add the future generated baseline manifest helper before any persisted
       vector-view pilot

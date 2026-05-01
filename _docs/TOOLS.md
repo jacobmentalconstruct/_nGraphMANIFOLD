@@ -116,6 +116,10 @@ python -m src.app ingest-lexicon --reset --dump-json
 python -m src.app lookup-lexicon --query tortuous --dump-json
 python -m src.app project-query --query "object" --dump-json
 python -m src.app project-query-score --dump-json
+python -m src.app project-query-bag --query "Current Park Point" --lens-profile auto --dump-json
+python -m src.app project-query-bag-compare --project-doc-profile expanded --dump-json
+python -m src.app project-query-adaptive-compare --project-doc-profile expanded --dump-json
+python -m src.app project-query-companion-compare --project-doc-profile expanded --dump-json
 python -m src.app loop-review --dump-json
 python -m src.app ingest-python-docs --reset --dump-json
 python -m src.app ingest-python-docs --all-python-docs --reset --dump-json
@@ -186,6 +190,21 @@ The `project-query-score` command runs the bounded English, Python, and
 project-local arbitration fixtures through the shared command spine, records
 each `ngraph.project.query` call in inspection history, and writes the latest
 context projection score artifact.
+The `project-query-bag` command runs the app-owned lens bag harness and writes
+`data/mcp_inspection/project_query_lens_bag.json`.
+The `project-query-bag-compare` command compares fixed bag lenses against the
+current baseline scorer and writes
+`data/mcp_inspection/project_query_bag_compare.json`.
+The `project-query-adaptive-compare` command tests whether rotating the current
+deterministic scorer weights by query surface improves retrieval and writes
+`data/mcp_inspection/adaptive_seed_fitness_eval.json`.
+The `project-query-companion-compare` command tests the preferred companion
+posture: baseline seed first, auto-lens bag as supporting evidence. It writes
+`data/mcp_inspection/project_query_companion_eval.json`.
+These four commands are project-owned side evaluation surfaces under
+`src/core/coordination/`. They preserve usable harnesses inside the app
+boundary without promoting `.parts` logic, `.dev-tools` helpers, or vector
+views into runtime truth.
 The `loop-review` command runs the current loop-safeguard gate before
 controlled expansion. It refreshes the bounded project-document cartridge,
 collects project-local semantic evidence for next-tranche, surface-ownership,

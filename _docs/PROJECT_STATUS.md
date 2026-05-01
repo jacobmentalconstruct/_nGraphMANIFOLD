@@ -42,6 +42,7 @@ Parked:
 
 Recently parked tranche:
 
+- Lens-Guided Companion Evidence Evaluation (2026-04-30)
 - Scored Human-Facing Inspection Usefulness Fixture (2026-04-30)
 - Protected Baseline And Semantic Docking Doctrine (2026-04-30)
 - Visibility / Introspection Boundary Realignment (2026-04-28)
@@ -76,6 +77,19 @@ Recent hardening slices now address that directly:
 - visible host lifecycle hardening now makes bridged seed search a medium
   timeout command and makes Tool Registry panel text match the current payload
   shape
+- a project-owned retrieval/evidence side harness family now lives under
+  `src/core/coordination/` and is callable from `src.app`
+- outside retrieval evaluation now exists without changing the canonical
+  deterministic scorer
+- lens-guided bag evaluation now exists without changing cartridge truth or
+  current runtime doctrine
+- adaptive deterministic weight rotation was tested and did not beat the
+  current baseline scorer
+- baseline seed plus auto-lens companion bag did improve supporting evidence
+  coverage without degrading baseline top choice
+- the retrieval conclusion is now bounded:
+  keep the deterministic baseline as primary chooser
+  and treat the lens bag as companion context rather than replacement search
 - protected deterministic baseline doctrine now makes the three current
   cartridges canonical local evidence before any embedding work begins
 - semantic docking is now explicitly subordinate to baseline preservation and
@@ -243,6 +257,11 @@ Immediate focus inside that family:
   - use existing shared surfaces first
   - do not implement a global runtime event/logging spine inside this tranche
   - keep monitoring/app-state evidence gated, explicit, and outside cartridges
+- preserve the app-owned side retrieval/evidence harnesses as reusable
+  inspection surfaces only:
+  - do not merge them into main scoring doctrine casually
+  - do not reopen semantic-first or weight-rotation replacement paths first
+  - if retrieval work resumes later, start from baseline plus companion bag
 
 Recommended next tranche candidates:
 
@@ -431,6 +450,14 @@ Latest tranche verification:
 - `python -m src.app mcp-score-tasks --project-doc-profile expanded --dump-json`
   remained at `0.93`, accepted
 - `python -m src.app project-query-score --dump-json` remained at `0.96`, accepted
+- `python -m src.app project-query-bag-compare --project-doc-profile expanded --dump-json`
+  preserved the app-owned fixed-lens vs baseline comparison surface
+- `python -m src.app project-query-adaptive-compare --project-doc-profile expanded --dump-json`
+  showed that rotating the current deterministic scorer weights alone did not
+  beat the baseline
+- `python -m src.app project-query-companion-compare --project-doc-profile expanded --dump-json`
+  showed that baseline seed plus auto-lens companion evidence improved support
+  coverage without degrading baseline top choice
 - `python -m src.app status --dump-json` now emits the current `bridge_timeout_policy`
 - `python -m src.app status --dump-json` now also emits `bridge_runtime` and
   `project_doc_profiles`
@@ -478,6 +505,10 @@ Useful live commands:
 - `python -m src.app mcp-stream`
 - `python -m src.app project-query --query "class object function" --dump-json`
 - `python -m src.app project-query --query "class object function" --use-host-bridge`
+- `python -m src.app project-query-bag --query "Current Park Point" --lens-profile auto --dump-json`
+- `python -m src.app project-query-bag-compare --project-doc-profile expanded --dump-json`
+- `python -m src.app project-query-adaptive-compare --project-doc-profile expanded --dump-json`
+- `python -m src.app project-query-companion-compare --project-doc-profile expanded --dump-json`
 - `python -m src.app mcp-search-seeds --query "Current Park Point" --dump-json`
 - `python -m src.app mcp-search-seeds --query "Current Park Point" --use-host-bridge`
 - `python -m src.app mcp-promote-call --dump-json`
