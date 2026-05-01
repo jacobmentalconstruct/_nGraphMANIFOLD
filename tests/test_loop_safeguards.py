@@ -107,7 +107,7 @@ class LoopSafeguardsTests(unittest.TestCase):
         self.assertTrue(review.meets_review_gate)
         self.assertEqual(
             review.next_tranche,
-            "Traversal Seed Selection Falsifier Panel Or Baseline Manifest Helper",
+            "Traversal Seed Selection Falsifier Panel",
         )
         self.assertEqual({check.status for check in review.checks}, {"pass"})
         self.assertEqual(review.document_profile, "core")

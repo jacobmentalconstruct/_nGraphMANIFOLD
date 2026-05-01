@@ -439,6 +439,18 @@ paths and not `.parts` or `.dev-tools` dependencies. The ablation comparison
 separates baseline seed scoring, deterministic-only companion evidence, and
 ML-backed companion evidence before any vector-view work.
 
+Record the protected deterministic baseline manifest:
+
+```bat
+python -m src.app baseline-manifest --dump-json
+```
+
+This writes `data/cartridges/baseline_manifest.json`, recording counts, source
+refs, build commands, generator/parser versions, SHA-256 file hashes, created
+times, and lock policy for the protected English, Python-docs, and project-doc
+cartridges. The command inspects cartridges read-only and does not rewrite
+cartridge truth.
+
 Review loop safeguards before choosing the next controlled expansion slice:
 
 ```bat

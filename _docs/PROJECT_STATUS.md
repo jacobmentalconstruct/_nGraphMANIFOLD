@@ -610,3 +610,44 @@ Next after this fixture:
 - Baseline Manifest Helper before persisted vector-view work, or
 - Traversal Seed Selection Falsifier Panel if continuing broader
   falsifier-backed claim discipline
+
+## Baseline Manifest Helper - 2026-05-01
+
+Status:
+
+- implemented as a project-owned coordination helper under
+  `src/core/coordination/baseline_manifest.py`
+- exposed through:
+  `python -m src.app baseline-manifest --dump-json`
+- writes:
+  `data/cartridges/baseline_manifest.json`
+- records the protected deterministic cartridges:
+  - `base_english_lexicon.sqlite3`
+  - `python_docs.sqlite3`
+  - `project_documents.sqlite3`
+
+Manifest contract:
+
+- cartridge name
+- role
+- object, occurrence, relation, and provenance counts
+- source refs
+- build command
+- generator/parser version
+- SHA-256 file hash
+- cartridge created time
+- lock policy
+
+Boundary preserved:
+
+- read-only cartridge inspection
+- no schema migration
+- no vector generation
+- no Ollama call
+- no cartridge merge
+- no promotion of derived views into cartridge truth
+- no in-place deformation of protected baseline cartridges
+
+Next after this helper:
+
+- Traversal Seed Selection Falsifier Panel

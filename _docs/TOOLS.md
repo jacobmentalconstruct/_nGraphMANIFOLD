@@ -210,6 +210,14 @@ These five commands are project-owned side evaluation surfaces under
 `src/core/coordination/`. They preserve usable harnesses inside the app
 boundary without promoting `.parts` logic, `.dev-tools` helpers, or vector
 views into runtime truth.
+The `baseline-manifest` command records
+`data/cartridges/baseline_manifest.json` for the protected deterministic
+baseline cartridges: `base_english_lexicon.sqlite3`, `python_docs.sqlite3`,
+and `project_documents.sqlite3`. It records each cartridge name, role,
+object/occurrence/relation/provenance counts, source refs, build command,
+generator/parser version, SHA-256 file hash, created time, and lock policy.
+It reads cartridge state through read-only SQLite connections and does not
+rewrite cartridge truth.
 The `loop-review` command runs the current loop-safeguard gate before
 controlled expansion. It refreshes the bounded project-document cartridge,
 collects project-local semantic evidence for next-tranche, surface-ownership,

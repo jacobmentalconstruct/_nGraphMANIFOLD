@@ -50,6 +50,7 @@ from .core.coordination import (
     build_mcp_tool_registry,
     default_adaptive_seed_fitness_eval_path,
     default_builder_task_score_path,
+    default_baseline_manifest_path,
     default_context_projection_score_path,
     default_human_visibility_score_path,
     default_mcp_inspection_history_path,
@@ -65,6 +66,7 @@ from .core.coordination import (
     load_host_bridge_session,
     lookup_english_lexicon_entry,
     run_adaptive_seed_fitness_eval,
+    run_baseline_manifest_helper,
     run_context_projection_arbitration_scoring,
     run_human_visibility_scoring,
     run_project_query_companion_eval,
@@ -76,6 +78,7 @@ from .core.coordination import (
     run_host_bridge_maintenance,
     run_seed_search_traversal,
     save_adaptive_seed_fitness_eval_run,
+    save_baseline_manifest_run,
     save_project_query_bag_comparison_run,
     save_project_query_companion_eval_run,
     save_project_query_lens_bag_run,
@@ -131,6 +134,7 @@ def build_parser() -> argparse.ArgumentParser:
             "project-query-adaptive-compare",
             "project-query-companion-compare",
             "project-query-ablation-compare",
+            "baseline-manifest",
         ),
         help="Command to run.",
     )
@@ -788,6 +792,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             run,
             default_retrieval_influence_ablation_path(settings.project_root),
         )
+        payload = run.to_json()
+        if args.dump_json:
+            sys.stdout.write(f"{payload}\n")
+            return 0
+        return launch_mcp_inspector(settings, payload)
+
+    if args.command == "baseline-manifest":
+        run = run_baseline_manifest_helper(settings.project_root)
+        save_baseline_manifest_run(run, default_baseline_manifest_path(settings.project_root))
         payload = run.to_json()
         if args.dump_json:
             sys.stdout.write(f"{payload}\n")

@@ -4198,3 +4198,54 @@ embedding output remains inspection evidence, not semantic cartridge truth.
 - Baseline Manifest Helper before persisted vector-view work, or Traversal Seed
   Selection Falsifier Panel if continuing broader falsifier-backed claim
   discipline.
+
+## 56. Baseline Manifest Helper
+
+- created_at: `2026-05-01T00:05:00-05:00`
+- status: `implemented`
+- tags_json: `["protected-baseline", "manifest", "read-only-inspection", "cartridges"]`
+
+Implemented the Baseline Manifest Helper as the next protected-baseline
+hardening tranche. The helper records a project-local manifest for the
+canonical deterministic English, Python-docs, and project-doc cartridges while
+keeping the cartridges themselves untouched. The manifest lives under ignored
+`data/cartridges/`, and the tracked docs now record the contract because the
+artifact is intentionally not committed.
+
+### Files Changed
+
+- `src/core/coordination/baseline_manifest.py`
+- `src/core/coordination/__init__.py`
+- `src/app.py`
+- `tests/test_baseline_manifest.py`
+- `README.md`
+- `_docs/TOOLS.md`
+- `_docs/PROJECT_STATUS.md`
+- `_docs/TODO.md`
+- `_docs/DEV-LOG.md`
+
+### Command Surface
+
+- `python -m src.app baseline-manifest --dump-json`
+- artifact: `data/cartridges/baseline_manifest.json`
+
+### Boundaries Preserved
+
+- read-only SQLite inspection for cartridge counts and source refs
+- SHA-256 hash computed from cartridge files without rewriting cartridges
+- no schema migration
+- no vector generation
+- no Ollama call
+- no cartridge merge
+- no promotion of derived views into semantic cartridge truth
+
+### Verification
+
+- `python -m unittest tests.test_baseline_manifest -v`
+- `python -m src.app baseline-manifest --dump-json`
+- `python -m compileall src tests`
+- `python -m unittest discover -s tests -v` (`143` tests passing)
+
+### Next Focus
+
+- Traversal Seed Selection Falsifier Panel.

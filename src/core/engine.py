@@ -30,5 +30,5 @@ class ApplicationEngine:
             status="scaffold_ready",
             project_root=self._settings.project_root,
             active_tranche="Post-Prototype Hardening And Expansion",
-            next_tranche="Traversal Seed Selection Falsifier Panel Or Baseline Manifest Helper",
+            next_tranche="Traversal Seed Selection Falsifier Panel",
         )

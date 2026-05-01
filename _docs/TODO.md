@@ -288,7 +288,8 @@ journal importance scale: calibration question recorded (entry 49), user-deferre
 human visibility score: 0.96 accepted
 visible lifecycle hardening: seed-search bridge timeout + tool panel readback patched
 visible monitor smoke: seed search, immediate tool registry follow-up, seed panel, tools panel, and status panel all passed
-next tranche: choose traversal seed-selection falsifier panel or baseline manifest helper
+baseline manifest helper: implemented
+next tranche: traversal seed-selection falsifier panel
 ```
 
 ## Append-Only Next-Tranche Steering - 2026-04-30
@@ -333,7 +334,7 @@ Explicit non-goals preserved:
 
 Then resume the prior choice:
 
-- [ ] Baseline Manifest Helper before persisted vector-view work
+- [x] Baseline Manifest Helper before persisted vector-view work
 - [ ] Traversal Seed Selection Falsifier Panel if continuing broader
       falsifier-backed claim discipline
 
@@ -344,3 +345,17 @@ Implementation note:
 - focused tests live in `tests/test_retrieval_influence_ablation.py`
 - verification passed with `python -m unittest discover -s tests -v` (`140`
   tests)
+
+## Baseline Manifest Helper - 2026-05-01
+
+- [x] Add `baseline-manifest` command surface
+- [x] Write ignored artifact to `data/cartridges/baseline_manifest.json`
+- [x] Record cartridge name, role, counts, source refs, build command,
+      generator/parser version, SHA-256 file hash, created time, and lock
+      policy
+- [x] Inspect cartridge state read-only without rewriting cartridge truth
+- [x] Cover API and CLI with `tests/test_baseline_manifest.py`
+
+Next controlled tranche:
+
+- [ ] Traversal Seed Selection Falsifier Panel
