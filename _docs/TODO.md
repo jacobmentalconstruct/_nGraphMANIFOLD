@@ -290,3 +290,49 @@ visible lifecycle hardening: seed-search bridge timeout + tool panel readback pa
 visible monitor smoke: seed search, immediate tool registry follow-up, seed panel, tools panel, and status panel all passed
 next tranche: choose traversal seed-selection falsifier panel or baseline manifest helper
 ```
+
+## Append-Only Next-Tranche Steering - 2026-04-30
+
+Do not rewrite the prior park marker. The prior TODO state remains part of the
+project record.
+
+Newly inserted next tranche:
+
+- [ ] Retrieval Influence Ablation Fixture
+
+Why this is inserted now:
+
+- retrieval work has already reopened through the side harness review
+- the companion-bag gain is useful but currently mixes deterministic evidence
+  structure with ML embedding influence
+- a zero-semantic ablation indicates deterministic components reproduce
+  document-level companion coverage, while ML influence improves earlier
+  heading placement
+- the project needs this falsifier before deciding whether the companion bag
+  can graduate beyond side-harness status
+
+Acceptance shape:
+
+- [ ] compare baseline seed scoring, deterministic-only companion evidence,
+      and ML-backed companion evidence over the same pre-committed query set
+- [ ] write a bounded artifact under `data/mcp_inspection/`
+- [ ] preserve protected cartridge counts and avoid baseline mutation outside
+      existing explicit project-doc ingestion behavior
+- [ ] document whether the added accuracy comes from deterministic surfaces,
+      ML semantic influence, or companion-bag assembly shape
+
+Explicit non-goals:
+
+- [ ] no new embedder
+- [ ] no Ollama call
+- [ ] no persisted vector views
+- [ ] no schema migration
+- [ ] no cartridge merge
+- [ ] no promotion of embedding output into semantic cartridge truth
+- [ ] no replacement of the baseline scorer
+
+Then resume the prior choice:
+
+- [ ] Baseline Manifest Helper before persisted vector-view work
+- [ ] Traversal Seed Selection Falsifier Panel if continuing broader
+      falsifier-backed claim discipline

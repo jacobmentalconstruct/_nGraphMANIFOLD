@@ -538,3 +538,44 @@ The stable prototype exists.
 The bridge exists.
 The next work is hardening, not reinvention.
 ```
+
+## Steering Clarification - 2026-04-30
+
+This is an append-only clarification, not a rewrite of the parked tranche
+history above.
+
+After reviewing the side retrieval/evidence harness and running a zero-semantic
+ablation, the immediate next slice should be inserted before choosing between
+the previously named traversal seed-selection falsifier panel and baseline
+manifest helper:
+
+- Retrieval Influence Ablation Fixture
+
+Reason:
+
+- the current companion-bag evidence gain is real, but it mixes deterministic
+  surfaces with ML embedding influence
+- a zero-semantic ablation showed deterministic bag structure preserves
+  document-level coverage gains and some heading recovery, while the ML
+  semantic signal appears to improve earlier heading placement
+- before any retrieval harness graduates or any vector/docking work resumes,
+  the project needs a committed fixture that separates:
+  - baseline deterministic seed scoring
+  - deterministic-only companion evidence
+  - ML-backed companion evidence
+
+Boundary:
+
+- no new embedder
+- no Ollama call
+- no persisted vector views
+- no schema migration
+- no cartridge merge
+- no promotion of embedding output into semantic cartridge truth
+- no replacement of the baseline scorer
+
+After this clarification tranche, the prior next-tranche choice remains valid:
+
+- Baseline Manifest Helper before persisted vector-view work
+- Traversal Seed Selection Falsifier Panel if continuing claim-discipline
+  hardening
