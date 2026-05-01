@@ -298,7 +298,7 @@ project record.
 
 Newly inserted next tranche:
 
-- [ ] Retrieval Influence Ablation Fixture
+- [x] Retrieval Influence Ablation Fixture
 
 Why this is inserted now:
 
@@ -313,26 +313,34 @@ Why this is inserted now:
 
 Acceptance shape:
 
-- [ ] compare baseline seed scoring, deterministic-only companion evidence,
+- [x] compare baseline seed scoring, deterministic-only companion evidence,
       and ML-backed companion evidence over the same pre-committed query set
-- [ ] write a bounded artifact under `data/mcp_inspection/`
-- [ ] preserve protected cartridge counts and avoid baseline mutation outside
+- [x] write a bounded artifact under `data/mcp_inspection/`
+- [x] preserve protected cartridge counts and avoid baseline mutation outside
       existing explicit project-doc ingestion behavior
-- [ ] document whether the added accuracy comes from deterministic surfaces,
+- [x] document whether the added accuracy comes from deterministic surfaces,
       ML semantic influence, or companion-bag assembly shape
 
-Explicit non-goals:
+Explicit non-goals preserved:
 
-- [ ] no new embedder
-- [ ] no Ollama call
-- [ ] no persisted vector views
-- [ ] no schema migration
-- [ ] no cartridge merge
-- [ ] no promotion of embedding output into semantic cartridge truth
-- [ ] no replacement of the baseline scorer
+- [x] no new embedder
+- [x] no Ollama call
+- [x] no persisted vector views
+- [x] no schema migration
+- [x] no cartridge merge
+- [x] no promotion of embedding output into semantic cartridge truth
+- [x] no replacement of the baseline scorer
 
 Then resume the prior choice:
 
 - [ ] Baseline Manifest Helper before persisted vector-view work
 - [ ] Traversal Seed Selection Falsifier Panel if continuing broader
       falsifier-backed claim discipline
+
+Implementation note:
+
+- `project-query-ablation-compare` now records the retrieval influence split in
+  `data/mcp_inspection/retrieval_influence_ablation.json`
+- focused tests live in `tests/test_retrieval_influence_ablation.py`
+- verification passed with `python -m unittest discover -s tests -v` (`140`
+  tests)

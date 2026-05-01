@@ -430,11 +430,14 @@ python -m src.app project-query-bag --query "where are we parked now and what sh
 python -m src.app project-query-bag-compare --project-doc-profile expanded --dump-json
 python -m src.app project-query-adaptive-compare --project-doc-profile expanded --dump-json
 python -m src.app project-query-companion-compare --project-doc-profile expanded --dump-json
+python -m src.app project-query-ablation-compare --project-doc-profile expanded --dump-json
 ```
 
 These commands write JSON artifacts under `data/mcp_inspection/`. They are
 inspection/evaluation surfaces owned by the app, not cartridge-truth mutation
-paths and not `.parts` or `.dev-tools` dependencies.
+paths and not `.parts` or `.dev-tools` dependencies. The ablation comparison
+separates baseline seed scoring, deterministic-only companion evidence, and
+ML-backed companion evidence before any vector-view work.
 
 Review loop safeguards before choosing the next controlled expansion slice:
 

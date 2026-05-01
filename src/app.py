@@ -56,6 +56,7 @@ from .core.coordination import (
     default_project_query_bag_compare_path,
     default_project_query_companion_eval_path,
     default_project_query_lens_bag_path,
+    default_retrieval_influence_ablation_path,
     resolve_project_document_profile,
     prune_default_history_trace,
     dispatch_command_via_host_bridge,
@@ -69,6 +70,7 @@ from .core.coordination import (
     run_project_query_companion_eval,
     run_project_query_bag_comparison,
     run_project_query_lens_bag,
+    run_retrieval_influence_ablation,
     run_real_builder_task_scoring,
     resolve_host_bridge_timeout_policy,
     run_host_bridge_maintenance,
@@ -77,6 +79,7 @@ from .core.coordination import (
     save_project_query_bag_comparison_run,
     save_project_query_companion_eval_run,
     save_project_query_lens_bag_run,
+    save_retrieval_influence_ablation_run,
     wait_for_live_host_bridge_session,
 )
 from .core.engine import ApplicationEngine
@@ -127,6 +130,7 @@ def build_parser() -> argparse.ArgumentParser:
             "project-query-bag-compare",
             "project-query-adaptive-compare",
             "project-query-companion-compare",
+            "project-query-ablation-compare",
         ),
         help="Command to run.",
     )
@@ -763,6 +767,26 @@ def main(argv: Sequence[str] | None = None) -> int:
         save_project_query_companion_eval_run(
             run,
             default_project_query_companion_eval_path(settings.project_root),
+        )
+        payload = run.to_json()
+        if args.dump_json:
+            sys.stdout.write(f"{payload}\n")
+            return 0
+        return launch_mcp_inspector(settings, payload)
+
+    if args.command == "project-query-ablation-compare":
+        run = run_retrieval_influence_ablation(
+            settings.project_root,
+            document_profile=args.project_doc_profile,
+            max_seeds=max(1, args.seed_limit),
+            radius=max(0, args.radius),
+            max_nodes=max(1, args.max_nodes),
+            max_items=max(1, args.max_items),
+            char_budget=args.char_budget if args.char_budget is not None else DEFAULT_CHAR_BUDGET,
+        )
+        save_retrieval_influence_ablation_run(
+            run,
+            default_retrieval_influence_ablation_path(settings.project_root),
         )
         payload = run.to_json()
         if args.dump_json:

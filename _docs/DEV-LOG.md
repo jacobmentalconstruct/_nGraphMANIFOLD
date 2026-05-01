@@ -4145,3 +4145,56 @@ Closed the side retrieval/evidence tranche by preserving the harness family as a
 
 - Preserve the active next tranche order: traversal seed-selection falsifier panel or baseline manifest helper before any vector-view pilot.
 - If retrieval work reopens later, start from baseline plus companion bag rather than semantic-first or weight-rotation replacement paths.
+
+## 55. Retrieval Influence Ablation Fixture
+
+- created_at: `2026-04-30T22:50:00-05:00`
+- status: `implemented`
+- tags_json: `["retrieval", "ablation", "falsifier", "protected-baseline", "side-harness"]`
+
+Implemented the Retrieval Influence Ablation Fixture as the inserted next
+tranche after the append-only steering clarification. The fixture compares the
+baseline deterministic seed scorer, deterministic-only companion evidence with
+semantic-vector influence zeroed, and ML-backed companion evidence over the
+same pre-committed retrieval query set. It preserves the side-harness posture:
+embedding output remains inspection evidence, not semantic cartridge truth.
+
+### Files Changed
+
+- `src/core/coordination/retrieval_influence_ablation.py`
+- `src/core/coordination/__init__.py`
+- `src/app.py`
+- `tests/test_retrieval_influence_ablation.py`
+- `README.md`
+- `_docs/TOOLS.md`
+- `_docs/PROJECT_STATUS.md`
+- `_docs/TODO.md`
+- `_docs/DEV-LOG.md`
+
+### Command Surface
+
+- `python -m src.app project-query-ablation-compare --project-doc-profile expanded --dump-json`
+- artifact: `data/mcp_inspection/retrieval_influence_ablation.json`
+
+### Boundaries Preserved
+
+- no new embedder
+- no Ollama call
+- no persisted vector views
+- no schema migration
+- no cartridge merge
+- no promotion of embedding output into semantic cartridge truth
+- no replacement of the baseline scorer
+
+### Verification
+
+- `python -m unittest tests.test_retrieval_influence_ablation -v`
+- `python -m src.app project-query-ablation-compare --project-doc-profile expanded --dump-json`
+- `python -m compileall src tests`
+- `python -m unittest discover -s tests -v` (`140` tests passing)
+
+### Next Focus
+
+- Baseline Manifest Helper before persisted vector-view work, or Traversal Seed
+  Selection Falsifier Panel if continuing broader falsifier-backed claim
+  discipline.

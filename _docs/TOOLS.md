@@ -120,6 +120,7 @@ python -m src.app project-query-bag --query "Current Park Point" --lens-profile 
 python -m src.app project-query-bag-compare --project-doc-profile expanded --dump-json
 python -m src.app project-query-adaptive-compare --project-doc-profile expanded --dump-json
 python -m src.app project-query-companion-compare --project-doc-profile expanded --dump-json
+python -m src.app project-query-ablation-compare --project-doc-profile expanded --dump-json
 python -m src.app loop-review --dump-json
 python -m src.app ingest-python-docs --reset --dump-json
 python -m src.app ingest-python-docs --all-python-docs --reset --dump-json
@@ -201,7 +202,11 @@ deterministic scorer weights by query surface improves retrieval and writes
 The `project-query-companion-compare` command tests the preferred companion
 posture: baseline seed first, auto-lens bag as supporting evidence. It writes
 `data/mcp_inspection/project_query_companion_eval.json`.
-These four commands are project-owned side evaluation surfaces under
+The `project-query-ablation-compare` command tests the retrieval influence
+split: baseline seed scoring, deterministic-only companion evidence with
+semantic vectors zeroed, and ML-backed companion evidence. It writes
+`data/mcp_inspection/retrieval_influence_ablation.json`.
+These five commands are project-owned side evaluation surfaces under
 `src/core/coordination/`. They preserve usable harnesses inside the app
 boundary without promoting `.parts` logic, `.dev-tools` helpers, or vector
 views into runtime truth.

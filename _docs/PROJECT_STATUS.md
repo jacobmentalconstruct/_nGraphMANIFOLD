@@ -579,3 +579,34 @@ After this clarification tranche, the prior next-tranche choice remains valid:
 - Baseline Manifest Helper before persisted vector-view work
 - Traversal Seed Selection Falsifier Panel if continuing claim-discipline
   hardening
+
+## Retrieval Influence Ablation Fixture - 2026-04-30
+
+Status:
+
+- implemented as a project-owned coordination fixture under
+  `src/core/coordination/retrieval_influence_ablation.py`
+- exposed through:
+  `python -m src.app project-query-ablation-compare --project-doc-profile expanded --dump-json`
+- writes:
+  `data/mcp_inspection/retrieval_influence_ablation.json`
+- compares:
+  - baseline deterministic seed scoring
+  - deterministic-only companion evidence with semantic-vector influence zeroed
+  - ML-backed companion evidence using the existing side-harness semantic model
+
+Boundary preserved:
+
+- no new embedder
+- no Ollama call
+- no persisted vector views
+- no schema migration
+- no cartridge merge
+- no promotion of embedding output into semantic cartridge truth
+- no replacement of the baseline scorer
+
+Next after this fixture:
+
+- Baseline Manifest Helper before persisted vector-view work, or
+- Traversal Seed Selection Falsifier Panel if continuing broader
+  falsifier-backed claim discipline
